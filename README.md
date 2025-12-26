@@ -37,6 +37,12 @@ npm run dev
 
 # Version
 
+## v0.2.0 (2025-12-26)
+
+- Added animation to the signin page, signup page and the main layout.
+- Added /profile page and /user page to user specific information. (on hold for now due to have not yet decided what games that will be made)
+- Decorate some of the UI of the layout as well as the signin and signou page.
+
 ## v0.1.0 (2025-12-26)
 
 - Setup the core components (buttons, layout, toast), stores (auth, user, theme) and colors variables.

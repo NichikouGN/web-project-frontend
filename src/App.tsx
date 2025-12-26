@@ -9,6 +9,8 @@ import Signin from "./pages/Signin/Signin";
 import Signup from "./pages/Signup/Signup";
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
+import Profile from "./pages/Profile/Profile";
+import User from "./pages/User/User";
 
 function App() {
   // Store subscription to fetch user info upon authorization
@@ -38,10 +40,13 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/user/:userId" element={<User />} />
           </Route>
 
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

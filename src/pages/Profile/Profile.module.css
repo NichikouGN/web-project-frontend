@@ -1,0 +1,218 @@
+.profile-page {
+  width: 100svw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+
+  background: var(--theme-body-bg);
+}
+
+::-webkit-scrollbar-track {
+  color: transparent;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+
+  width: 100%;
+  height: 40vh;
+  padding: 20px;
+  background: radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.6) 0%, transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.6) 0%, transparent 30%),
+    radial-gradient(circle at 35% 90%, rgba(56, 189, 248, 0.6) 0%, transparent 30%),
+    radial-gradient(circle at 60% 25%, rgba(250, 204, 21, 0.6) 0%, transparent 30%)
+      var(--theme-body-bg);
+
+  background-size: 150% 150%;
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 90%,
+    transparent 100%
+  );
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+
+  transition: all 0.3s ease-in-out;
+  animation: header-pulse 20s ease-in-out infinite;
+
+  will-change: background-position;
+}
+
+[data-theme="dark"] .header {
+  background: radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 35% 90%, rgba(56, 189, 248, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 60% 25%, rgba(250, 204, 21, 0.3) 0%, transparent 30%)
+      var(--theme-body-bg);
+
+  background-size: 150% 150%;
+}
+
+@keyframes header-pulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.theme-toggle-icon {
+  font-size: 1.5rem;
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease-in-out;
+}
+
+.content {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 0.5rem;
+  flex: 1;
+
+  width: 100%;
+  padding: 1rem 1rem calc(7.5svh + 2rem) 1rem;
+
+  background: var(--theme-body-bg);
+
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.user-personal-info-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  position: relative;
+  width: 90%;
+  transform: translateY(-50%);
+}
+
+.avatar {
+  width: 6rem;
+  height: 6rem;
+
+  background: var(--theme-text-secondary);
+
+  font-size: 1rem;
+  color: var(--theme-body-bg);
+
+  border: 2px solid var(--theme-text-secondary);
+  border-radius: 50%;
+  overflow: hidden;
+
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+    color 0.3s ease-in-out;
+}
+
+.username {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.username h1 {
+  margin-top: 3.5rem;
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease-in-out;
+}
+
+.share-uid-icon {
+  font-size: 1.25rem;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.signin-notice {
+  font-size: 1.5rem;
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease-in-out;
+}
+
+.user-info-section {
+  display: flex;
+  justify-content: space-around;
+  gap: 2rem;
+
+  width: 90%;
+  margin-top: 1rem;
+}
+
+.achievements,
+.rankings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  width: 40%;
+  padding: 1rem;
+
+  background: rgba(var(--theme-body-primary-bg-rgb), 0.3);
+  border-radius: 1rem;
+  border: 1px solid var(--theme-body-bg);
+
+  box-shadow: 0 0 8px rgba(var(--theme-text-primary-rgb), 0.2);
+}
+
+.achievements h2,
+.rankings h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease-in-out;
+}
+
+.ranking-buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 0.5rem;
+
+  width: 100%;
+}
+
+.ranking-button {
+  padding: 0.5rem 1rem;
+  background: var(--theme-body-secondary-bg);
+  color: var(--theme-text-secondary);
+
+  border-radius: 0.5rem;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+
+  transition: all 0.3s ease-in-out;
+}
+
+[data-theme="dark"] .ranking-button {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  transition: all 0.3s ease-in-out;
+}
+
+.current {
+  font-weight: bold;
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease-in-out;
+
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.16), inset -2px -2px 4px rgba(255, 255, 255, 0.75);
+  transition: all 0.3s ease-in-out;
+}
+
+[data-theme="dark"] .current {
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.75), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
+  transition: all 0.3s ease-in-out;
+}

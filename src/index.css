@@ -97,58 +97,58 @@ body {
 
 :root[data-theme="light"] {
   --theme-body-bg: var(--neutral-100);
-  --theme-body-bg-rgba: 244, 244, 244;
+  --theme-body-bg-rgb: 244, 244, 244;
 
   --theme-body-primary-bg: var(--neutral-200);
-  --theme-body-primary-bg-rgba: 212, 212, 212;
+  --theme-body-primary-bg-rgb: 212, 212, 212;
 
   --theme-body-secondary-bg: var(--neutral-300);
-  --theme-body-secondary-bg-rgba: 212, 212, 212;
+  --theme-body-secondary-bg-rgb: 212, 212, 212;
 
   --theme-text-primary: var(--neutral-900);
-  --theme-text-primary-rgba: 24, 24, 24;
+  --theme-text-primary-rgb: 24, 24, 24;
 
   --theme-text-secondary: var(--neutral-700);
-  --theme-text-secondary-rgba: 63, 63, 63;
+  --theme-text-secondary-rgb: 63, 63, 63;
 
   --theme-card-primary-bg: var(--neutral-200);
-  --theme-card-primary-bg-rgba: 212, 212, 212;
+  --theme-card-primary-bg-rgb: 212, 212, 212;
 
   --theme-card-secondary-bg: var(--neutral-300);
-  --theme-card-secondary-bg-rgba: 161, 161, 161;
+  --theme-card-secondary-bg-rgb: 161, 161, 161;
 
   --theme-button-primary-bg: var(--red-300);
-  --theme-button-primary-bg-rgba: 252, 165, 165;
+  --theme-button-primary-bg-rgb: 252, 165, 165;
 
   --theme-button-secondary-bg: var(--red-400);
-  --theme-button-secondary-bg-rgba: 248, 113, 113;
+  --theme-button-secondary-bg-rgb: 248, 113, 113;
 }
 
 :root[data-theme="dark"] {
   --theme-body-bg: var(--neutral-900);
-  --theme-body-bg-rgba: 24, 24, 24;
+  --theme-body-bg-rgb: 24, 24, 24;
 
   --theme-body-primary-bg: var(--neutral-800);
-  --theme-body-primary-bg-rgba: 39, 39, 39;
+  --theme-body-primary-bg-rgb: 39, 39, 39;
 
   --theme-body-secondary-bg: var(--neutral-700);
-  --theme-body-secondary-bg-rgba: 63, 63, 63;
+  --theme-body-secondary-bg-rgb: 63, 63, 63;
 
   --theme-text-primary: var(--neutral-100);
-  --theme-text-primary-rgba: 244, 244, 244;
+  --theme-text-primary-rgb: 244, 244, 244;
 
   --theme-text-secondary: var(--neutral-300);
-  --theme-text-secondary-rgba: 212, 212, 212;
+  --theme-text-secondary-rgb: 212, 212, 212;
 
   --theme-card-primary-bg: var(--neutral-800);
-  --theme-card-primary-bg-rgba: 39, 39, 39;
+  --theme-card-primary-bg-rgb: 39, 39, 39;
 
   --theme-card-secondary-bg: var(--neutral-700);
-  --theme-card-secondary-bg-rgba: 63, 63, 63;
+  --theme-card-secondary-bg-rgb: 63, 63, 63;
 
   --theme-button-primary-bg: var(--red-700);
-  --theme-button-primary-bg-rgba: 185, 28, 28;
+  --theme-button-primary-bg-rgb: 185, 28, 28;
 
   --theme-button-secondary-bg: var(--red-600);
-  --theme-button-secondary-bg-rgba: 220, 38, 38;
+  --theme-button-secondary-bg-rgb: 220, 38, 38;
 }
