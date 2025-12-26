@@ -1,0 +1,53 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  width: 100%;
+  padding: 1rem 2rem;
+
+  background: var(--theme-body-primary-bg);
+  transition: background-color 0.3s ease;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  color: var(--theme-text-primary);
+  font-weight: bold;
+  font-size: 1.75rem;
+
+  transition: color 0.3s ease;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-link {
+  color: var(--theme-text-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+  transition: color 0.3s ease;
+}
+
+.navbar-link:hover {
+  color: var(--theme-text-primary);
+  text-decoration: underline;
+}
+
+.divider {
+  flex: 1;
+}
+
+.signin-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

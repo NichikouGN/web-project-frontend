@@ -1,0 +1,24 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  padding: 1rem 2rem;
+
+  background: var(--theme-body-primary-bg);
+  transition: background-color 0.3s ease;
+}
+
+.footer-item {
+  color: var(--theme-text-primary);
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.footer-item:not(:last-child)::after {
+  content: "•";
+  margin: 0 0.5rem;
+  color: var(--theme-text-secondary);
+  transition: color 0.3s ease;
+}

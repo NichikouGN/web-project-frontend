@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ToastRenderer } from "./components/Toast/ToastRenderer";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import NotFound from "./pages/NotFound/NotFound";
+import Home from "./pages/Home/Home";
+import Layout from "./components/Layout/Layout";
+import { useThemeStore } from "./stores/themeStore";
+import { useEffect } from "react";
+import Signin from "./pages/Signin/Signin";
+import Signup from "./pages/Signup/Signup";
+import { useAuthStore } from "./stores/authStore";
+import { useUserStore } from "./stores/userStore";
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Store subscription to fetch user info upon authorization
+  const signInState = useAuthStore((state) => state.signInState);
+
+  useEffect(() => {
+    if (signInState === "authorized") {
+      useUserStore.getState().fetchUserInfo();
+    }
+  }, [signInState]);
+
+  useEffect(() => {
+    useAuthStore.getState().validateAccessToken();
+  }, []);
+
+  // Apply theme to document root
+  const theme = useThemeStore((state) => state.theme);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <ToastRenderer />
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

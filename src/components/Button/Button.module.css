@@ -1,0 +1,55 @@
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0.5rem;
+
+  border-radius: 0.5rem;
+  border: none;
+  outline: none;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), -3px -3px 6px rgba(255, 255, 255, 0.75);
+
+  color: var(--theme-text-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .btn {
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.75), -3px -3px 6px rgba(255, 255, 255, 0.08);
+}
+.fullWidth {
+  width: 100%;
+}
+
+.primary {
+  background: var(--theme-button-primary-bg);
+  color: var(--theme-text-primary);
+}
+
+.secondary {
+  border: 1px solid var(--theme-button-secondary-bg);
+  background: transparent;
+  color: var(--theme-text-primary);
+}
+
+.rounded {
+  border-radius: 50px;
+}
+
+.small {
+  padding: 0.25rem;
+}
+
+.medium {
+  padding: 0.5rem;
+}
+
+.large {
+  padding: 0.75rem;
+}
