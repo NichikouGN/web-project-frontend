@@ -247,6 +247,7 @@ export const useAuthStore = create<authStoreType>()(
     {
       name: "auth-storage", // name of the item in the storage (must be unique)
       partialize: (state) => ({
+        signInState: state.signInState,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         twoFactorToken: state.twoFactorToken,

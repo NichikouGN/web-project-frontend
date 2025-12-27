@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
-import { FaHome, FaSun } from "react-icons/fa";
+import { FaCheck, FaHome, FaSignInAlt, FaSun, FaUser } from "react-icons/fa";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { FaMoon } from "react-icons/fa";
+import { LuMessageCircleMore } from "react-icons/lu";
 
 const Navbar = () => {
   const signInState = useAuthStore((state) => state.signInState);
@@ -16,7 +17,7 @@ const Navbar = () => {
       </Link>
       <section className={styles["navbar-links"]}>
         <Link to="/message" className={styles["navbar-link"]}>
-          Message
+          <LuMessageCircleMore />
         </Link>
 
         <button
@@ -27,32 +28,30 @@ const Navbar = () => {
               .setSignInState(signInState === "unauthorized" ? "authorized" : "unauthorized");
           }}
         >
-          [DBG] Toggle Auth State
+          {useAuthStore.getState().signInState === "authorized" ? <FaCheck /> : <FaSignInAlt />}
         </button>
       </section>
 
-      <section className={styles["divider"]} />
-
-      <button
-        className={styles["theme-toggle"]}
-        onClick={() => {
-          useThemeStore.getState().setTheme(theme === "light" ? "dark" : "light");
-        }}
-      >
-        {theme === "light" ? (
-          <FaSun className={styles["theme-toggle-icon"]} />
-        ) : (
-          <FaMoon className={styles["theme-toggle-icon"]} />
-        )}
-      </button>
       <section className={styles["signin-section"]}>
+        <button
+          className={styles["theme-toggle"]}
+          onClick={() => {
+            useThemeStore.getState().setTheme(theme === "light" ? "dark" : "light");
+          }}
+        >
+          {theme === "light" ? (
+            <FaSun className={styles["theme-toggle-icon"]} />
+          ) : (
+            <FaMoon className={styles["theme-toggle-icon"]} />
+          )}
+        </button>
         {signInState === "authorized" ? (
           <Link to="/profile" className={styles["signin-text"]}>
-            Profile
+            <FaUser className={styles["signin-icon"]} />
           </Link>
         ) : (
           <Link to="/signin" className={styles["signin-text"]}>
-            Sign In
+            <FaSignInAlt className={styles["signin-icon"]} />
           </Link>
         )}
       </section>

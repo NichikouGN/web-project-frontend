@@ -11,6 +11,8 @@ import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
 import Profile from "./pages/Profile/Profile";
 import User from "./pages/User/User";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import Message from "./pages/Message/Message";
 
 function App() {
   // Store subscription to fetch user info upon authorization
@@ -42,10 +44,20 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/:userId" element={<User />} />
+
+            <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
+              <Route path="/message" element={<Message />} />
+            </Route>
           </Route>
 
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          <Route element={<ProtectedRoute requireAuthorization="unauthorized" />}>
+            <Route path="/signin" element={<Signin />} />
+            <Route path="/signup" element={<Signup />} />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>

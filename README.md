@@ -36,6 +36,10 @@ npm run dev
 ```
 
 # Version
+## v0.3.0 (2025-12-27)
+- Added chat function.
+- Added route guarding for chat.
+- Some changes for the navbar UI.
 
 ## v0.2.0 (2025-12-26)
 
