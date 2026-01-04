@@ -10,3 +10,16 @@
 
   background: var(--theme-body-bg);
 }
+
+.admin-layout-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+
+  background: var(--theme-body-bg);
+}

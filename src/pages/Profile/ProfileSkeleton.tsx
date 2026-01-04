@@ -6,10 +6,11 @@ const ProfileSkeleton = () => {
     <>
       <header className={styles["header"]}></header>
       <main className={styles["content"]}>
-        <section className={styles["user-information-section"]}>
+        <section className={styles["user-personal-info-section"]}>
           <FaUser className={styles["avatar"]} />
           <div className={styles["username"]}>
-            <h1>User</h1>
+            <h1>...</h1>
+            <p>...</p>
           </div>
         </section>
 

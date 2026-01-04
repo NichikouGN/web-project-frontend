@@ -2,7 +2,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 
 interface ProtectRouteProps {
-  requireAuthorization: "authorized" | "unauthorized";
+  requireAuthorization: "authorized" | "unauthorized" | "admin";
   customRedirectPath?: string;
 }
 
@@ -16,6 +16,10 @@ export default function ProtectedRoute({ requireAuthorization }: ProtectRoutePro
 
   if (requireAuthorization === "unauthorized" && signInState === "authorized") {
     return <Navigate to="/" replace />;
+  }
+
+  if (requireAuthorization === "admin" && signInState !== "admin") {
+    return <Navigate to="/admin/signin" replace />;
   }
 
   return <Outlet />;

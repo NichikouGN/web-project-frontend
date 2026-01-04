@@ -1,7 +1,5 @@
 import styles from "../Profile/Profile.module.css";
-import { Link } from "react-router";
 import { FaUser } from "react-icons/fa";
-import { FaHome } from "react-icons/fa";
 
 const UserSkeleton = () => {
   return (

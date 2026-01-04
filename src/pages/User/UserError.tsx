@@ -1,7 +1,7 @@
-import React from "react";
+import styles from "../Profile/Profile.module.css";
 
 const UserError = () => {
-  return <div>This User Doesn't Exist.</div>;
+  return <div className={styles["content"]}>This User Doesn't Exist.</div>;
 };
 
 export default UserError;

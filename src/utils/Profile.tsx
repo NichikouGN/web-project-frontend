@@ -26,7 +26,7 @@ export const handleUIDShare = async (text: string) => {
     return;
   }
 
-  copyToClipboard(text);
+  copyToClipboard("localhost:5173/user/" + text);
   Toast({
     type: "info",
     title: "Share",

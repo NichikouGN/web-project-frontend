@@ -23,10 +23,11 @@ interface authStoreType {
   validateTwoFactorToken: () => Promise<boolean>;
   verify2FA: (code: string) => Promise<boolean>;
 
-  signInState: "unauthorized" | "2FA" | "authorized";
-  setSignInState: (state: "unauthorized" | "2FA" | "authorized") => void;
+  signInState: "unauthorized" | "admin" | "authorized";
+  setSignInState: (state: "unauthorized" | "admin" | "authorized") => void;
 
   signIn: (email: string, password: string) => Promise<void>;
+  adminSignIn: (email: string, password: string) => Promise<void>;
   signUp: (username: string, email: string, password: string) => Promise<boolean>;
 
   signOut: () => void;
@@ -43,7 +44,8 @@ export const useAuthStore = create<authStoreType>()(
       setAccessToken: (accessToken: string) => set({ accessToken }),
       setRefreshToken: (refreshToken: string) => set({ refreshToken }),
       setTwoFactorToken: (twoFactorToken: string) => set({ twoFactorToken }),
-      setSignInState: (state: "unauthorized" | "2FA" | "authorized") => set({ signInState: state }),
+      setSignInState: (state: "unauthorized" | "admin" | "authorized") =>
+        set({ signInState: state }),
 
       setUpToken: (accessToken: string, refreshToken: string) => {
         set({ accessToken, refreshToken, signInState: "authorized" });
@@ -200,7 +202,37 @@ export const useAuthStore = create<authStoreType>()(
 
           if (data.status === "require2FA") {
             get().setTwoFactorToken(data.twoFactorToken);
-            get().setSignInState("2FA");
+            get().setSignInState("admin");
+          } else {
+            get().setUpToken(data.accessToken, data.refreshToken);
+          }
+        } catch (error: any) {
+          if (error.status === 401) {
+            alert("Your username or password is incorrect");
+          } else {
+            alert("500 Internal Server Error");
+          }
+        }
+      },
+
+      adminSignIn: async (email: string, password: string) => {
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signin`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: JSON.stringify({ email: email, password: password }),
+          });
+
+          if (!res.ok) throw get().throwAuthError(res.status);
+
+          const data = await res.json();
+
+          if (data.status === "require2FA") {
+            get().setTwoFactorToken(data.twoFactorToken);
+            get().setSignInState("admin");
           } else {
             get().setUpToken(data.accessToken, data.refreshToken);
           }

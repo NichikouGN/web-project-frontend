@@ -7,7 +7,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../../components/Button/Button";
 
 const signInSchema = z.object({
   email: z.email("Invalid email address"),
@@ -43,9 +42,7 @@ const Signin = () => {
 
   //Forward to page passed on signin state
   useEffect(() => {
-    if (signInState === "2FA") {
-      navigate("/signin/2fa");
-    } else if (signInState === "authorized") {
+    if (signInState === "authorized") {
       navigate("/");
     }
   }, [signInState, navigate]);
@@ -115,13 +112,21 @@ const Signin = () => {
               </button>
             </form>
           </div>
-          <div className={styles["signup-quote"]}>
-            New user?&nbsp;
-            <NavLink to="/signup" className={styles["signup-btn"]}>
-              Sign Up
-            </NavLink>
-            &nbsp;today
-          </div>
+          <section className={styles["reroute"]}>
+            <div className={styles["signup-quote"]}>
+              New user?&nbsp;
+              <NavLink to="/signup" className={styles["signup-btn"]}>
+                Sign Up
+              </NavLink>
+              &nbsp;today
+            </div>
+            <div className={styles["signup-quote"]}>
+              Are you an admin?&nbsp;
+              <NavLink to="/admin/signin" className={styles["signup-btn"]}>
+                Admin Sign In
+              </NavLink>
+            </div>
+          </section>
         </div>
       </div>
     )

@@ -7,7 +7,6 @@ import { useNavigate, NavLink, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../../components/Button/Button";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 
 const signUpSchema = z
@@ -59,9 +58,7 @@ const Signup = () => {
 
   //Reroute base on singin state
   useEffect(() => {
-    if (signInState === "2FA") {
-      navigate("/authentication");
-    } else if (signInState === "authorized") {
+    if (signInState === "authorized") {
       navigate("/");
     }
   }, [signInState, navigate]);

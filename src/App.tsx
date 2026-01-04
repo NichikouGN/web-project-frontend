@@ -13,6 +13,12 @@ import Profile from "./pages/Profile/Profile";
 import User from "./pages/User/User";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Message from "./pages/Message/Message";
+import AdminSignin from "./pages/AdminSignin/AdminSignin";
+import Statistics from "./pages/AdminPanel/Statistics/Statistics";
+import UserManagement from "./pages/AdminPanel/UserManagement/UserManagement";
+import GameManagement from "./pages/AdminPanel/GameManagement/GameManagement";
+import AdminHome from "./pages/AdminPanel/AdminHome/AdminHome";
+import AdminLayout from "./components/Layout/AdminLayout";
 
 function App() {
   // Store subscription to fetch user info upon authorization
@@ -57,6 +63,17 @@ function App() {
           <Route element={<ProtectedRoute requireAuthorization="unauthorized" />}>
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+
+            <Route path="/admin/signin" element={<AdminSignin />} />
+          </Route>
+
+          <Route element={<AdminLayout />}>
+            <Route element={<ProtectedRoute requireAuthorization="admin" />}>
+              <Route path="/admin" element={<AdminHome />} />
+              <Route path="/admin/user-management" element={<UserManagement />} />
+              <Route path="/admin/game-management" element={<GameManagement />} />
+              <Route path="/admin/statistics" element={<Statistics />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFound />} />

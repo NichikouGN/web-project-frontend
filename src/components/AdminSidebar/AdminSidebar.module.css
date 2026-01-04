@@ -1,0 +1,41 @@
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  height: 100%;
+  padding: 0.5rem;
+
+  background: var(--theme-body-primary-bg);
+  transition: 0.3s background-color ease;
+}
+
+.admin-button {
+  padding: 1rem;
+
+  background: var(--theme-body-primary-bg);
+  border-radius: 0.5rem;
+
+  transition: 0.3s background-color ease;
+}
+
+.admin-button.active {
+  background: var(--theme-button-secondary-bg);
+}
+
+.admin-button:hover {
+  background: var(--theme-body-secondary-bg);
+}
+
+.admin-button.active:hover {
+  background: var(--theme-button-secondary-bg);
+}
+
+.admin-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease;
+}

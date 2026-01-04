@@ -119,23 +119,30 @@
 
 .username {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .username h1 {
   margin-top: 3.5rem;
+
   font-size: 1.75rem;
   font-weight: bold;
   color: var(--theme-text-primary);
+
+  transition: color 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.username p {
+  font-size: 1rem;
+  color: var(--theme-text-secondary);
   transition: color 0.3s ease-in-out;
 }
 
 .share-uid-icon {
   font-size: 1.25rem;
   color: var(--theme-text-secondary);
-  cursor: pointer;
   transition: color 0.3s ease-in-out;
 }
 
@@ -188,12 +195,15 @@
 }
 
 .ranking-button {
+  flex: 1;
   padding: 0.5rem 1rem;
   background: var(--theme-body-secondary-bg);
   color: var(--theme-text-secondary);
 
   border-radius: 0.5rem;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+
+  font-weight: bold;
 
   transition: all 0.3s ease-in-out;
 }
@@ -204,7 +214,6 @@
 }
 
 .current {
-  font-weight: bold;
   color: var(--theme-text-primary);
   transition: color 0.3s ease-in-out;
 
@@ -215,4 +224,72 @@
 [data-theme="dark"] .current {
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.75), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
+}
+
+.add-friends {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 3rem;
+  height: 3rem;
+  padding: 0.5rem;
+  margin-top: 3.5rem;
+
+  font-size: 1.5rem;
+  color: var(--theme-text-secondary);
+
+  background: var(--theme-body-primary-bg);
+  border-radius: 50%;
+  border: none;
+
+  cursor: pointer;
+  transition: color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.add-friends:hover {
+  color: var(--theme-text-secondary);
+  box-shadow: 0 0 8px rgba(var(--theme-text-primary-rgb), 0.8);
+}
+
+.add-friends-icon {
+  font-size: 1.5rem;
+  color: var(--theme-text-secondary);
+
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.ranking-data {
+  margin-top: 1rem;
+}
+
+.ranking-list {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.ranking-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+
+  background: var(--theme-body-primary-bg);
+  border-radius: 0.5rem;
+
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.ranking-entry:hover {
+  background: var(--theme-body-secondary-bg);
+}
+
+.current-user {
+  background: var(--sky-300);
+  font-weight: bold;
 }

@@ -17,7 +17,7 @@
   background-size: 150% 150%;
 
   transition: background-color 0.3s ease-in-out;
-  animation: header-pulse 45s ease-in-out infinite, entrance-animation 1s ease forwards;
+  animation: header-pulse 45s ease-in-out infinite;
 
   will-change: background-position;
 
@@ -218,7 +218,6 @@
 
 .signup-quote {
   color: var(--neutral-100);
-  margin-top: 0.75rem;
 }
 
 .signup-btn {
@@ -232,4 +231,14 @@
   font-size: 0.875rem;
   margin-top: -0.25rem;
   align-self: flex-start;
+}
+
+.reroute {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  width: 100%;
+  margin-top: 0.75rem;
 }
