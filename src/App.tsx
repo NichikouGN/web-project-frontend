@@ -19,6 +19,13 @@ import UserManagement from "./pages/AdminPanel/UserManagement/UserManagement";
 import GameManagement from "./pages/AdminPanel/GameManagement/GameManagement";
 import AdminHome from "./pages/AdminPanel/AdminHome/AdminHome";
 import AdminLayout from "./components/Layout/AdminLayout";
+import Caro5 from "./pages/Games/Caro5/Caro5";
+import Caro4 from "./pages/Games/Caro4/Caro4";
+import TicTacToe from "./pages/Games/TicTacToe/TicTacToe";
+import Snake from "./pages/Games/Snake/Snake";
+import Match3 from "./pages/Games/Match3/Match3";
+import MemoryMatching from "./pages/Games/MemoryMatching/MemoryMatching";
+import FreePlay from "./pages/Games/FreePlay/FreePlay";
 
 function App() {
   // Store subscription to fetch user info upon authorization
@@ -54,6 +61,14 @@ function App() {
             <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
               <Route path="/message" element={<Message />} />
             </Route>
+
+            <Route path="/game/caro-5" element={<Caro5 />} />
+            <Route path="/game/caro-4" element={<Caro4 />} />
+            <Route path="/game/tic-tac-toe" element={<TicTacToe />} />
+            <Route path="/game/snake" element={<Snake />} />
+            <Route path="/game/match-3" element={<Match3 />} />
+            <Route path="/game/memory-matching" element={<MemoryMatching />} />
+            <Route path="/game/free-play" element={<FreePlay />} />
           </Route>
 
           <Route element={<ProtectedRoute requireAuthorization="authorized" />}>

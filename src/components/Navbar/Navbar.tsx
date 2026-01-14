@@ -92,16 +92,16 @@ const Navbar = () => {
           <LuMessageCircleMore />
         </Link>
 
-        {/* <button
+        <button
           className={styles["navbar-link"]}
           onClick={() => {
             useAuthStore
               .getState()
-              .setSignInState(signInState === "unauthorized" ? "admin" : "unauthorized");
+              .setSignInState(signInState === "unauthorized" ? "authorized" : "unauthorized");
           }}
         >
-          {useAuthStore.getState().signInState === "admin" ? <FaCheck /> : <FaSignInAlt />}
-        </button> */}
+          {useAuthStore.getState().signInState === "authorized" ? <FaCheck /> : <FaSignInAlt />}
+        </button>
       </section>
 
       <section className={styles["signin-section"]}>
@@ -117,7 +117,7 @@ const Navbar = () => {
             <FaMoon className={styles["theme-toggle-icon"]} />
           )}
         </button>
-        {signInState === "admin" ? (
+        {signInState === "authorized" ? (
           <>
             <button
               className={styles["notifications-button"]}
@@ -162,7 +162,7 @@ const Navbar = () => {
                 )}
               </div>
             )}
-            <Link to="/admin" className={styles["signin-text"]}>
+            <Link to="/profile" className={styles["signin-text"]}>
               <FaUser className={styles["signin-icon"]} />
             </Link>
           </>

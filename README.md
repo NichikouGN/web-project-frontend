@@ -36,6 +36,9 @@ npm run dev
 ```
 
 # Version
+# v0.6.0 (2026-01-04)
+- Added Free Play Game
+- 
 ## v0.5.0 (2026-01-04)
 - Added a signin for admins (no signup)
 - Added route guard for admin panel

@@ -1,0 +1,47 @@
+.game-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+
+  background: var(--theme-body-bg);
+  transition: 0.3s background-color ease;
+
+  overflow-y: auto;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.game-play-prompt {
+  padding: 0.5rem 1rem;
+
+  font-size: 1rem;
+  text-align: center;
+
+  background: var(--green-400);
+  border-radius: 0.5rem;
+}
+
+.game-options {
+  display: flex;
+  gap: 1rem;
+}
+
+.game-card {
+  background: var(--theme-card-primary-bg);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  text-align: center;
+  width: 300px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
