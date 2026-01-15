@@ -27,6 +27,7 @@ const FreePlay = () => {
 
   const fetchGameBoardSize = useCallback(async () => {
     try {
+      /*
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
         method: "GET",
         credentials: "include",
@@ -35,7 +36,11 @@ const FreePlay = () => {
         throw new Error("Failed to fetch game board size");
       }
       const data = await res.json();
+      */
+      //Temporary hardcoded board size until backend is ready
 
+      const data = { boardSize: { rows: 10, cols: 10 } };
+      
       setGameBoardSize(data.boardSize);
       setBoard(generateEmptyBoard(data.boardSize));
       setGameState("loaded");

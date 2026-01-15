@@ -91,6 +91,7 @@ export const deactivateGameMode = async (accessToken: string, gameId: string) =>
 
 export const updateBoardSize = async (accessToken: string, gameId: string, boardSize: number) => {
   try {
+    
     const res = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/update-board-size/${gameId}`,
       {

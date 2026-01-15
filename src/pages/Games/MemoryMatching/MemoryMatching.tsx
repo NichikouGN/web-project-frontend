@@ -3,10 +3,19 @@ import styles from "./MemoryMatching.module.css";
 import { Toast } from "../../../stores/toastStore";
 import MemoryMatchingContent from "./MemoryMatchingContent";
 
+interface MemoryMatchingProps {
+  gameBoard: string[][];
+  setGameBoard: React.Dispatch<React.SetStateAction<string[][]>>;
+  gameBoardSize?: { rows: number; cols: number };
+  setGameState?: React.Dispatch<
+    React.SetStateAction<"unloaded" | "loadError" | "fetchError" | "loaded">
+  >;
+}
+
 const MemoryMatching = () => {
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);
   const [board, setBoard] = useState<string[][]>([]);
-
+  const mockedBoardSize = { rows: 4, cols: 4 };
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded"
   );
@@ -26,6 +35,7 @@ const MemoryMatching = () => {
 
   const fetchGameBoardSize = useCallback(async () => {
     try {
+      /*
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
         method: "GET",
         credentials: "include",
@@ -34,7 +44,9 @@ const MemoryMatching = () => {
         throw new Error("Failed to fetch game board size");
       }
       const data = await res.json();
-
+      */
+      //Temporary hardcoded board size until backend is ready
+      const data = { boardSize: mockedBoardSize };
       setGameBoardSize(data.boardSize);
       setBoard(generateEmptyBoard(data.boardSize));
       setGameState("loaded");
@@ -68,8 +80,8 @@ const MemoryMatching = () => {
         <div className={styles["game-page"]}>
           <div className={styles["game-container"]}>
             <div className={styles["game-card"]}>
-              <h2>Free Play</h2>
-              <h4>Play any game without restrictions</h4>
+              <h2>Memory Matching</h2>
+              <h4>Match pairs of cards to win the game</h4>
             </div>
 
             <div className={styles["game-options"]}>
@@ -80,8 +92,8 @@ const MemoryMatching = () => {
                 className={styles["game-play-prompt"]}
                 onClick={() => {
                   const gameData = {
-                    boardSize: { rows: 10, cols: 10 },
-                    board: generateEmptyBoard({ rows: 10, cols: 10 }),
+                    boardSize: mockedBoardSize,
+                    board: generateEmptyBoard(mockedBoardSize),
                   };
                   localStorage.setItem("freePlayGameData", JSON.stringify(gameData));
 
