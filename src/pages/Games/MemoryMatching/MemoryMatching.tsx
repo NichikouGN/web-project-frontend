@@ -15,20 +15,60 @@ interface MemoryMatchingProps {
 const MemoryMatching = () => {
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);
   const [board, setBoard] = useState<string[][]>([]);
+  const [gameArray, setGameArray] = useState<string[][]>([]);
+  const [matchedCount, setMatchedCount] = useState<number>(0);
+  const [turnCount, setTurnCount] = useState<number>(0);
+  const [isGameComplete, setIsGameComplete] = useState<boolean>(false);
+  const [matchedCells, setMatchedCells] = useState<Set<string>>(new Set());
+  const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
+  const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(null);
+  const [isWaiting, setIsWaiting] = useState<boolean>(false);
+  
   const mockedBoardSize = { rows: 4, cols: 4 };
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded"
   );
 
   const loadGame = useCallback(() => {
-    const savedBoard = localStorage.getItem("freePlayGameData");
-    if (savedBoard) {
-      const gameData = JSON.parse(savedBoard);
-      setGameBoardSize(gameData.boardSize);
-      setBoard(gameData.board);
-      setGameState("loaded");
+    const savedGameData = localStorage.getItem("memoryMatchingGameData");
+    if (savedGameData) {
+      try {
+        const gameData = JSON.parse(savedGameData);
+        
+        // Restore board config
+        setGameBoardSize(gameData.boardSize);
+        
+        // Restore board display
+        setBoard(gameData.board);
+        
+        // Restore game array
+        setGameArray(gameData.gameArray || []);
+        
+        // Restore game progress
+        setMatchedCount(gameData.matchedCount || 0);
+        setTurnCount(gameData.turnCount || 0);
+        setIsGameComplete(gameData.isGameComplete || false);
+        setMatchedCells(new Set(gameData.matchedCells || []));
+        
+        // Restore selection state
+        setIsFirstSelection(gameData.isFirstSelection ?? true);
+        setFirstSelection(gameData.firstSelection || null);
+        setIsWaiting(gameData.isWaiting ?? false);
+        
+        // Change state to loaded
+        setGameState("loaded");
+        
+        Toast({
+          type: "success",
+          title: "Game Loaded",
+          message: `Restored game: ${gameData.turnCount} turns, ${gameData.matchedCount} matched pairs`
+        });
+      } catch (error) {
+        Toast({ type: "error", message: "Failed to load game data" });
+        setGameState("loadError");
+      }
     } else {
-      Toast({ type: "error", message: "No saved game found" });
+      Toast({ type: "warning", message: "No saved game found" });
       setGameState("loadError");
     }
   }, []);
@@ -75,6 +115,22 @@ const MemoryMatching = () => {
           setGameBoard={setBoard}
           gameBoardSize={gameBoardSize}
           setGameState={setGameState}
+          gameArray={gameArray}
+          setGameArray={setGameArray}
+          matchedCount={matchedCount}
+          setMatchedCount={setMatchedCount}
+          turnCount={turnCount}
+          setTurnCount={setTurnCount}
+          isGameComplete={isGameComplete}
+          setIsGameComplete={setIsGameComplete}
+          matchedCells={matchedCells}
+          setMatchedCells={setMatchedCells}
+          isFirstSelection={isFirstSelection}
+          setIsFirstSelection={setIsFirstSelection}
+          firstSelection={firstSelection}
+          setFirstSelection={setFirstSelection}
+          isWaiting={isWaiting}
+          setIsWaiting={setIsWaiting}
         />
       ) : (
         <div className={styles["game-page"]}>
