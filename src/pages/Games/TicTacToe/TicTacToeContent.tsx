@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import styles from "./TicTacToe.module.css";
 import { Toast } from "../../../stores/toastStore";
 
@@ -33,6 +33,7 @@ const TicTacToeContent = ({
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [winner, setWinner] = useState<"X" | "O" | null>(propsWinner);
+    const [isComputerThinking, setIsComputerThinking] = useState(false);
     
     const color = { "X": "#FF5733", "O": "#335BFF" };
 
@@ -80,6 +81,41 @@ const TicTacToeContent = ({
         return board.every(row => row.every(cell => cell !== ""));
     }, []);
 
+    // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
+    const makeMoveOnBoard = useCallback((row: number, col: number, playerSymbol: "X" | "O") => {
+        if (gameBoard[row][col] !== "") return; // Ô đã có nước
+
+        setGameBoard((prevBoard) => {
+            const newBoard = [...prevBoard];
+            newBoard[row][col] = color[playerSymbol];
+            
+            // Kiểm tra người thắng sau khi cập nhật board
+            const gameWinner = checkWinner(newBoard);
+            if (gameWinner) {
+                setWinner(gameWinner);
+                setIsGameOver(true);
+                Toast({ 
+                    type: "success", 
+                    title: "🎉 Game Over", 
+                    message: `Player ${gameWinner} wins!` 
+                });
+            } else if (isBoardFull(newBoard)) {
+                // Nước cờ hòa
+                setIsGameOver(true);
+                Toast({ 
+                    type: "info", 
+                    title: "Draw", 
+                    message: "The game is a draw!" 
+                });
+            }
+            
+            return newBoard;
+        });
+        
+        // Chuyển đổi người chơi
+        setCurrentPlayer((prevPlayer) => (prevPlayer === "X" ? "O" : "X"));
+    }, [gameBoard, color, checkWinner, isBoardFull]);
+
     const handleCellClick = (row: number, col: number) => {
         // Không cho chơi nếu game đã kết thúc
         if (isGameOver) {
@@ -87,38 +123,58 @@ const TicTacToeContent = ({
             return;
         }
 
-        if (gameBoard[row][col] === "") {
-            setGameBoard((prevBoard) => {
-                const newBoard = [...prevBoard];
-                newBoard[row][col] = color[currentPlayer];
-                
-                // Kiểm tra người thắng sau khi cập nhật board
-                const gameWinner = checkWinner(newBoard);
-                if (gameWinner) {
-                    setWinner(gameWinner);
-                    setIsGameOver(true);
-                    Toast({ 
-                        type: "success", 
-                        title: "🎉 Game Over", 
-                        message: `Player ${gameWinner} wins!` 
-                    });
-                } else if (isBoardFull(newBoard)) {
-                    // Nước cờ hòa
-                    setIsGameOver(true);
-                    Toast({ 
-                        type: "info", 
-                        title: "Draw", 
-                        message: "The game is a draw!" 
-                    });
-                }
-                
-                return newBoard;
-            });
-            
-            // Chuyển đổi người chơi
-            setCurrentPlayer((prevPlayer) => (prevPlayer === "X" ? "O" : "X"));
+        // Ngăn user click khi máy đang suy nghĩ
+        if (isComputerThinking) {
+            Toast({ type: "warning", message: "Please wait for computer's turn!" });
+            return;
         }
+
+        // Ngăn user click khi không phải lượt của họ
+        if (currentPlayer !== "X") {
+            Toast({ type: "warning", message: "Please wait for your turn!" });
+            return;
+        }
+
+        makeMoveOnBoard(row, col, currentPlayer);
+        
     };
+
+    const computerPlay = useCallback(() => {
+        // Tìm tất cả các ô trống
+        console.log("Computer's turn");
+        if (isGameOver) return;
+        if (currentPlayer !== "O") return;
+        
+        setIsComputerThinking(true);
+        
+        const emptyCells: { row: number; col: number }[] = [];
+        gameBoard.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                if (cell === "") {
+                    emptyCells.push({ row: rowIndex, col: colIndex });
+                }
+            });
+        });
+
+        if (emptyCells.length > 0) {
+            // Chọn ngẫu nhiên một ô trống
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            const { row, col } = emptyCells[randomIndex];
+            makeMoveOnBoard(row, col, "O");
+        }
+        
+        setIsComputerThinking(false);
+    }, [gameBoard, makeMoveOnBoard, currentPlayer, isGameOver]);
+
+    // Gọi computerPlay khi đến lượt computer
+    useEffect(() => {
+        if (currentPlayer === "O" && !isGameOver) {
+            const timer = setTimeout(() => {
+                computerPlay();
+            }, 500); // Delay 500ms để có cảm giác tự nhiên hơn
+            return () => clearTimeout(timer);
+        }
+    }, [currentPlayer, isGameOver, computerPlay]);
 
     const resetBoard = useCallback(() => {
         setGameBoard(
@@ -226,7 +282,7 @@ const TicTacToeContent = ({
                                 className={styles["board-game-cell"]}
                                 style={{ backgroundColor: cell }}
                                 onClick={() => handleCellClick(rowIndex, colIndex)}
-                                disabled={isGameOver}
+                                disabled={isGameOver || isComputerThinking || currentPlayer !== "X"}
                             >
                             </button>
                         ))}
