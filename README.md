@@ -37,7 +37,15 @@ npm run dev
 
 # Version
 
-# v0.6.0 (2026-01-17)
+## v0.6.1 (2026-01-18)
+
+- Added ability to change user information.
+- Fixed user search functions to properly display visuals.
+- Fixed user page to properly fetch and show user info.
+- Fixed user friend request to show request state.
+- Fixed profile page to properly show user info.
+
+## v0.6.0 (2026-01-17)
 
 - Added Free Play Game.
 - Clean up Auth Store code to fit with the Backend data.
