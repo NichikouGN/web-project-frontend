@@ -26,13 +26,15 @@ import Snake from "./pages/Games/Snake/Snake";
 import Match3 from "./pages/Games/Match3/Match3";
 import MemoryMatching from "./pages/Games/MemoryMatching/MemoryMatching";
 import FreePlay from "./pages/Games/FreePlay/FreePlay";
+import Search from "./pages/Search/Search";
+import SearchResult from "./pages/SearchResult/SearchResult";
 
 function App() {
   // Store subscription to fetch user info upon authorization
   const signInState = useAuthStore((state) => state.signInState);
 
   useEffect(() => {
-    if (signInState === "authorized") {
+    if (signInState !== "unauthorized") {
       useUserStore.getState().fetchUserInfo();
     }
   }, [signInState]);
@@ -58,8 +60,12 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/:userId" element={<User />} />
 
+            <Route path="/search" element={<Search />} />
+            <Route path="/search/results" element={<SearchResult />} />
+
             <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
-              <Route path="/message" element={<Message />} />
+              <Route path="/messages" element={<Message />} />
+              <Route path="/messages/:chatId" element={<Message />} />
             </Route>
 
             <Route path="/game/caro-5" element={<Caro5 />} />

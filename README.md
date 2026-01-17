@@ -36,22 +36,34 @@ npm run dev
 ```
 
 # Version
-# v0.6.0 (2026-01-04)
-- Added Free Play Game
-- 
+
+# v0.6.0 (2026-01-17)
+
+- Added Free Play Game.
+- Clean up Auth Store code to fit with the Backend data.
+- Clean up User Store code to fit with the Backend data.
+- Clean up the Profile page and decorate some elements.
+- Changes to the element sizing to make contents more visible.
+- Change route for friend request notifications.
+
 ## v0.5.0 (2026-01-04)
+
 - Added a signin for admins (no signup)
 - Added route guard for admin panel
 - Added a home page for admin panel
 - Added statistics for the admin panel
 - Added user management for admin panel
 - Added game management for admin panel
-- 
+-
+
 ## v0.4.0 (2025-12-27)
+
 - Added add friend functionality
 - Some more api route for achievements on the profile page.
-- 
+-
+
 ## v0.3.0 (2025-12-27)
+
 - Added chat function.
 - Added route guarding for chat.
 - Some changes for the navbar UI.

@@ -14,8 +14,11 @@ export const useUserStore = create<UserContextType>()(
     userInformation: {
       userId: "",
       username: "",
+      displayName: "",
       email: "",
       bio: "",
+      profileImageUrl: "",
+      role: "user",
     },
 
     fetchUserInfo: async () => {
@@ -39,14 +42,18 @@ export const useUserStore = create<UserContextType>()(
           }
 
           const data = await res.json();
+          console.log("Fetched user info:", data);
 
           //Set user information state
           set({
             userInformation: {
               userId: data.userId,
               username: data.username,
+              displayName: data.displayName,
               email: data.email,
               bio: data.bio,
+              profileImageUrl: data.profileImageUrl,
+              role: data.role,
             },
           });
         }
