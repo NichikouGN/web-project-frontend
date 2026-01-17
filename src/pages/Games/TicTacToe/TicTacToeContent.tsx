@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from "react";
-import styles from "./TicTacToe.module.css";
+import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 
 interface TicTacToeContentProps {
@@ -34,8 +34,25 @@ const TicTacToeContent = ({
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [winner, setWinner] = useState<"X" | "O" | null>(propsWinner);
     const [isComputerThinking, setIsComputerThinking] = useState(false);
+    const [gameMode, setGameMode] = useState<"goFirst" | "goSecond" | "pvp" | null>(null);
+    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [userSymbol, setUserSymbol] = useState<"X" | "O">("X"); // Track user's symbol
     
-    const color = { "X": "#FF5733", "O": "#335BFF" };
+    const modes = [
+        { id: "goFirst", label: "Go First (X)", description: "You play first" },
+        { id: "goSecond", label: "Go Second (O)", description: "Computer plays first" },
+        { id: "pvp", label: "PvP Local", description: "Play with another player" }
+    ];
+
+    const textPrimaryColor = 
+        getComputedStyle(document.documentElement)
+        .getPropertyValue('--theme-text-primary')
+        .trim();
+    
+    const color = { 
+        "X": "#FF5733", 
+        "O": "#335BFF",
+    };
 
     // Hàm kiểm tra winner
     const checkWinner = useCallback((board: string[][]): "X" | "O" | null => {
@@ -94,11 +111,19 @@ const TicTacToeContent = ({
             if (gameWinner) {
                 setWinner(gameWinner);
                 setIsGameOver(true);
-                Toast({ 
-                    type: "success", 
-                    title: "🎉 Game Over", 
-                    message: `Player ${gameWinner} wins!` 
-                });
+                if (gameMode === "pvp") {
+                    Toast({
+                        type: "success", 
+                        title: "Game Over", 
+                        message: `${gameWinner} wins!` 
+                    });
+                } else {
+                    Toast({ 
+                        type: gameWinner === userSymbol ? "success" : "error", 
+                        title: "Game Over", 
+                        message: gameWinner === userSymbol ? "You win!" : "You lose!" 
+                    });
+                }
             } else if (isBoardFull(newBoard)) {
                 // Nước cờ hòa
                 setIsGameOver(true);
@@ -116,6 +141,40 @@ const TicTacToeContent = ({
         setCurrentPlayer((prevPlayer) => (prevPlayer === "X" ? "O" : "X"));
     }, [gameBoard, color, checkWinner, isBoardFull]);
 
+    // Handle keyboard input cho mode selector
+    useEffect(() => {
+        if (gameMode) return; // Chỉ handle khi chưa chọn mode
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
+                setGameMode(selectedMode);
+                
+                // Khởi tạo lần chơi đầu tiên
+                // Luôn bắt đầu với X, nhưng track user symbol
+                setCurrentPlayer("X");
+                
+                if (selectedMode === "goFirst") {
+                    setUserSymbol("X"); // User chơi X
+                } else if (selectedMode === "goSecond") {
+                    setUserSymbol("O"); // User chơi O, nhưng Computer (X) đi trước
+                } else {
+                    setUserSymbol("X"); // Player 1 chơi X
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedModeIndex, gameMode, modes]);
+
     const handleCellClick = (row: number, col: number) => {
         // Không cho chơi nếu game đã kết thúc
         if (isGameOver) {
@@ -123,6 +182,13 @@ const TicTacToeContent = ({
             return;
         }
 
+        // PvP mode - cho phép click bất kỳ lúc nào
+        if (gameMode === "pvp") {
+            makeMoveOnBoard(row, col, currentPlayer);
+            return;
+        }
+
+        // AI mode (goFirst hoặc goSecond)
         // Ngăn user click khi máy đang suy nghĩ
         if (isComputerThinking) {
             Toast({ type: "warning", message: "Please wait for computer's turn!" });
@@ -130,20 +196,19 @@ const TicTacToeContent = ({
         }
 
         // Ngăn user click khi không phải lượt của họ
-        if (currentPlayer !== "X") {
+        if (currentPlayer !== userSymbol) {
             Toast({ type: "warning", message: "Please wait for your turn!" });
             return;
         }
 
         makeMoveOnBoard(row, col, currentPlayer);
-        
     };
 
     const computerPlay = useCallback(() => {
         // Tìm tất cả các ô trống
         console.log("Computer's turn");
         if (isGameOver) return;
-        if (currentPlayer !== "O") return;
+        if (currentPlayer === userSymbol) return;
         
         setIsComputerThinking(true);
         
@@ -160,21 +225,33 @@ const TicTacToeContent = ({
             // Chọn ngẫu nhiên một ô trống
             const randomIndex = Math.floor(Math.random() * emptyCells.length);
             const { row, col } = emptyCells[randomIndex];
-            makeMoveOnBoard(row, col, "O");
+            makeMoveOnBoard(row, col, currentPlayer);
         }
         
         setIsComputerThinking(false);
     }, [gameBoard, makeMoveOnBoard, currentPlayer, isGameOver]);
 
-    // Gọi computerPlay khi đến lượt computer
+    // Gọi computerPlay khi đến lượt computer (chỉ khi không phải PvP mode)
     useEffect(() => {
-        if (currentPlayer === "O" && !isGameOver) {
+        if (gameMode === "pvp") return; // PvP không có AI
+        if (isGameOver) return;
+        
+        // goSecond mode: Computer chơi X trước
+        if (gameMode === "goSecond" && currentPlayer === "X") {
             const timer = setTimeout(() => {
                 computerPlay();
-            }, 500); // Delay 500ms để có cảm giác tự nhiên hơn
+            }, 500);
             return () => clearTimeout(timer);
         }
-    }, [currentPlayer, isGameOver, computerPlay]);
+        
+        // goFirst mode: Computer chơi O (lượt thứ 2 trở đi)
+        if (gameMode === "goFirst" && currentPlayer === "O") {
+            const timer = setTimeout(() => {
+                computerPlay();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [currentPlayer, isGameOver, computerPlay, gameMode]);
 
     const resetBoard = useCallback(() => {
         setGameBoard(
@@ -182,9 +259,12 @@ const TicTacToeContent = ({
                 Array.from({ length: gameBoardSize?.cols ?? 0 }, () => "")
             )
         );
-        setCurrentPlayer("X");
         setIsGameOver(false);
         setWinner(null);
+        
+        // Luôn bắt đầu lại với X
+        setCurrentPlayer("X");
+        
         Toast({ type: "info", message: "Board reset!" });
     }, [gameBoardSize]);
 
@@ -192,6 +272,7 @@ const TicTacToeContent = ({
         const gameData = {
             boardSize: gameBoardSize,
             board: gameBoard,
+            gameMode: gameMode,
             currentPlayer: currentPlayer,
             isGameOver: isGameOver,
             winner: winner,
@@ -199,7 +280,7 @@ const TicTacToeContent = ({
         };
         localStorage.setItem("ticTacToeGameData", JSON.stringify(gameData));
         Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, currentPlayer, isGameOver, winner]);
+    }, [gameBoardSize, gameBoard, gameMode, currentPlayer, isGameOver, winner]);
 
     // Hàm tải game từ localStorage
     const loadGame = useCallback(() => {
@@ -208,6 +289,8 @@ const TicTacToeContent = ({
             try {
                 const gameData = JSON.parse(savedGameData);
                 setGameBoard(gameData.board);
+                setGameMode(gameData.gameMode);
+                setUserSymbol(gameData.gameMode === "goSecond" ? "O" : "X");
                 setCurrentPlayer(gameData.currentPlayer);
                 setIsGameOver(gameData.isGameOver);
                 setWinner(gameData.winner);
@@ -229,6 +312,13 @@ const TicTacToeContent = ({
             });
         }
     }, []);
+
+    const modesBoard = [
+        [["","",""], ["",color["X"],""], ["","",""]],
+        [["","",""], ["",color["O"],""], ["","",""]],
+        [["","",""], [color["X"], "VS", color["O"]], ["","",""]],
+    ];
+
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
             <div className={styles["game-options-menu"]}>
@@ -256,34 +346,61 @@ const TicTacToeContent = ({
                 fontSize: "18px",
                 fontWeight: "bold"
             }}>
-                {isGameOver && winner ? (
-                    <p style={{ color: "#4CAF50" }}>
-                        🎉 Player {winner} wins! 🎉
-                    </p>
-                ) : isGameOver ? (
-                    <p style={{ color: "#FF9800" }}>
-                        Game is a Draw! 🤝
-                    </p>
-                ) : (
-                    <p className={styles["player-turn-indicator"]}>
-                        Current Player: <span style={{ color: color[currentPlayer] }}>
-                            {currentPlayer}
-                        </span>
-                    </p>
-                )}
+                {
+                    !gameMode ? (
+                        <div className={styles["player-turn-indicator"]}>
+                            <p>Select Game Mode:</p>
+                            <p>
+                                Mode: <span style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</span> - {modes[selectedModeIndex].description}
+                            </p>
+                            <p style={{ marginTop: "10px", fontSize: "14px", color: "#888" }}>
+                                Use Left/Right arrows to select mode, Enter to confirm
+                            </p>
+                        </div>
+                    ) :
+                        isGameOver && winner ? (
+                            <p style={{ color: "#4CAF50" }}>
+                                {gameMode === "pvp" 
+                                    ? `🎉 ${winner} wins! 🎉` 
+                                    : winner === userSymbol ? "🎉 You win! 🎉" : "Computer wins!"
+                                }
+                            </p>
+                        ) : isGameOver ? (
+                            <p style={{ color: "#FF9800" }}>
+                                Game is a Draw! 🤝
+                            </p>
+                        ) : (
+                            <p className={styles["player-turn-indicator"]}>
+
+                                {   
+                                    gameMode === "pvp" 
+                                        ? `Current Player: `
+                                        : `Your symbol: ${userSymbol} | Current: `
+                                }
+                                <span style={{ color: color[currentPlayer] }}>
+                                    {currentPlayer}
+                                </span>
+                            </p>
+                        )
+                }
+                
             </div>
 
             <div className={styles["board-game-container"]}>
-                {gameBoard.map((row, rowIndex) => (
+                {(gameMode ? gameBoard : modesBoard[selectedModeIndex]).map((row, rowIndex) => (
                     <div key={rowIndex} className={styles["board-game-row"]}>
                         {row.map((cell, colIndex) => (
                             <button
                                 key={colIndex}
                                 className={styles["board-game-cell"]}
-                                style={{ backgroundColor: cell }}
+                                style={{ 
+                                    backgroundColor: cell === "VS" ? "" : cell, 
+                                    color: cell === "VS" ? textPrimaryColor : "transparent",
+                                }}
                                 onClick={() => handleCellClick(rowIndex, colIndex)}
-                                disabled={isGameOver || isComputerThinking || currentPlayer !== "X"}
+                                disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
                             >
+                                {cell === "VS" ? "VS" : ""}
                             </button>
                         ))}
                     </div>

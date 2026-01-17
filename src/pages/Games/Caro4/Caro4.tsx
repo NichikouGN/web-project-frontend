@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import styles from "./Caro4.module.css";
+import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import Caro4Content from "./Caro4Content";
 

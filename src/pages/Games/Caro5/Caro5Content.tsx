@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from "react";
-import styles from "./Caro5.module.css";
+import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
 
@@ -35,6 +35,15 @@ const Caro5Content = ({
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [winner, setWinner] = useState<"X" | "O" | null>(propsWinner);
     const [isComputerThinking, setIsComputerThinking] = useState(false);
+    const [gameMode, setGameMode] = useState<"goFirst" | "goSecond" | "pvp" | null>(null);
+    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
+    
+    const modes = [
+        { id: "goFirst", label: "Go First (X)", description: "You play first" },
+        { id: "goSecond", label: "Go Second (O)", description: "Computer plays first" },
+        { id: "pvp", label: "PvP Local", description: "Play with another player" }
+    ];
     
     const color = { "X": "#FF5733", "O": "#335BFF" };
 
@@ -111,6 +120,39 @@ const Caro5Content = ({
         return board.every(row => row.every(cell => cell !== ""));
     }, []);
 
+    // Handle keyboard input cho mode selector
+    useEffect(() => {
+        if (gameMode) return; // Chỉ handle khi chưa chọn mode
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
+                setGameMode(selectedMode);
+                
+                // Khởi tạo lần chơi đầu tiên
+                setCurrentPlayer("X");
+                
+                if (selectedMode === "goFirst") {
+                    setUserSymbol("X");
+                } else if (selectedMode === "goSecond") {
+                    setUserSymbol("O");
+                } else {
+                    setUserSymbol("X");
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedModeIndex, gameMode, modes]);
+
     // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
     const makeMoveOnBoard = useCallback((row: number, col: number, playerSymbol: "X" | "O") => {
         if (gameBoard[row][col] !== "") return; // Ô đã có nước
@@ -125,9 +167,9 @@ const Caro5Content = ({
                 setWinner(gameWinner);
                 setIsGameOver(true);
                 Toast({ 
-                    type: "success", 
-                    title: "🎉 Game Over", 
-                    message: `Player ${gameWinner} wins!` 
+                    type: gameWinner === "X" ? "success" : "error", 
+                    title: "Game Over", 
+                    message: gameWinner === "X" ? "You win!" : "You lose!"
                 });
             } else if (isBoardFull(newBoard)) {
                 // Nước cờ hòa
@@ -153,6 +195,13 @@ const Caro5Content = ({
             return;
         }
 
+        // PvP mode - cho phép click bất kỳ lúc nào
+        if (gameMode === "pvp") {
+            makeMoveOnBoard(row, col, currentPlayer);
+            return;
+        }
+
+        // AI mode (goFirst hoặc goSecond)
         // Ngăn user click khi máy đang suy nghĩ
         if (isComputerThinking) {
             Toast({ type: "warning", message: "Please wait for computer's turn!" });
@@ -160,20 +209,19 @@ const Caro5Content = ({
         }
 
         // Ngăn user click khi không phải lượt của họ
-        if (currentPlayer !== "X") {
+        if (currentPlayer !== userSymbol) {
             Toast({ type: "warning", message: "Please wait for your turn!" });
             return;
         }
 
         makeMoveOnBoard(row, col, currentPlayer);
-        
     };
 
     const computerPlay = useCallback(() => {
         // Tìm tất cả các ô trống
         console.log("Computer's turn");
         if (isGameOver) return;
-        if (currentPlayer !== "O") return;
+        if (currentPlayer === userSymbol) return;
         
         setIsComputerThinking(true);
         
@@ -190,7 +238,7 @@ const Caro5Content = ({
             // Chọn ngẫu nhiên một ô trống
             const randomIndex = Math.floor(Math.random() * emptyCells.length);
             const { row, col } = emptyCells[randomIndex];
-            makeMoveOnBoard(row, col, "O");
+            makeMoveOnBoard(row, col, currentPlayer);
         }
         
         setIsComputerThinking(false);
@@ -198,13 +246,25 @@ const Caro5Content = ({
 
     // Gọi computerPlay khi đến lượt computer
     useEffect(() => {
-        if (currentPlayer === "O" && !isGameOver) {
+        if (gameMode === "pvp") return; // PvP không có AI
+        if (isGameOver) return;
+        
+        // goSecond mode: Computer chơi X trước
+        if (gameMode === "goSecond" && currentPlayer === "X") {
             const timer = setTimeout(() => {
                 computerPlay();
-            }, 500); // Delay 500ms để có cảm giác tự nhiên hơn
+            }, 500);
             return () => clearTimeout(timer);
         }
-    }, [currentPlayer, isGameOver, computerPlay]);
+        
+        // goFirst mode: Computer chơi O (lượt thứ 2 trở đi)
+        if (gameMode === "goFirst" && currentPlayer === "O") {
+            const timer = setTimeout(() => {
+                computerPlay();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [currentPlayer, isGameOver, computerPlay, gameMode]);
 
     const resetBoard = useCallback(() => {
         setGameBoard(
@@ -222,6 +282,7 @@ const Caro5Content = ({
         const gameData = {
             boardSize: gameBoardSize,
             board: gameBoard,
+            gameMode: gameMode,
             currentPlayer: currentPlayer,
             isGameOver: isGameOver,
             winner: winner,
@@ -229,7 +290,7 @@ const Caro5Content = ({
         };
         localStorage.setItem("caro5GameData", JSON.stringify(gameData));
         Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, currentPlayer, isGameOver, winner]);
+    }, [gameBoardSize, gameBoard, gameMode, currentPlayer, isGameOver, winner]);
 
     // Hàm tải game từ localStorage
     const loadGame = useCallback(() => {
@@ -241,6 +302,8 @@ const Caro5Content = ({
                 setCurrentPlayer(gameData.currentPlayer);
                 setIsGameOver(gameData.isGameOver);
                 setWinner(gameData.winner);
+                setGameMode(gameData.gameMode);
+                setUserSymbol(gameData.gameMode === "goSecond" ? "O" : "X");
                 Toast({ 
                     type: "success", 
                     title: "Success", 
@@ -259,25 +322,59 @@ const Caro5Content = ({
             });
         }
     }, []);
+
+    const modesArt = {
+        "goFirst": 
+            `..........\n.XXX...X..\n.X..X.XX..\n.X..X..X..\n.XXX...X..\n.X.....X..\n.X.....X..\n.X.....X..\n.X....XXX.\n..........`,
+        "goSecond": 
+            `..........\n.OOO...O..\n.O..O.O.O.\n.O..O.O.O.\n.OOO....O.\n.O.....O..\n.O....O...\n.O....O...\n.O....OOO.\n..........`,
+        "pvp": 
+            `..........\n.X..X.OO..\n.X..XO..O.\n.X..XO..O.\n..X.X.O...\n..X.X..O..\n..X.XO..O.\n...XXO..O.\n....X.OO..\n..........`
+    };
+
+    // Create modeBoard for visualization
+    const createModesBoard = () => {
+        const modesList = ["goFirst", "goSecond", "pvp"] as const;
+        return modesList.map((mode) => {
+            const art = modesArt[mode].trim().split("\n");
+            console.log(art);
+            return art.map((line) =>
+                line.split("").map((char) => {
+                    if (char === ".") return "";
+                    if (char === "X") return color["X"];
+                    if (char === "O") return color["O"];
+                    return "";
+                })
+            );
+        });
+    };
+    
+    const modesBoards = createModesBoard();
+    console.log(modesBoards);
+
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-            <div className={styles["game-options-menu"]}>
-                <button
-                    className={styles["reset-board-button"]}
-                    onClick={() => setGameState && setGameState("unloaded")}
-                >
-                    Return
-                </button>
-                <button className={styles["reset-board-button"]} onClick={saveGame}>
-                    Save Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={loadGame}>
-                    Load Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                    Reset Board
-                </button>
-            </div>
+            { 
+            gameMode ?
+                <div className={styles["game-options-menu"]}>
+                    <button
+                        className={styles["reset-board-button"]}
+                        onClick={() => setGameState && setGameState("unloaded")}
+                    >
+                        Return
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={saveGame}>
+                        Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                        Reset Board
+                    </button>
+                </div>
+            : null
+            }   
 
             {/* Hiển thị trạng thái game */}
             <div style={{ 
@@ -286,34 +383,65 @@ const Caro5Content = ({
                 fontSize: "18px",
                 fontWeight: "bold"
             }}>
-                {isGameOver && winner ? (
-                    <p style={{ color: "#4CAF50" }}>
-                        🎉 Player {winner} wins! 🎉
-                    </p>
-                ) : isGameOver ? (
-                    <p style={{ color: "#FF9800" }}>
-                        Game is a Draw! 🤝
-                    </p>
-                ) : (
-                    <p className={styles["player-turn-indicator"]}>
-                        Current Player: <span style={{ color: color[currentPlayer] }}>
-                            {currentPlayer}
-                        </span>
-                    </p>
-                )}
+                {
+                    !gameMode ? (
+                        <div className={styles["player-turn-indicator"]}>
+                            <p>Select Game Mode:</p>
+                            <p>
+                                Mode: <span style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</span> - {modes[selectedModeIndex].description}
+                            </p>
+                            <p style={{ marginTop: "10px", fontSize: "14px", color: "#888" }}>
+                                Use Left/Right arrows to select mode, Enter to confirm
+                            </p>
+                        </div>
+                    ) : (
+                        <div>
+                            {isGameOver && winner ? (
+                                <p style={{ color: "#4CAF50" }}>
+                                    {gameMode === "pvp" 
+                                        ? `🎉 ${winner} wins! 🎉` 
+                                        : winner === userSymbol ? "🎉 You win! 🎉" : "Computer wins!"
+                                    }
+                                </p>
+                            ) : isGameOver ? (
+                                <p style={{ color: "#FF9800" }}>
+                                    Game is a Draw! 🤝
+                                </p>
+                            ) : (
+                                <p className={styles["player-turn-indicator"]}>
+
+                                    {   
+                                        gameMode === "pvp" 
+                                            ? `Current Player: `
+                                            : `Your symbol: ${userSymbol} | Current: `
+                                    }
+                                    <span style={{ color: color[currentPlayer] }}>
+                                        {currentPlayer}
+                                    </span>
+                                </p>
+                            )
+                        }
+                        </div>
+                    )
+                }
+                
             </div>
 
             <div className={styles["board-game-container"]}>
-                {gameBoard.map((row, rowIndex) => (
+                {(gameMode ? gameBoard : modesBoards[selectedModeIndex]).map((row, rowIndex) => (
                     <div key={rowIndex} className={styles["board-game-row"]}>
                         {row.map((cell, colIndex) => (
                             <button
                                 key={colIndex}
                                 className={styles["board-game-cell"]}
-                                style={{ backgroundColor: cell }}
+                                style={{ 
+                                    backgroundColor: cell === "VS" ? "" : cell, 
+                                    color: cell === "VS" ? "#888" : "transparent",
+                                }}
                                 onClick={() => handleCellClick(rowIndex, colIndex)}
-                                disabled={isGameOver || isComputerThinking || currentPlayer !== "X"}
+                                disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
                             >
+                                {cell === "VS" ? "VS" : ""}
                             </button>
                         ))}
                     </div>
