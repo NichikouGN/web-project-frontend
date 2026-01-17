@@ -7,9 +7,9 @@ import { IoSearch } from "react-icons/io5";
 
 interface searchUserType {
   userId: string;
-  displayName: string;
+  fullName: string;
   username: string;
-  userImgUrl: string;
+  avatarUrl: string;
   bio: string;
 }
 
@@ -17,7 +17,6 @@ const SearchResult = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("query") || "";
-  const category = searchParams.get("category") || "post";
 
   const [inputQuery, setInputQuery] = useState<string>(searchQuery);
   const [searchPage, setSearchPage] = useState<number>(1);
@@ -27,9 +26,9 @@ const SearchResult = () => {
   const fetchResulsts = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/search/results?category=${encodeURIComponent(
-          category
-        )}&query=${encodeURIComponent(searchQuery)}&page=${searchPage}`,
+        `${import.meta.env.VITE_API_URL}/api/search/results?query=${encodeURIComponent(
+          searchQuery
+        )}&page=${searchPage}&limit=10`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
@@ -40,9 +39,12 @@ const SearchResult = () => {
       if (!res.ok) throw new Error("Failed to fetch search results");
 
       const data = await res.json();
+      console.log("Fetched search results:", data);
 
       setSearchUserResults(
-        searchPage === 1 ? data.data || [] : [...searchUserResults, ...(data.results || [])]
+        searchPage === 1
+          ? data.searchResults || []
+          : [...searchUserResults, ...(data.searchResults || [])]
       );
     } catch (error) {
       setSearchUserResults([]);
@@ -52,7 +54,7 @@ const SearchResult = () => {
 
   useEffect(() => {
     fetchResulsts();
-  }, [searchQuery, category]);
+  }, [searchQuery]);
 
   useEffect(() => {
     const postObserver = new IntersectionObserver(
@@ -74,15 +76,14 @@ const SearchResult = () => {
     return () => {
       if (postObserver) postObserver.disconnect();
     };
-  }, [searchUserResults.length, category]); // End of
+  }, [searchUserResults.length]); // End of
 
-  const handleNewParams = (category: string, query: string) => {
+  const handleNewParams = (query: string) => {
     setSearchPage(1);
     setSearchUserResults([]);
     fetchResulsts();
 
     setSearchParams({
-      category: category,
       query: query,
     });
   };
@@ -93,7 +94,7 @@ const SearchResult = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleNewParams(category, inputQuery);
+    handleNewParams(inputQuery);
   };
 
   return (
@@ -107,7 +108,7 @@ const SearchResult = () => {
               <input
                 type="text"
                 className={styles["search-input"]}
-                value={searchQuery}
+                value={inputQuery}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -128,7 +129,7 @@ const SearchResult = () => {
 
         <div className={styles["search-results-container"]}>
           {searchUserResults && searchUserResults.length > 0
-            ? searchUserResults.map(({ userId, displayName, username, userImgUrl, bio }, index) => (
+            ? searchUserResults.map(({ userId, fullName, username, avatarUrl, bio }, index) => (
                 <Fragment key={userId}>
                   <button
                     className={`${styles["card-item"]}`}
@@ -136,17 +137,14 @@ const SearchResult = () => {
                       navigate(`/user/${userId}`);
                     }}
                   >
-                    {userImgUrl ? (
-                      <div
-                        className={styles["card-author-logo"]}
-                        style={{ backgroundImage: `url(${userImgUrl})` }}
-                      />
+                    {avatarUrl ? (
+                      <img className={styles["card-author-avatar"]} src={avatarUrl} />
                     ) : (
-                      <FaCircleUser className={styles["card-author-logo"]} />
+                      <FaCircleUser className={styles["card-author-icon"]} />
                     )}
 
                     <div className={styles["user-info"]}>
-                      <h2 className={styles["display-name"]}>{displayName}</h2>
+                      <h2 className={styles["display-name"]}>{fullName}</h2>
                       <h3 className={styles["username"]}>@{username}</h3>
                       <p className={styles["user-bio"]}>{bio}</p>
                     </div>

@@ -92,7 +92,7 @@
 
 .user-personal-info-section {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 1rem;
 
   position: relative;
@@ -100,9 +100,10 @@
   transform: translateY(-50%);
 }
 
-.avatar {
+.avatar-icon {
   width: 6rem;
   height: 6rem;
+  align-self: center;
 
   background: var(--theme-text-secondary);
 
@@ -117,16 +118,28 @@
     color 0.3s ease-in-out;
 }
 
-.username {
+.avatar-image {
+  width: 6rem;
+  height: 6rem;
+  align-self: center;
+
+  border: 2px solid var(--theme-text-secondary);
+  border-radius: 50%;
+  object-fit: cover;
+
+  transition: border-color 0.3s ease-in-out;
+}
+
+.fullname-username-bio {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.username h1 {
+.fullname-username-bio h1 {
   margin-top: 3.5rem;
 
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: bold;
   color: var(--theme-text-primary);
 
@@ -134,15 +147,54 @@
   cursor: pointer;
 }
 
-.username p {
-  font-size: 1rem;
+.fullname-username-bio h2 {
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary);
+  transition: color 0.3s ease-in-out;
+}
+
+.fullname-username-bio p {
+  font-size: 0.875rem;
   color: var(--theme-text-secondary);
   transition: color 0.3s ease-in-out;
 }
 
 .share-uid-icon {
-  font-size: 1.25rem;
+  font-size: 0.875rem;
   color: var(--theme-text-secondary);
+  transition: color 0.3s ease-in-out;
+}
+
+.profile-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0.5rem;
+  background: var(--theme-body-secondary-bg);
+
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary);
+
+  border-radius: 0.5rem;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: all 0.3s ease-in-out;
+}
+
+[data-theme="dark"] .profile-button {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  transition: all 0.3s ease-in-out;
+}
+
+.profile-button-icon {
+  font-size: 1.5rem;
+  color: var(--theme-text-secondary);
+
+  cursor: pointer;
   transition: color 0.3s ease-in-out;
 }
 
@@ -180,7 +232,7 @@
   transition: all 0.3s ease-in-out;
 }
 
-.add-friends {
+.friends-button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -201,12 +253,12 @@
   transition: color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.add-friends:hover {
+.friends-button:hover {
   color: var(--theme-text-secondary);
   box-shadow: 0 0 8px rgba(var(--theme-text-primary-rgb), 0.8);
 }
 
-.add-friends-icon {
+.friends-button-icon {
   font-size: 1.5rem;
   color: var(--theme-text-secondary);
 

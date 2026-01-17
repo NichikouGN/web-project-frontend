@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
-import { FaCheck, FaHome, FaSignInAlt, FaSun, FaSearch, FaUser } from "react-icons/fa";
+import { FaHome, FaSignInAlt, FaSun, FaSearch, FaUser } from "react-icons/fa";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { FaMoon } from "react-icons/fa";
@@ -24,29 +24,6 @@ const Navbar = () => {
         <Link className={styles["navbar-link"]} to="/search">
           <FaSearch />
         </Link>
-
-        <button
-          className={styles["navbar-link"]}
-          onClick={() => {
-            useAuthStore
-              .getState()
-              .setSignInState(signInState === "unauthorized" ? "authorized" : "unauthorized");
-          }}
-        >
-          authorized{" "}
-          {useAuthStore.getState().signInState === "authorized" ? <FaCheck /> : <FaSignInAlt />}
-        </button>
-
-        <button
-          className={styles["navbar-link"]}
-          onClick={() => {
-            useAuthStore
-              .getState()
-              .setSignInState(signInState === "unauthorized" ? "admin" : "unauthorized");
-          }}
-        >
-          admin {useAuthStore.getState().signInState === "admin" ? <FaCheck /> : <FaSignInAlt />}
-        </button>
       </section>
 
       <section className={styles["signin-section"]}>

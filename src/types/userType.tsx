@@ -1,9 +1,9 @@
 export interface userInformation {
   userId: string;
   username: string;
-  displayName: string;
+  fullName: string;
   email: string;
   bio: string;
-  profileImageUrl?: string;
+  avatarUrl?: string;
   role: "user" | "admin";
 }

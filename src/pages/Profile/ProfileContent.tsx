@@ -1,10 +1,12 @@
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaUserEdit } from "react-icons/fa";
 import { useUserStore } from "../../stores/userStore";
 import styles from "./Profile.module.css";
 import { handleUIDShare } from "../../utils/Profile";
 import { IoCopySharp } from "react-icons/io5";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../stores/authStore";
+import { MdLogout } from "react-icons/md";
 
 interface RankingDataType {
   userId: string;
@@ -120,17 +122,43 @@ const ProfileContent = () => {
       <header className={styles["header"]}></header>
       <main className={styles["content"]}>
         <section className={styles["user-personal-info-section"]}>
-          <FaUser className={styles["avatar"]} />
-          <div className={styles["username"]}>
+          {userInformation.avatarUrl ? (
+            <img
+              src={userInformation.avatarUrl}
+              alt="User Avatar"
+              className={styles["avatar-image"]}
+            />
+          ) : (
+            <FaUser className={styles["avatar-icon"]} />
+          )}
+          <div className={styles["fullname-username-bio"]}>
             <h1
               onClick={() => {
                 handleUIDShare(userInformation.userId);
               }}
             >
-              {userInformation.username} <IoCopySharp className={styles["share-uid-icon"]} />
+              {userInformation.fullName} <IoCopySharp className={styles["share-uid-icon"]} />
             </h1>
+            <h2>@{userInformation.username}</h2>
             <p>{userInformation.bio}</p>
           </div>
+          <div style={{ flex: 1 }} />
+          <button
+            className={styles["profile-button"]}
+            onClick={() => {
+              navigate("/profile/edit");
+            }}
+          >
+            <FaUserEdit className={styles["profile-button-icon"]} />
+          </button>
+          <button
+            className={styles["profile-button"]}
+            onClick={() => {
+              useAuthStore.getState().signOut();
+            }}
+          >
+            <MdLogout className={styles["profile-button-icon"]} />
+          </button>
         </section>
 
         <section className={styles["user-info-section"]}>
