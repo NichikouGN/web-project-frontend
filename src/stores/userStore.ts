@@ -7,6 +7,7 @@ import type { userInformation } from "../types/userType";
 interface UserContextType {
   userInformation: userInformation;
   fetchUserInfo: () => Promise<void>;
+  wipeUserInfo?: () => void;
 }
 
 export const useUserStore = create<UserContextType>()(
@@ -14,8 +15,25 @@ export const useUserStore = create<UserContextType>()(
     userInformation: {
       userId: "",
       username: "",
+      fullName: "",
       email: "",
       bio: "",
+      avatarUrl: "",
+      role: "user",
+    },
+
+    wipeUserInfo: () => {
+      set({
+        userInformation: {
+          userId: "",
+          username: "",
+          fullName: "",
+          email: "",
+          bio: "",
+          avatarUrl: "",
+          role: "user",
+        },
+      });
     },
 
     fetchUserInfo: async () => {
@@ -39,14 +57,18 @@ export const useUserStore = create<UserContextType>()(
           }
 
           const data = await res.json();
+          console.log("Fetched user info:", data);
 
           //Set user information state
           set({
             userInformation: {
               userId: data.userId,
               username: data.username,
+              fullName: data.fullName,
               email: data.email,
               bio: data.bio,
+              avatarUrl: data.avatarUrl,
+              role: data.role,
             },
           });
         }

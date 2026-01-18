@@ -159,6 +159,9 @@ body {
   --theme-text-secondary: var(--neutral-700);
   --theme-text-secondary-rgb: 63, 63, 63;
 
+  --theme-text-tertiary: var(--neutral-500);
+  --theme-text-tertiary-rgb: 113, 113, 113;
+
   --theme-card-primary-bg: var(--neutral-200);
   --theme-card-primary-bg-rgb: 212, 212, 212;
 
@@ -187,6 +190,9 @@ body {
 
   --theme-text-secondary: var(--neutral-300);
   --theme-text-secondary-rgb: 212, 212, 212;
+
+  --theme-text-tertiary: var(--neutral-500);
+  --theme-text-tertiary-rgb: 113, 113, 113;
 
   --theme-card-primary-bg: var(--neutral-800);
   --theme-card-primary-bg-rgb: 39, 39, 39;

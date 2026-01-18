@@ -1,132 +1,138 @@
-import React, { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./Message.module.css";
-import { FaUser } from "react-icons/fa";
 import { useAuthStore } from "../../stores/authStore";
-import { IoSend } from "react-icons/io5";
+import MessageSidebar from "./MessageSidebar";
+import MessageWindow from "./MessageWindow";
+import { useParams } from "react-router-dom";
+import { fetchWithAuth } from "../../api/fetchWithAuth";
 
-interface ChatSidebarItemType {
-  chatId: string;
-  chatName: string;
+export interface ChatSidebarItemType {
+  conversationId: string;
+  username: string;
+  avatarUrl: string;
   lastMessage: {
-    role: "sender" | "receiver";
     content: string;
+    role: "sender" | "receiver";
   };
 }
 
-interface ChatContentListType {
+export interface ChatContentType {
   role: "sender" | "receiver";
-  message: string;
+  content: string;
 }
 
 const Message = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const { conversationId, userId } = useParams<string>();
+  const draftMode = Boolean(userId);
 
-  const [currentChat, setCurrentChat] = React.useState<Omit<
-    ChatSidebarItemType,
-    "lastMessage"
-  > | null>(null);
-  const [chatContent, setChatContent] = React.useState<ChatContentListType[]>([]);
-  const [chatList, setChatList] = React.useState<ChatSidebarItemType[]>([]);
+  const [chatPage, setChatPage] = useState<number>(1);
+  const [chatList, setChatList] = useState<ChatSidebarItemType[]>([]);
+  const [chatContent, setChatContent] = useState<ChatContentType[]>([]);
 
   useEffect(() => {
-    const fetchChats = async () => {
+    console.log("Conversation ID:", conversationId);
+    console.log("User ID:", userId);
+  }, [conversationId, userId]);
+
+  useEffect(() => {
+    console.log("Draft mode:", draftMode);
+  }, [draftMode]);
+
+  useEffect(() => {
+    const fetchSidebarChats = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/chats`, {
+        const res = await fetchWithAuth(
+          `${import.meta.env.VITE_API_URL}/api/messages?page=${chatPage}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${accessToken}`,
+            },
+          },
+        );
+        if (!res.ok) throw new Error("Failed to fetch chats");
+
+        const data = await res.json();
+        const chatList = data.chatList;
+        if (draftMode) {
+          const draftSidebarChat = {
+            conversationId: "new/" + userId,
+            username: "Test",
+            avatarUrl: "https://example.com/avatar.jpg",
+          };
+
+          setChatList((prev) =>
+            chatPage === 1 ? [draftSidebarChat, ...chatList] : [...prev, ...chatList],
+          );
+        } else {
+          setChatList((prev) => (chatPage === 1 ? chatList : [...prev, ...chatList]));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchSidebarChats();
+  }, [accessToken, chatPage, draftMode]);
+
+  const fetchChatContent = useCallback(async () => {
+    if (!conversationId) return;
+
+    try {
+      const res = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/messages/${conversationId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             authorization: `Bearer ${accessToken}`,
           },
-        });
-        if (!res.ok) throw new Error("Failed to fetch chats");
+        },
+      );
+      if (!res.ok) throw new Error("Failed to fetch chat content");
 
-        const data = await res.json();
-        setChatList(data.chatList);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchChats();
-  }, []);
+      const data = await res.json();
+      setChatContent(data.messages);
+    } catch (error) {
+      setChatContent([]);
+      console.error(error);
+    }
+  }, [conversationId, accessToken]);
 
   useEffect(() => {
-    const fetchChatContent = async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/chats/${currentChat?.chatId}/messages`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json", authorization: `Bearer ${accessToken}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch chat content");
-        const data = await res.json();
-        setChatContent(data.chatContent);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    if (!conversationId) {
+      setChatContent([]);
+      return;
+    }
+
     fetchChatContent();
-  }, [currentChat]);
+  }, [fetchChatContent, conversationId]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      fetchChatContent();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [fetchChatContent]);
 
   return (
     <main className={styles["chat-body"]}>
-      <section className={styles["chat-sidebar"]}>
-        {chatList.length === 0 ? (
-          <p className={styles["no-chats-available"]}>No chats available.</p>
-        ) : (
-          chatList.map((chat) => (
-            <div
-              key={chat.chatId}
-              className={`${styles["chat-sidebar-item"]} ${
-                currentChat?.chatId === chat.chatId ? styles["chat-active"] : ""
-              }`}
-              onClick={() => setCurrentChat({ chatId: chat.chatId, chatName: chat.chatName })}
-            >
-              <FaUser className={styles["chat-sidebar-item-icon"]} />
-              <div className={styles["chat-sidebar-item-info"]}>
-                <h2>{chat.chatName}</h2>
-                <p>
-                  {chat.lastMessage.role === "sender" ? "You: " : ""}
-                  {chat.lastMessage.content}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
-      </section>
-      <section className={styles["message-content"]}>
-        {currentChat ? (
-          <>
-            <div className={styles["message-header"]}>
-              <h2>{currentChat?.chatName}</h2>
-            </div>
-            <ul className={styles["message-content-list"]}>
-              {chatContent.map((chat, index) => (
-                <li
-                  key={index}
-                  className={`${styles["message-item"]}
-                 ${chat.role === "sender" ? styles["sender"] : styles["receiver"]}`}
-                >
-                  {chat.message}
-                </li>
-              ))}
-            </ul>
-            <form className={styles["message-form-section"]}>
-              <input
-                type="text"
-                className={styles["message-input"]}
-                placeholder="Type your message..."
-              />
-              <button type="submit" className={styles["message-send-button"]}>
-                <IoSend />
-              </button>
-            </form>
-          </>
-        ) : (
-          <p className={styles["no-chats-available"]}>Select a chat to start messaging.</p>
-        )}
-      </section>
+      <MessageSidebar
+        chatList={chatList}
+        currentChatId={conversationId}
+        setChatPage={setChatPage}
+      />
+      <MessageWindow
+        currentChat={
+          draftMode
+            ? chatList.find((chat) => chat.conversationId === "new/" + userId)
+            : chatList.find((chat) => chat.conversationId === conversationId)
+        }
+        chatContent={chatContent}
+        setChatContent={setChatContent}
+        draftMode={draftMode}
+      />
     </main>
   );
 };

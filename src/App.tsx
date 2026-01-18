@@ -26,16 +26,24 @@ import Snake from "./pages/Games/Snake/Snake";
 import Match3 from "./pages/Games/Match3/Match3";
 import MemoryMatching from "./pages/Games/MemoryMatching/MemoryMatching";
 import FreePlay from "./pages/Games/FreePlay/FreePlay";
+import Search from "./pages/Search/Search";
+import SearchResult from "./pages/SearchResult/SearchResult";
+import EditProfile from "./pages/EditProfile/EditProfile";
 
 function App() {
   // Store subscription to fetch user info upon authorization
   const signInState = useAuthStore((state) => state.signInState);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   useEffect(() => {
-    if (signInState === "authorized") {
+    if (signInState !== "unauthorized") {
       useUserStore.getState().fetchUserInfo();
     }
-  }, [signInState]);
+
+    if (signInState === "unauthorized") {
+      useUserStore.getState().wipeUserInfo?.();
+    }
+  }, [signInState, accessToken]);
 
   useEffect(() => {
     useAuthStore.getState().validateAccessToken();
@@ -58,8 +66,13 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/:userId" element={<User />} />
 
+            <Route path="/search" element={<Search />} />
+            <Route path="/search/results" element={<SearchResult />} />
+
             <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
-              <Route path="/message" element={<Message />} />
+              <Route path="/messages" element={<Message />} />
+              <Route path="/messages/:conversationId" element={<Message />} />
+              <Route path="/messages/new/:userId" element={<Message />} />
             </Route>
 
             <Route path="/game/caro-5" element={<Caro5 />} />
@@ -70,6 +83,8 @@ function App() {
             <Route path="/game/memory-matching" element={<MemoryMatching />} />
             <Route path="/game/free-play" element={<FreePlay />} />
           </Route>
+
+          <Route path="/profile/edit" element={<EditProfile />} />
 
           <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
             <Route path="/profile" element={<Profile />} />

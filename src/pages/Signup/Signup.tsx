@@ -1,5 +1,5 @@
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuthStore } from "../../stores/authStore";
 import { IoClose } from "react-icons/io5";
 import styles from "../Signin/Signin.module.css";
@@ -12,9 +12,9 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 const signUpSchema = z
   .object({
     email: z.email("Invalid email address"),
+    username: z.string().min(1, "Username is required"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
     confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
-    username: z.string().min(1, "Username is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -51,17 +51,12 @@ const Signup = () => {
   //Handle submission
   const obSubmit = useCallback(
     async (data: z.infer<typeof signUpSchema>) => {
-      await signUp(data.username, data.email, data.password);
+      if (await signUp(data.username, data.email, data.password)) {
+        navigate("/signin");
+      }
     },
     [signUp]
   );
-
-  //Reroute base on singin state
-  useEffect(() => {
-    if (signInState === "authorized") {
-      navigate("/");
-    }
-  }, [signInState, navigate]);
 
   return (
     signInState === "unauthorized" && (

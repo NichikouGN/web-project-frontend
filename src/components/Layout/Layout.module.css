@@ -11,6 +11,11 @@
   background: var(--theme-body-bg);
 }
 
+.layout-outlet {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .admin-layout-container {
   display: grid;
   grid-template-columns: auto 1fr;

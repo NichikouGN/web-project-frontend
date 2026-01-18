@@ -18,11 +18,6 @@ interface authStoreType {
   validateAccessToken: () => Promise<boolean>;
   requestNewAccessToken: () => Promise<boolean>;
 
-  twoFactorToken: string;
-  setTwoFactorToken: (twoFactorToken: string) => void;
-  validateTwoFactorToken: () => Promise<boolean>;
-  verify2FA: (code: string) => Promise<boolean>;
-
   signInState: "unauthorized" | "admin" | "authorized";
   setSignInState: (state: "unauthorized" | "admin" | "authorized") => void;
 
@@ -43,7 +38,6 @@ export const useAuthStore = create<authStoreType>()(
 
       setAccessToken: (accessToken: string) => set({ accessToken }),
       setRefreshToken: (refreshToken: string) => set({ refreshToken }),
-      setTwoFactorToken: (twoFactorToken: string) => set({ twoFactorToken }),
       setSignInState: (state: "unauthorized" | "admin" | "authorized") =>
         set({ signInState: state }),
 
@@ -55,7 +49,6 @@ export const useAuthStore = create<authStoreType>()(
         set({
           accessToken: "",
           refreshToken: "",
-          twoFactorToken: "",
           signInState: "unauthorized",
         });
       },
@@ -132,59 +125,6 @@ export const useAuthStore = create<authStoreType>()(
         }
       },
 
-      validateTwoFactorToken: async () => {
-        if (!get().twoFactorToken) return false;
-
-        try {
-          const twoFactorToken = get().twoFactorToken;
-          if (!twoFactorToken) return false;
-
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/validate/2fa`, {
-            method: "GET",
-            headers: {
-              authorization: `Bearer ${twoFactorToken}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          });
-
-          if (!res.ok) throw get().throwAuthError(res.status);
-
-          return true;
-        } catch (e) {
-          get().setSignInState("unauthorized");
-          get().setTwoFactorToken("");
-          formatConsoleError("authStore.ts", "validateTwoFactorToken", e);
-          return false;
-        }
-      },
-
-      verify2FA: async (code: string) => {
-        try {
-          const twoFactorToken = get().twoFactorToken;
-          if (!twoFactorToken) throw new Error("temp Token does not exist");
-
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/validate/2fa`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              authorization: `Bearer ${twoFactorToken}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ code: code }),
-          });
-          if (!res.ok) throw get().throwAuthError(res.status);
-
-          const data = await res.json();
-          get().setUpToken(data.accessToken, data.refreshToken);
-          get().setTwoFactorToken("");
-
-          return true;
-        } catch (e) {
-          formatConsoleError("authStore.ts", "verify2FA", e);
-          return false;
-        }
-      },
-
       signIn: async (email: string, password: string) => {
         try {
           const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signin`, {
@@ -200,12 +140,7 @@ export const useAuthStore = create<authStoreType>()(
 
           const data = await res.json();
 
-          if (data.status === "require2FA") {
-            get().setTwoFactorToken(data.twoFactorToken);
-            get().setSignInState("admin");
-          } else {
-            get().setUpToken(data.accessToken, data.refreshToken);
-          }
+          get().setUpToken(data.accessToken, data.refreshToken);
         } catch (error: any) {
           if (error.status === 401) {
             alert("Your username or password is incorrect");
@@ -217,7 +152,7 @@ export const useAuthStore = create<authStoreType>()(
 
       adminSignIn: async (email: string, password: string) => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signin`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/admin/signin`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -230,12 +165,7 @@ export const useAuthStore = create<authStoreType>()(
 
           const data = await res.json();
 
-          if (data.status === "require2FA") {
-            get().setTwoFactorToken(data.twoFactorToken);
-            get().setSignInState("admin");
-          } else {
-            get().setUpToken(data.accessToken, data.refreshToken);
-          }
+          get().setUpToken(data.accessToken, data.refreshToken);
         } catch (error: any) {
           if (error.status === 401) {
             alert("Your username or password is incorrect");
@@ -254,17 +184,14 @@ export const useAuthStore = create<authStoreType>()(
               "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify({
-              username: username,
               email: email,
+              username: username,
+              fullName: username,
               password: password,
             }),
           });
 
           if (!res.ok) return false;
-
-          const data = await res.json();
-          get().setUpToken(data.accessToken, data.refreshToken);
-
           return true;
         } catch (e) {
           formatConsoleError("authStore.ts", "signUp", e);
@@ -282,7 +209,6 @@ export const useAuthStore = create<authStoreType>()(
         signInState: state.signInState,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
-        twoFactorToken: state.twoFactorToken,
       }),
     }
   )

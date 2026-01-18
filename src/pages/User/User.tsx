@@ -1,35 +1,41 @@
 import styles from "../Profile/Profile.module.css";
 import UserContent from "./UserContent";
 import UserSkeleton from "./UserSkeleton";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { userInformation } from "../../types/userType";
-import { Toast } from "../../stores/toastStore";
 import UserError from "./UserError";
+import type { userInformation } from "../../types/userType";
+import { useUserStore } from "../../stores/userStore";
 
 const User = () => {
+  const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
-  // const [userInformation, setUserInformation] = useState<userInformation | null>(null);
-  const [userInformation, setUserInformation] = useState<userInformation | null>({
-    userId: "123",
-    username: "TestUser",
-    email: "testuser@example.com",
-    bio: "This is a test user.",
-  });
+  const currentUserId = useUserStore((state) => state.userInformation.userId);
+  const [userInformation, setUserInformation] = useState<userInformation | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "loaded">("loading");
+
+  useEffect(() => {
+    if (userId === currentUserId) {
+      navigate("/profile");
+      return;
+    }
+  }, [userId, currentUserId]);
 
   useEffect(() => {
     const fetchUserInformation = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
         if (!res.ok) {
-          throw new Error("Failed to fetch user information");
+          throw new Error("Network response was not ok");
         }
-        const data = await res.json();
-        setUserInformation(data.user);
+        const data: userInformation = await res.json();
+        setUserInformation(data);
+        setLoadState("loaded");
       } catch (error) {
-        Toast({ type: "error", title: "Error", message: "Failed to fetch user information" });
-      } finally {
         setLoadState("loaded");
       }
     };

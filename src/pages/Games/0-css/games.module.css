@@ -110,18 +110,26 @@
   background: var(--theme-body-primary-bg);
 
   border-radius: 50%;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2), -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.2),
+    -2px -2px 4px rgba(255, 255, 255, 0.75);
 
-  transition: box-shadow 0.2s ease, background-color 0.3s ease;
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.3s ease;
 }
 
 [data-theme="dark"] .board-game-cell {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
 }
 
 .board-game-cell:hover {
   transition: box-shadow 0.2s ease;
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.2),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="dark"] .board-game-cell:hover {
@@ -152,7 +160,7 @@
   background: var(--theme-body-secondary-bg);
   color: var(--theme-text-primary);
 
-  border: 2px solid var(--theme-text-primary);
+  border: 1px solid var(--theme-text-primary);
   border-radius: 0.5rem;
 
   font-size: 1rem;

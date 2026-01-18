@@ -4,7 +4,7 @@
   justify-content: center;
 
   width: 100%;
-  padding: 1rem 2rem;
+  padding: 0.5rem 0;
 
   background: var(--theme-body-primary-bg);
   transition: background-color 0.3s ease;
@@ -13,7 +13,7 @@
 
 .footer-item {
   color: var(--theme-text-primary);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   transition: color 0.3s ease;
 }
 
