@@ -333,37 +333,16 @@ const TicTacToeContent = ({
         [["","",""], [color["X"], "VS", color["O"]], ["","",""]],
     ];
 
-    const leftPanelContent = (gameMode && gameMode !== "pvp") ? (
-        <div style={{ textAlign: "center" }}>
-            <h3 className={styles["player-turn-indicator"]}>Score</h3>
-            <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+    const leftPanelContent = (
+        <div>
+            <h3 className={styles["game-title"]}>TIC TAC TOE</h3>
+            <div className={styles["player-turn-indicator"]}>
+                <p>Match 3 in a row to win.</p>
+            </div>
         </div>
-    ) : null;
+    );
 
-    const rightPanelContent = null;
-
-    return (
-        <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-            {gameMode ? 
-                <div className={styles["game-options-menu"]}>
-                    <button
-                        className={styles["reset-board-button"]}
-                        onClick={() => setGameState && setGameState("unloaded")}
-                    >
-                        Return
-                    </button>
-                    <button className={styles["reset-board-button"]} onClick={saveGame}>
-                        Save Game
-                    </button>
-                    <button className={styles["reset-board-button"]} onClick={loadGame}>
-                        Load Game
-                    </button>
-                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                        Reset Board
-                    </button>
-                </div> : null}
-
-            {/* Hiển thị trạng thái game */}
+    const rightPanelContent = 
             <div style={{ 
                 textAlign: "center", 
                 marginBottom: "20px", 
@@ -408,37 +387,37 @@ const TicTacToeContent = ({
                         )
                 }
                 
-            </div>
+            </div>;
 
-            {gameMode ? (
-                <GameZone
-                    gameBoard={gameBoard}
-                    handleCellClick={handleCellClick}
-                    leftPanelContent={leftPanelContent}
-                    rightPanelContent={rightPanelContent}
-                />
-            ) : (
-                <div className={styles["board-game-container"]}>
-                    {modesBoard[selectedModeIndex].map((row, rowIndex) => (
-                        <div key={rowIndex} className={styles["board-game-row"]}>
-                            {row.map((cell, colIndex) => (
-                                <button
-                                    key={colIndex}
-                                    className={styles["board-game-cell"]}
-                                    style={{ 
-                                        backgroundColor: cell === "VS" ? "" : cell, 
-                                        color: cell === "VS" ? textPrimaryColor : "transparent",
-                                    }}
-                                    onClick={() => handleCellClick(rowIndex, colIndex)}
-                                    disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
-                                >
-                                    {cell === "VS" ? "VS" : ""}
-                                </button>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            )}
+    return (
+        <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
+            {gameMode ? 
+                <div className={styles["game-options-menu"]}>
+                    <button
+                        className={styles["reset-board-button"]}
+                        onClick={() => setGameState && setGameState("unloaded")}
+                    >
+                        Return
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={saveGame}>
+                        Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                        Reset Board
+                    </button>
+                </div> : null
+            }            
+
+            <GameZone
+                gameBoard={gameMode ? gameBoard : modesBoard[selectedModeIndex]}
+                handleCellClick={handleCellClick}
+                leftPanelContent={leftPanelContent}
+                rightPanelContent={rightPanelContent}
+            />
+
         </div>
     );
 }

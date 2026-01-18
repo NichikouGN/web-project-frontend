@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import Caro4Content from "./Caro4Content";
@@ -78,6 +78,12 @@ const Caro4 = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!(gameBoardSize && gameState === "loaded")) {
+      fetchGameBoardSize();
+    }
+  }, [gameBoardSize, gameState, fetchGameBoardSize]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -93,7 +99,10 @@ const Caro4 = () => {
           winner={winner}
           setWinner={setWinner}
         />
-      ) : (
+      ) : null}
+
+      {/* 
+      : (
         <div className={styles["game-page"]}>
           <div className={styles["game-container"]}>
             <div className={styles["game-card"]}>
@@ -117,7 +126,9 @@ const Caro4 = () => {
             </div>
           </div>
         </div>
+        
       )}
+        */}
     </>
   );
 

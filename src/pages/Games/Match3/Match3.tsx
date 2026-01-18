@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import Match3Content from "./Match3Content.tsx";
@@ -74,6 +74,12 @@ const Match3 = () => {
     }
   }, []);
 
+  useEffect(() => {
+      if (!(gameBoardSize && gameState === "loaded")) {
+        fetchGameBoardSize();
+      }
+    }, [gameBoardSize, gameState, fetchGameBoardSize]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -85,31 +91,7 @@ const Match3 = () => {
           isGameOver={isGameOver}
           setIsGameOver={setIsGameOver}
         />
-      ) : (
-        <div className={styles["game-page"]}>
-          <div className={styles["game-container"]}>
-            <div className={styles["game-card"]}>
-              <h2>Match 3</h2>
-              <h4>Match 3 or more items to score points</h4>
-            </div>
-
-            <div className={styles["game-options"]}>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={fetchGameBoardSize}
-              >
-                <h3>Start New Game</h3>
-              </button>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={() => {loadGame()}}
-              >
-                <h3>Load Game</h3>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
   );
 

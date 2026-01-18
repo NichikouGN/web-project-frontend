@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import TicTacToeContent from "./TicTacToeContent";
@@ -53,6 +53,13 @@ const TicTacToe = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!(gameBoardSize && gameState === "loaded")) {
+      setBoard(generateEmptyBoard(gameBoardSize));
+      setGameState("loaded");
+    }
+  }, [gameBoardSize, gameState]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -68,37 +75,9 @@ const TicTacToe = () => {
           winner={winner}
           setWinner={setWinner}
         />
-      ) : (
-        <div className={styles["game-page"]}>
-          <div className={styles["game-container"]}>
-            <div className={styles["game-card"]}>
-              <h2>Tic Tac Toe</h2>
-              <h4>Classic 3x3 grid game</h4>
-            </div>
-
-            <div className={styles["game-options"]}>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={() => {
-                  setBoard(generateEmptyBoard(gameBoardSize));
-                  setGameState("loaded");
-                }}
-              >
-                <h3>Start New Game</h3>
-              </button>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={() => {loadGame()}}
-              >
-                <h3>Load Game</h3>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
   );
-
 
 };
 

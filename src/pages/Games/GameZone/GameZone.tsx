@@ -23,9 +23,19 @@ const GameZone = ({ gameBoard, leftPanelContent, rightPanelContent, handleCellCl
                             <button
                                 key={colIndex}
                                 className={`${styles["board-game-cell"]} ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex ? styles["board-game-cell-selected"] : ""}`}
-                                style={{ backgroundColor: cell, ...getCellStyle?.(rowIndex, colIndex) }}
+                                style={
+                                    cell === "VS" ? 
+                                        {
+                                            color: "yellow",
+                                            fontWeight: "bold",
+                                            fontSize: "1.2rem",
+                                        } : { 
+                                            backgroundColor: cell, 
+                                            ...getCellStyle?.(rowIndex, colIndex) 
+                                        }}
                                 onClick={() => handleCellClick(rowIndex, colIndex)}
                             >
+                                {cell === "VS" ? "VS" : ""}
                             </button>
                         ))}
                     </div>

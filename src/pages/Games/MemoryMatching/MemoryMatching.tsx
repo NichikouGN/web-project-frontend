@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import MemoryMatchingContent from "./MemoryMatchingContent";
@@ -23,11 +23,11 @@ const MemoryMatching = () => {
   const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(null);
   const [isWaiting, setIsWaiting] = useState<boolean>(false);
-  
-  const mockedBoardSize = { rows: 6, cols: 6 };
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded"
   );
+
+  const mockedBoardSize = { rows: 6, cols: 6 };
 
   const loadGame = useCallback(() => {
     const savedGameData = localStorage.getItem("memoryMatchingGameData");
@@ -107,6 +107,12 @@ const MemoryMatching = () => {
     [gameBoardSize]
   );
 
+  useEffect(() => {
+    if (!(gameBoardSize && gameState === "loaded")) {
+      fetchGameBoardSize();
+    }
+  }, [gameBoardSize, gameState, fetchGameBoardSize]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -132,44 +138,7 @@ const MemoryMatching = () => {
           isWaiting={isWaiting}
           setIsWaiting={setIsWaiting}
         />
-      ) : (
-        <div className={styles["game-page"]}>
-          <div className={styles["game-container"]}>
-            <div className={styles["game-card"]}>
-              <h2>Memory Matching</h2>
-              <h4>Match pairs of cards to win the game</h4>
-            </div>
-
-            <div className={styles["game-options"]}>
-              <button className={styles["game-play-prompt"]} onClick={fetchGameBoardSize}>
-                <h3>Start New Game</h3>
-              </button>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={() => {
-                  const gameData = {
-                    boardSize: mockedBoardSize,
-                    board: generateEmptyBoard(mockedBoardSize),
-                  };
-                  localStorage.setItem("freePlayGameData", JSON.stringify(gameData));
-
-                  Toast({
-                    type: "success",
-                    title: "Success",
-                    message: "Added sample data to local storage",
-                  });
-                }}
-              >
-                <h3>[DBG] Add Local Storage</h3>
-              </button>
-
-              <button className={styles["game-play-prompt"]} onClick={loadGame}>
-                <h3>Load Game</h3>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
   );
 };

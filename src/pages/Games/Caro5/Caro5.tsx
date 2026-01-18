@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import Caro5Content from "./Caro5Content";
@@ -78,6 +78,12 @@ const Caro5 = () => {
     }
   }, []);
 
+  useEffect(() => {
+      if (!(gameBoardSize && gameState === "loaded")) {
+        fetchGameBoardSize();
+      }
+    }, [gameBoardSize, gameState, fetchGameBoardSize]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -93,31 +99,7 @@ const Caro5 = () => {
           winner={winner}
           setWinner={setWinner}
         />
-      ) : (
-        <div className={styles["game-page"]}>
-          <div className={styles["game-container"]}>
-            <div className={styles["game-card"]}>
-              <h2>Caro 5</h2>
-              <h4>Match 5 in a row</h4>
-            </div>
-
-            <div className={styles["game-options"]}>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={fetchGameBoardSize}
-              >
-                <h3>Start New Game</h3>
-              </button>
-              <button
-                className={styles["game-play-prompt"]}
-                onClick={() => {loadGame()}}
-              >
-                <h3>Load Game</h3>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
   );
 

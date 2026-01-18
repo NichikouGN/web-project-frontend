@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import FreePlayContent from "./FreePlayContent";
@@ -61,6 +61,12 @@ const FreePlay = () => {
     [gameBoardSize]
   );
 
+  useEffect(() => {
+      if (!(gameBoardSize && gameState === "loaded")) {
+        fetchGameBoardSize();
+      }
+    }, [gameBoardSize, gameState, fetchGameBoardSize]);
+
   return (
     <>
       {gameBoardSize && gameState === "loaded" ? (
@@ -70,7 +76,10 @@ const FreePlay = () => {
           gameBoardSize={gameBoardSize}
           setGameState={setGameState}
         />
-      ) : (
+      ) : null }
+      
+      {/*
+          (
         <div className={styles["game-page"]}>
           <div className={styles["game-container"]}>
             <div className={styles["game-card"]}>
@@ -108,6 +117,7 @@ const FreePlay = () => {
           </div>
         </div>
       )}
+        */}
     </>
   );
 };
