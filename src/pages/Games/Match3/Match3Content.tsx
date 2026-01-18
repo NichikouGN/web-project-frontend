@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
+import GameZone from "../GameZone/GameZone";
 
 interface Match3ContentProps {
     gameBoard: string[][];
@@ -28,17 +29,51 @@ const Match3Content = ({
         )
         : [];
 
+    const [score, setScore] = useState(0);
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
-    const [gameArray, setGameArray] = useState<string[][]>(mockedGameArray);
+    const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | "endless" | null>(null);
+    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [turnsLeft, setTurnsLeft] = useState(30);
+    const [timeLeft, setTimeLeft] = useState(60);
+    const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
-    const updateCellColor = (row: number, col: number, color: string) => {
-        setGameBoard((prevBoard) => {
-        const newBoard = [...prevBoard];
-        newBoard[row][col] = color;
-        return newBoard;
+    const modes = [
+        { id: "classic", label: "Classic", description: "Score as much as possible with limited turn count" },
+        { id: "timeAttack", label: "Time Attack", description: "Score as much as possible in 60 seconds" },
+        { id: "endless", label: "Endless", description: "Play endlessly, no scoring" },
+    ];
+
+    const modesArt = {
+        "classic": 
+            `..........\n..PP..RR..\n..PP..RR..\n..........\n....RRGG..\n....RRGG..\n..........\n..BB..RR..\n..BB..RR..\n..........`,
+        "timeAttack": 
+            `..........\n..YYYYYY..\n..Y....Y..\n...Y..Y...\n....YY....\n....YY....\n...Y..Y...\n..Y....Y..\n..YYYYYY..\n..........`,
+        "endless": 
+            `..........\n..........\n..........\n..RO..BB..\n.R..OP..G.\n.R..PO..G.\n..II..YY..\n..........\n..........\n..........`
+    };
+
+    const createModesBoard = () => {
+        const modesList = ["classic", "timeAttack", "endless"] as const;
+        return modesList.map((mode) => {
+            const art = modesArt[mode].trim().split("\n");
+            return art.map((line) =>
+                line.split("").map((char) => {
+                    if (char === ".") return "";
+                    if (char === "R") return "red";
+                    if (char === "B") return "blue";
+                    if (char === "G") return "green";
+                    if (char === "Y") return "yellow";
+                    if (char === "P") return "purple";
+                    if (char === "O") return "orange";
+                    if (char === "I") return "pink";
+                    return "";
+                })
+            );
         });
     };
+    
+    const modesBoards = createModesBoard();
 
     const generateGameArray = useCallback(() => {
         if (!gameBoardSize) return;
@@ -125,18 +160,57 @@ const Match3Content = ({
     }, [gameBoardSize, colors, setGameBoard]);
 
     useEffect(() => {
-        generateGameArray();
-    }, [gameBoardSize]);
+        if (gameMode) {
+            generateGameArray();
+        }
+    }, [gameMode, gameBoardSize]);
 
-    const swapCells = (row1: number, col1: number, row2: number, col2: number) => {
-        setGameBoard((prevBoard) => {
-            const newBoard = prevBoard.map(r => [...r]);
-            const temp = newBoard[row1][col1];
-            newBoard[row1][col1] = newBoard[row2][col2];
-            newBoard[row2][col2] = temp;
-            return newBoard;
-        });
-    }
+    // Mode selector keyboard handler
+    useEffect(() => {
+        if (gameMode) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack" | "endless";
+                setGameMode(selectedMode);
+                setTurnsLeft(15);
+                setTimeLeft(60);
+                setIsGameOver(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedModeIndex, gameMode, modes]);
+
+    // Timer countdown cho Time Attack mode
+    useEffect(() => {
+        if (gameMode !== "timeAttack" || isGameOver) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prevTime) => {
+                if (prevTime <= 1) {
+                    setIsGameOver(true);
+                    Toast({ 
+                        type: "error", 
+                        title: "Time's Up!", 
+                        message: "Time Attack mode ended!" 
+                    });
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [gameMode, isGameOver]);
 
     const checkAndClearMatches = useCallback(() => {
         const processCascade = (board: string[][], iteration: number = 0) => {
@@ -202,7 +276,22 @@ const Match3Content = ({
                             const [row, col] = key.split("-").map(Number);
                             newBoard[row][col] = "";
                         });
+                        
+                        const scoreBonus = (a: number, b: number) => {
+                            let sum = 0;
+                            for (let i = a; i <= b; i++) {
+                                sum += (i-3) * 5;
+                            }
+                            return sum;
+                        }
+                        let scoreIncrement = toRemove.size * 10;
+                        if (toRemove.size > 3) {
+                            // Bonus điểm nếu xóa nhiều hơn 3 cells cùng lúc
+                            scoreIncrement += scoreBonus(4, toRemove.size);
+                        }
 
+                        // Cập nhật score dựa trên số lượng matches
+                        setScore((prev) => prev + scoreIncrement);
                         // Drop các ô từ trên xuống để lấp chỗ trống
                         for (let c = 0; c < newBoard[0].length; c++) {
                             let writePos = newBoard.length - 1;
@@ -288,6 +377,10 @@ const Match3Content = ({
     };
 
     const handleCellClick = (row: number, col: number) => {
+        // Không cho chơi nếu chưa chọn mode
+        if (!gameMode) return;
+        if (isGameOver) return;
+
         if (!selectedCell) {
             // Chưa có cell nào được chọn, chọn cell được click
             setSelectedCell({ row, col });
@@ -322,6 +415,21 @@ const Match3Content = ({
                     setGameBoard((currentBoard) => {
                         if (hasMatch(currentBoard)) {
                             checkAndClearMatches();
+                            // Giảm turns cho classic mode
+                            if (gameMode === "classic") {
+                                setTurnsLeft((prev) => {
+                                    const newTurns = prev - 1;
+                                    if (newTurns <= 0) {
+                                        setIsGameOver(true);
+                                        Toast({ 
+                                            type: "info", 
+                                            title: "Game Over", 
+                                            message: "No more turns!" 
+                                        });
+                                    }
+                                    return newTurns;
+                                });
+                            }
                         }
                         return currentBoard;
                     });
@@ -335,48 +443,101 @@ const Match3Content = ({
 
     const resetBoard = useCallback(() => {
         generateGameArray();
+        setScore(0);
+        setTurnsLeft(30);
+        setTimeLeft(60);
+        setIsGameOver(false);
+        setSelectedCell(null);
     }, [generateGameArray]);
 
     const saveGame = useCallback(() => {
         const gameData = {
         boardSize: gameBoardSize,
         board: gameBoard,
+        score: score,
         };
-        localStorage.setItem("freePlayGameData", JSON.stringify(gameData));
+        localStorage.setItem("match3GameData", JSON.stringify(gameData));
         Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard]);
+    }, [gameBoardSize, gameBoard, score]);
+
+    const leftPanelContent = gameMode ? (
+        <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+            <h3 className={styles["game-title"]}>MATCH 3</h3>
+            <h3>Instructions</h3>
+            <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+                Click a tile to select it, then click an adjacent tile to swap them.
+            </p>
+            <p style={{ fontSize: "14px", color: "#888" }}>
+                Match 3+ of a color in a row or column to clear them.
+            </p>
+        </div>
+    ) : (
+        <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+            <h3 className={styles["game-title"]}>MATCH 3</h3>
+            <p style={{ fontSize: "14px", color: "#888" }}>
+                Select your preferred game mode
+            </p>
+        </div>
+    );
+
+    const rightPanelContent = gameMode ? (
+        <div style={{ textAlign: "center" }}>
+            <div className={styles["player-turn-indicator"]}>
+                {gameMode === "endless" ? (
+                    <p style={{ fontSize: "18px", fontWeight: "bold", color: "#888" }}>Playing Endless</p>
+                ) : (
+                    <>
+                        <h3>Score</h3>
+                        <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+                        <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+                        {gameMode === "classic" && (
+                            <p style={{ fontSize: "18px", fontWeight: "bold", color: turnsLeft <= 3 ? "#FF6B6B" : "#FFC107" }}>
+                                Turns: {turnsLeft}
+                            </p>
+                        )}
+                        {gameMode === "timeAttack" && (
+                            <p style={{ fontSize: "18px", fontWeight: "bold", color: timeLeft <= 10 ? "#FF6B6B" : "#FFC107" }}>
+                                Time: {timeLeft}s
+                            </p>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    ) : (
+        <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
+            <h3>Select Game Mode</h3>
+            <p style={{ marginBottom: "10px" }}>Use &larr; &rarr; to navigate, Enter to select</p>
+            <h2 style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</h2>
+            <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
+        </div>
+    );
 
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-        <div className={styles["game-options-menu"]}>
-            <button
-            className={styles["reset-board-button"]}
-            onClick={() => setGameState && setGameState("unloaded")}
-            >
-            Return
-            </button>
-            <button className={styles["reset-board-button"]} onClick={saveGame}>
-            Save Game
-            </button>
-            <button className={styles["reset-board-button"]} onClick={resetBoard}>
-            Reset Board
-            </button>
-
-        </div>
-        <div className={styles["board-game-container"]}>
-            {gameBoard.map((row, rowIndex) => (
-            <div key={rowIndex} className={styles["board-game-row"]}>
-                {row.map((cellColor, colIndex) => (
-                <button
-                    key={colIndex}
-                    className={`${styles["board-game-cell"]} ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex ? styles["board-game-cell-selected"] : ""}`}
-                    style={{ backgroundColor: cellColor }}
-                    onClick={() => handleCellClick(rowIndex, colIndex)}
-                ></button>
-                ))}
-            </div>
-            ))}
-        </div>
+            {gameMode && (
+                <div className={styles["game-options-menu"]}>
+                    <button
+                        className={styles["reset-board-button"]}
+                        onClick={() => setGameState && setGameState("unloaded")}
+                    >
+                        Return
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={saveGame}>
+                        Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                        Reset Board
+                    </button>
+                </div>
+            )}
+            <GameZone
+                gameBoard={ gameMode ? gameBoard : modesBoards[selectedModeIndex] }
+                handleCellClick={handleCellClick}
+                selectedCell={selectedCell}
+                leftPanelContent={leftPanelContent}
+                rightPanelContent={rightPanelContent}
+            />
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
+import GameZone from "../GameZone/GameZone";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -30,14 +31,80 @@ const SnakeContent = ({
     const [score, setScore] = useState(0);
     const [snake, setSnake] = useState<Array<{ row: number; col: number }>>([]);
     const [snakeLength, setSnakeLength] = useState(4);  
-    const [speed, setSpeed] = useState(750); // Tốc độ di chuyển của rắn (ms)
+    const [speed, setSpeed] = useState(900); // Tốc độ di chuyển của rắn (ms)
+    const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
+    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(60); // 60 giây cho time attack
+    
+    const modes = [
+        { id: "classic", label: "Classic", description: "Classic mode" },
+        { id: "timeAttack", label: "Time Attack", description: "Start with high speed, eat as much as you can" },
+    ];
 
     // Màu sắc
     const colors = {
         snakeBody: "#00FF00", // Lime xanh sáng
         snakeHead: "#FFD700", // Gold/Vàng sáng
-        apple: "red",
+        apple: "red",        
     };
+
+    // Mode selector art - placeholder (sẽ được thêm sau)
+    const modesArt = {
+        "classic": 
+            `..........\n.ssssssss.\n.s......s.\n.s.sS.A.s.\n.s.s....s.\n.s.s....s.\n.s.ssssss.\n.s........\n.ssssssss.\n..........`,
+        "timeAttack": 
+            `..........\n..SSSSSS..\n..S....S..\n...S..S...\n....SS....\n....SS....\n...S..S...\n..S....S..\n..SSSSSS..\n..........`,
+    };
+
+    // Handle keyboard input cho mode selector
+    useEffect(() => {
+        if (gameMode) return; // Chỉ handle khi chưa chọn mode
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
+                setGameMode(selectedMode);
+                
+                // Khởi tạo tốc độ dựa trên mode
+                if (selectedMode === "timeAttack") {
+                    setSpeed(400); // Tốc độ cao cho time attack
+                    setTimeLeft(60); // Reset timer cho time attack
+                } else {
+                    setSpeed(900); // Tốc độ thường cho classic
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedModeIndex, gameMode, modes]);
+
+    // Create modeBoard for visualization
+    const createModesBoard = () => {
+        const modesList = ["classic", "timeAttack"] as const;
+        return modesList.map((mode) => {
+            const art = modesArt[mode].trim().split("\n");
+            return art.map((line) =>
+                line.split("").map((char) => {
+                    if (char === ".") return "";
+                    if (char === "S") return colors.snakeHead;
+                    if (char === "s") return colors.snakeBody;
+                    if (char === "A") return colors.apple;
+                    return "";
+                })
+            );
+        });
+    };
+    
+    const modesBoards = createModesBoard();
+
     const spawnApple = useCallback(() => {
         if (!gameBoardSize) return;
         const newBoard = gameBoard.map(row => [...row]);
@@ -55,6 +122,9 @@ const SnakeContent = ({
     }, [gameBoardSize, gameBoard, setGameBoard, colors]);
 
     const handleCellClick = useCallback((row: number, col: number) => {
+        // Không cho chơi nếu chưa chọn mode
+        if (!gameMode) return;
+        
         // Kiểm tra nếu click vào ô có táo
         if (gameBoard[row][col] === colors.apple) {
             // Ăn táo: xóa táo hiện tại
@@ -74,40 +144,64 @@ const SnakeContent = ({
             });
             setIsGameOver(true);
         }
-    }, [gameBoard, spawnApple, setGameBoard, setIsGameOver]);
+    }, [gameMode, gameBoard, spawnApple, setGameBoard, setIsGameOver]);
 
     useEffect(() => {
         if (gameBoardSize && !applePlaced)
             spawnApple();
     }, [gameBoardSize, applePlaced, spawnApple]);
 
+    // Timer countdown cho Time Attack mode
+    useEffect(() => {
+        if (gameMode !== "timeAttack" || isGameOver) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prevTime) => {
+                if (prevTime <= 1) {
+                    setIsGameOver(true);
+                    Toast({ 
+                        type: "error", 
+                        title: "Time's Up!", 
+                        message: "Time Attack mode ended!" 
+                    });
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [gameMode, isGameOver]);
+
     // Khởi tạo rắn và táo lần đầu
     useEffect(() => {
-        if (gameBoardSize && snake.length === 0) {
-            const initialSnake = [
-                { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) + 1 },
-                { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) },
-                { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) - 1 },
-                { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) - 2 },
-            ];
-            setSnake(initialSnake);
-            setSnakeLength(4); // Rắn bắt đầu với độ dài 4
-            
-            // Vẽ rắn lên board rỗng
-            const newBoard = Array.from({ length: gameBoardSize.rows }, () =>
-                Array.from({ length: gameBoardSize.cols }, () => "")
-            );
-            initialSnake.forEach((segment, index) => {
-                // Đầu rắn có màu vàng, thân có màu xanh
-                newBoard[segment.row][segment.col] = index === 0 ? colors.snakeHead : colors.snakeBody;
-            });
-            setGameBoard(newBoard);
-            setApplePlaced(false); // Báo hiệu rằng táo cần được spawn
-        }
-    }, [gameBoardSize, colors]);
+        if (!gameMode || !gameBoardSize || snake.length > 0) return;
+        
+        const initialSnake = [
+            { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) + 1 },
+            { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) },
+            { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) - 1 },
+            { row: Math.floor(gameBoardSize.rows / 2), col: Math.floor(gameBoardSize.cols / 2) - 2 },
+        ];
+        setSnake(initialSnake);
+        setSnakeLength(4); // Rắn bắt đầu với độ dài 4
+        
+        // Vẽ rắn lên board rỗng
+        const newBoard = Array.from({ length: gameBoardSize.rows }, () =>
+            Array.from({ length: gameBoardSize.cols }, () => "")
+        );
+        initialSnake.forEach((segment, index) => {
+            // Đầu rắn có màu vàng, thân có màu xanh
+            newBoard[segment.row][segment.col] = index === 0 ? colors.snakeHead : colors.snakeBody;
+        });
+        setGameBoard(newBoard);
+        setApplePlaced(false); // Báo hiệu rằng táo cần được spawn
+    }, [gameMode, gameBoardSize, colors]);
 
     // Xử lý phím bấm để thay đổi hướng
     useEffect(() => {
+        if (!gameMode) return; // Chỉ handle khi đã chọn mode
+        
         const handleKeyPress = (e: KeyboardEvent) => {
             if (isGameOver) return;
             
@@ -142,11 +236,11 @@ const SnakeContent = ({
 
         window.addEventListener("keydown", handleKeyPress);
         return () => window.removeEventListener("keydown", handleKeyPress);
-    }, [direction, isGameOver]);
+    }, [direction, isGameOver, gameMode]);
 
     // Di chuyển rắn mỗi 1 giây
     useEffect(() => {
-        if (isGameOver || snake.length === 0) return;
+        if (!gameMode || isGameOver || snake.length === 0) return;
 
         const moveSnake = () => {
             // Cập nhật hướng thực tế
@@ -184,9 +278,14 @@ const SnakeContent = ({
                 // Kiểm tra ăn táo
                 if (gameBoard[newHead.row][newHead.col] === colors.apple) {
                     Toast({ type: "success", message: "Apple eaten! +1 score" });
-                    setScore((s) => s + 1);
+                    setScore((s) => 
+                        gameMode === "timeAttack" ? s + 100 + (1000 - speed) / 5 : s + 50 + (1000 - speed) / 10
+                    ); // Tăng điểm dựa trên tốc độ hiện tại
                     setSnakeLength((prev) => prev + 1); // Tăng độ dài rắn
-                    
+                    setSpeed((prev) => 
+                        gameMode === "timeAttack" ? Math.max(100, prev - 50) :
+                        Math.max(100, prev - 20)
+                    ); // Tăng tốc độ (giảm thời gian chờ, tối thiểu 100ms)
                     // Spawn táo mới ngay lập tức
                     const tempBoard = gameBoard.map(row => [...row]);
                     tempBoard[newHead.row][newHead.col] = ""; // Xóa táo cũ
@@ -241,7 +340,7 @@ const SnakeContent = ({
 
         const timer = setInterval(moveSnake, speed);
         return () => clearInterval(timer);
-    }, [snake, nextDirection, gameBoard, gameBoardSize, isGameOver, setGameBoard, setIsGameOver, snakeLength, colors]);
+    }, [snake, nextDirection, gameBoard, gameBoardSize, isGameOver, setGameBoard, setIsGameOver, snakeLength, colors, gameMode, speed]);
 
 
 
@@ -269,21 +368,33 @@ const SnakeContent = ({
         setDirection({ row: 0, col: 1 });
         setNextDirection({ row: 0, col: 1 });
         setScore(0);
+        setSpeed(gameMode === "timeAttack" ? 400 : 900);
         setApplePlaced(false);
         setIsGameOver(false);
+        if (gameMode === "timeAttack") {
+            setTimeLeft(60); // Reset timer cho time attack
+        }
         Toast({ type: "info", message: "Board reset!" });
-    }, [gameBoardSize, colors]);
+    }, [gameBoardSize, colors, gameMode]);
 
     const saveGame = useCallback(() => {
         const gameData = {
             boardSize: gameBoardSize,
             board: gameBoard,
+            snake: snake,
+            direction: direction,
+            snakeLength: snakeLength,
+            score: score,
+            speed: speed,
             isGameOver: isGameOver,
+            applePlaced: applePlaced,
+            timeLeft: timeLeft,
+            gameMode: gameMode,
             savedAt: new Date().toISOString(),
         };
         localStorage.setItem("snakeGameData", JSON.stringify(gameData));
         Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, isGameOver]);
+    }, [gameBoardSize, gameBoard, isGameOver, direction, snake, snakeLength, score, speed, timeLeft, gameMode]);
 
     // Hàm tải game từ localStorage
     const loadGame = useCallback(() => {
@@ -293,6 +404,14 @@ const SnakeContent = ({
                 const gameData = JSON.parse(savedGameData);
                 setGameBoard(gameData.board);
                 setIsGameOver(gameData.isGameOver);
+                setDirection(gameData.direction);
+                setSnake(gameData.snake);
+                setSnakeLength(gameData.snakeLength);
+                setScore(gameData.score);
+                setSpeed(gameData.speed);
+                setGameMode(gameData.gameMode);
+                setTimeLeft(gameData.timeLeft || 60);
+                setApplePlaced(gameData.applePlaced); // Đặt lại để spawn táo mới nếu cần
                 Toast({ 
                     type: "success", 
                     title: "Success", 
@@ -314,61 +433,88 @@ const SnakeContent = ({
 
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-            <div className={styles["game-options-menu"]}>
-                <button
-                    className={styles["reset-board-button"]}
-                    onClick={() => setGameState && setGameState("unloaded")}
-                >
-                    Return
-                </button>
-                <button className={styles["reset-board-button"]} onClick={saveGame}>
-                    Save Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={loadGame}>
-                    Load Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                    Reset Board
-                </button>
-            </div>
+            {gameMode && (
+                <div className={styles["game-options-menu"]}>
+                    <button
+                        className={styles["reset-board-button"]}
+                        onClick={() => setGameState && setGameState("unloaded")}
+                    >
+                        Return
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={saveGame}>
+                        Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                        Reset Board
+                    </button>
+                </div>
+            )}
 
-            {/* Hiển thị trạng thái game */}
-            <div style={{ 
-                textAlign: "center", 
-                marginBottom: "20px", 
-                fontSize: "18px",
-                fontWeight: "bold"
-            }}>
-                <p style={{ color: "#4CAF50", marginBottom: "10px" }}>
-                    Score: {score}
-                </p>
-                {isGameOver ? (
-                    <p style={{ color: "#FF9800" }}>
-                        Game Over
-                    </p>
-                ) : (
-                    <p style={{ color: "#4CAF50" }}>
-                        Game in Progress - Use Arrow Keys to control
-                    </p>
-                )}
-            </div>
-
-            <div className={styles["board-game-container"]}>
-                {gameBoard.map((row, rowIndex) => (
-                    <div key={rowIndex} className={styles["board-game-row"]}>
-                        {row.map((cell, colIndex) => (
-                            <button
-                                key={colIndex}
-                                className={styles["board-game-cell"]}
-                                style={{ backgroundColor: cell }}
-                                onClick={() => handleCellClick(rowIndex, colIndex)}
-                            >
-                            </button>
-                        ))}
-                    </div>
-                ))}
-            </div>
-        </div>
+            <GameZone 
+                gameBoard={gameMode ? gameBoard : modesBoards[selectedModeIndex]}
+                handleCellClick={handleCellClick}
+                leftPanelContent={
+                    gameMode ? (
+                        <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+                            <h3 className={styles["game-title"]}>SNAKE GAME</h3>
+                            <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+                                Use Arrow Keys to control the snake.
+                            </p>
+                            <p style={{ fontSize: "14px", color: "#888" }}>
+                                Eat apples to grow and score points!
+                            </p>
+                            <p style={{ fontSize: "14px", color: "#C32B2B" }}>
+                                Don't hit walls or yourself!
+                            </p>
+                        </div>
+                    ) : (
+                        <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+                            <h3 className={styles["game-title"]}>SNAKE GAME</h3>
+                            <p style={{ fontSize: "14px", color: "#888" }}>
+                                Select your preferred game mode
+                            </p>
+                        </div>
+                    )
+                }
+                rightPanelContent={
+                    gameMode ? (
+                        <div>
+                            <div className={styles["player-turn-indicator"]} 
+                                style={{ textAlign: "center" }}>            
+                                <h3>Score</h3>
+                                <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+                                <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+                                {gameMode === "timeAttack" && (
+                                    <>
+                                        <p style={{ 
+                                            fontSize: "18px", 
+                                            fontWeight: "bold", 
+                                            color: timeLeft <= 10 ? "#FF6B6B" : "#FFC107",
+                                            marginBottom: "10px"
+                                        }}>
+                                            Time: {timeLeft}s
+                                        </p>
+                                        <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+                                    </>
+                                )}
+                                <p>Length: {snake.length}</p>
+                                <p>Speed: {(1000 - speed) / 100}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
+                            <h3>Select Game Mode</h3>
+                            <p style={{ marginBottom: "10px" }}>Use &larr; &rarr; to navigate, Enter to select</p>
+                            <h2 style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</h2>
+                            <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
+                        </div>
+                    )
+                }
+            />
+        </div> 
     );
 }
 

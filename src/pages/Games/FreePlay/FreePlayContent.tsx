@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
+import GameZone from "../GameZone/GameZone";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -31,6 +32,10 @@ const FreePlayContent = ({
     });
   };
 
+  const handleCellClick = (row: number, col: number) => {
+    updateCellColor(row, col, selectedColor);
+  }
+
   const resetBoard = useCallback(() => {
     setGameBoard(
       Array.from({ length: gameBoardSize?.rows ?? 0 }, () =>
@@ -48,6 +53,26 @@ const FreePlayContent = ({
     Toast({ type: "success", title: "Success", message: "Game saved successfully" });
   }, [gameBoardSize, gameBoard]);
 
+  const loadGame = useCallback(() => {
+    const savedData = localStorage.getItem("freePlayGameData");
+    if (savedData) {
+      const gameData = JSON.parse(savedData);
+      setGameBoard(gameData.board);
+    }
+  }, [setGameBoard]);
+
+  const leftPanelContent = (
+    <div style={{ textAlign: "center" }}>
+      <h3 className={styles["game-title"]}>FREE PLAY</h3>
+    </div>
+  );
+
+  const rightPanelContent = (
+    <div style={{ textAlign: "center" }}>
+      <p className={styles["player-turn-indicator"]}>Draw whatever you want</p>
+    </div>
+  );
+
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
       <div className={styles["game-options-menu"]}>
@@ -60,30 +85,26 @@ const FreePlayContent = ({
         <button className={styles["reset-board-button"]} onClick={saveGame}>
           Save Game
         </button>
+        <button className={styles["reset-board-button"]} onClick={loadGame}>
+          Load Game
+        </button>
         <button className={styles["reset-board-button"]} onClick={resetBoard}>
           Reset Board
         </button>
         <input
-          className={styles["color-picker"]}
+          type="color"
           value={selectedColor}
           onChange={handleColorChange}
-          type="color"
+          className={styles["color-picker"]}
         />
+
       </div>
-      <div className={styles["board-game-container"]}>
-        {gameBoard.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles["board-game-row"]}>
-            {row.map((cellColor, colIndex) => (
-              <button
-                key={colIndex}
-                className={styles["board-game-cell"]}
-                style={{ backgroundColor: cellColor }}
-                onClick={() => updateCellColor(rowIndex, colIndex, selectedColor)}
-              ></button>
-            ))}
-          </div>
-        ))}
-      </div>
+      <GameZone
+        gameBoard={gameBoard}
+        handleCellClick={handleCellClick}
+        leftPanelContent={leftPanelContent}
+        rightPanelContent={rightPanelContent}
+      />
     </div>
   );
 };

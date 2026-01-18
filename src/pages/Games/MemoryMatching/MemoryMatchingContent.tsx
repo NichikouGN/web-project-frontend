@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
+import GameZone from "../GameZone/GameZone";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -58,6 +59,72 @@ const MemoryMatchingContent = ({
   const [isGameComplete, setIsGameComplete] = useState<boolean>(propsIsGameComplete);
   const [isWaiting, setIsWaiting] = useState<boolean>(propsIsWaiting);
   const [matchedCells, setMatchedCells] = useState<Set<string>>(propsMatchedCells);
+  const [score, setScore] = useState(0);
+  const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
+  const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [isGameOver, setIsGameOver] = useState(false);
+  
+  const modes = [
+    { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
+    { id: "timeAttack", label: "Time Attack (30s)", description: "Score before time runs out, penalty for unmatched pairs" },
+  ];
+  
+
+  const reward = 100 + (gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols * 20 : 0); // điểm thưởng khi ghép đúng
+  const penalty = 10;  // điểm phạt khi ghép sai
+
+  // Mode selector keyboard handler
+  useEffect(() => {
+    if (gameMode) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
+        setGameMode(selectedMode);
+        setTimeLeft(30);
+        setIsGameOver(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedModeIndex, gameMode, modes]);
+
+  // Timer countdown cho Time Attack mode
+  useEffect(() => {
+    if (gameMode !== "timeAttack" || isGameOver || isGameComplete) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          setIsGameOver(true);
+          // Tính penalty cho số cặp chưa match
+          const totalPairs = gameBoardSize ? (gameBoardSize.rows * gameBoardSize.cols) / 2 : 0;
+          const unmatchedPairs = totalPairs - matchedCount;
+          const finalPenalty = unmatchedPairs * 10;
+          setScore((prev) => Math.max(0, prev - finalPenalty));
+          Toast({ 
+            type: "error", 
+            title: "Time's Up!", 
+            message: `Penalty: ${finalPenalty} points for ${unmatchedPairs} unmatched pairs` 
+          });
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameMode, isGameOver, isGameComplete, matchedCount, gameBoardSize]);
+
   const updateCellColor = (row: number, col: number, color: string) => {
     setGameBoard((prevBoard) => {
       const newBoard = [...prevBoard];
@@ -124,6 +191,10 @@ const MemoryMatchingContent = ({
   }
 
   const handleOnClick = (row: number, col: number) => {
+    // Không cho chơi nếu chưa chọn mode
+    if (!gameMode) return;
+    if (isGameOver) return;
+
     if (firstSelection && firstSelection.row === row && firstSelection.col === col) {
       Toast({ type: "warning", message: "Please select another cell" });
       return;
@@ -167,6 +238,7 @@ const MemoryMatchingContent = ({
         
         if (firstColor !== selectedColor) {
           // Không khớp, ẩn lại sau 1 giây
+          setScore((prev) => prev - (prev > 0 ? (gameMode === "timeAttack" ? 0 : 1) * penalty : 0));
           setTimeout(() => {
             updateCellColor(firstSelection.row, firstSelection.col, "var(--theme-body-primary-bg)");
             updateCellColor(row, col, "var(--theme-body-primary-bg)");
@@ -174,6 +246,7 @@ const MemoryMatchingContent = ({
           }, 1000);
         } else {
           // Khớp, thêm vào matched cells
+          setScore((prev) => prev + reward);
           const newMatched = new Set(matchedCells);
           newMatched.add(`${firstSelection.row}-${firstSelection.col}`);
           newMatched.add(cellKey);
@@ -216,11 +289,14 @@ const MemoryMatchingContent = ({
     setGameArray(generateGameArray());
     setMatchedCount(0);
     setTurnCount(0);
+    setScore(0);
     setIsGameComplete(false);
     setFirstSelection(null);
     setIsFirstSelection(true);
     setIsWaiting(false);
     setMatchedCells(new Set());
+    setTimeLeft(45);
+    setIsGameOver(false);
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
 
@@ -236,6 +312,7 @@ const MemoryMatchingContent = ({
       // Trạng thái game
       matchedCount: matchedCount,
       turnCount: turnCount,
+      score: score,
       isGameComplete: isGameComplete,
       matchedCells: Array.from(matchedCells),
       
@@ -249,7 +326,7 @@ const MemoryMatchingContent = ({
     };
     localStorage.setItem("memoryMatchingGameData", JSON.stringify(gameData));
     Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-  }, [gameBoardSize, gameBoard, gameArray, matchedCount, turnCount, isGameComplete, matchedCells, isFirstSelection, firstSelection, isWaiting]);
+  }, [gameBoardSize, gameBoard, gameArray, matchedCount, turnCount, score, isGameComplete, matchedCells, isFirstSelection, firstSelection, isWaiting]);
 
   const loadGame = useCallback(() => {
     const savedGameData = localStorage.getItem("memoryMatchingGameData");
@@ -266,6 +343,7 @@ const MemoryMatchingContent = ({
         // Restore game state
         setMatchedCount(gameData.matchedCount || 0);
         setTurnCount(gameData.turnCount || 0);
+        setScore(gameData.score || 0);
         setIsGameComplete(gameData.isGameComplete || false);
         setMatchedCells(new Set(gameData.matchedCells || []));
         
@@ -295,67 +373,100 @@ const MemoryMatchingContent = ({
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      <div className={styles["game-options-menu"]}>
-        <button
-          className={styles["reset-board-button"]}
-          onClick={() => setGameState && setGameState("unloaded")}
-        >
-          Return
-        </button>
-        <button className={styles["reset-board-button"]} onClick={saveGame}>
-          Save Game
-        </button>
-        <button className={styles["reset-board-button"]} onClick={loadGame}>
-          Load Game
-        </button>
-        <button className={styles["reset-board-button"]} onClick={resetBoard}>
-          Reset Board
-        </button>
-      </div>
+      {gameMode && (
+        <div className={styles["game-options-menu"]}>
+          <button
+            className={styles["reset-board-button"]}
+            onClick={() => setGameState && setGameState("unloaded")}
+          >
+            Return
+          </button>
+          <button className={styles["reset-board-button"]} onClick={saveGame}>
+            Save Game
+          </button>
+          <button className={styles["reset-board-button"]} onClick={loadGame}>
+            Load Game
+          </button>
+          <button className={styles["reset-board-button"]} onClick={resetBoard}>
+            Reset Board
+          </button>
+        </div>
+      )}
 
       <div>
-        <div className={styles["matched-count"]}>
-          Matched: {matchedCount}
-        </div>
-        <div className={styles["turn-indicator"]}>
-          Turn: {turnCount}
-        </div>
         {isGameComplete && (
           <div style={{
             textAlign: "center",
             marginTop: "10px",
             fontSize: "18px",
             fontWeight: "bold",
-            color: "#4CAF50"
+            color: "#4CAF50",
+            marginBottom: "20px"
           }}>
             🎉 All pairs matched! 🎉
           </div>
         )}
       </div>
 
-      <div className={styles["board-game-container"]}>
-        {gameBoard.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles["board-game-row"]}>
-            {row.map((cellColor, colIndex) => {
-              const cellKey = `${rowIndex}-${colIndex}`;
-              const isMatched = matchedCells.has(cellKey);
-              return (
-                <button
-                  key={colIndex}
-                  className={styles["board-game-cell"]}
-                  style={{ 
-                    backgroundColor: cellColor,
-                    opacity: isMatched ? 0.5 : 1,
-                    cursor: isMatched || isWaiting ? "not-allowed" : "pointer"
-                  }}
-                  onClick={() => handleOnClick(rowIndex, colIndex)}
-                  disabled={isMatched || isWaiting || isGameComplete}
-                ></button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+      <GameZone
+        gameBoard={gameBoard}
+        handleCellClick={handleOnClick}
+        getCellStyle={(row, col) => {
+          const cellKey = `${row}-${col}`;
+          const isMatched = matchedCells.has(cellKey);
+          return {
+            opacity: isMatched ? 0.5 : 1,
+            cursor: isMatched || isWaiting ? "not-allowed" : "pointer"
+          };
+        }}
+        leftPanelContent={
+          gameMode ? (
+            <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+              <h3 className={styles["game-title"]}>Memory Matching</h3>
+              <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+                Click on a card to reveal it.
+              </p>
+              <p style={{ fontSize: "14px", color: "#888" }}>
+                Match all pairs to win!
+              </p>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
+              <h3 className={styles["game-title"]}>Memory Matching</h3>
+              <p style={{ fontSize: "14px", color: "#888" }}>
+                Select your preferred game mode
+              </p>
+            </div>
+          )
+        }
+        rightPanelContent={
+          gameMode ? (
+            <div className={styles["player-turn-indicator"]} 
+              style={{ textAlign: "center" }}>            
+              <h3>Score</h3>
+              <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+              <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+              {gameMode === "timeAttack" && (
+                <>
+                  <p style={{ fontSize: "18px", fontWeight: "bold", color: timeLeft <= 5 ? "#FF6B6B" : "#FFC107" }}>
+                    Time: {timeLeft}s
+                  </p>
+                  <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+                </>
+              )}
+              <p>Tries count: {turnCount}</p>
+              <p>Matched pairs: {matchedCount} / {(gameBoardSize ? (gameBoardSize.rows * gameBoardSize.cols) / 2 : 0)}</p>
+            </div>
+          ) : (
+            <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
+              <h3>Select Game Mode</h3>
+              <p style={{ marginBottom: "10px" }}>Use &larr; &rarr; to navigate, Enter to select</p>
+              <h2 style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</h2>
+              <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
+            </div>
+          )
+        }
+      />
     </div>
   );
 };

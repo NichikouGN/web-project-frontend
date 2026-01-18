@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
+import GameZone from "../GameZone/GameZone";
 
 interface Caro5ContentProps {
   gameBoard: string[][];
@@ -31,6 +32,7 @@ const Caro5Content = ({
     setWinner: propsSetWinner,
 }: Caro5ContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
+    const [score, setScore] = useState(0);
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [winner, setWinner] = useState<"X" | "O" | null>(propsWinner);
@@ -166,14 +168,23 @@ const Caro5Content = ({
             if (gameWinner) {
                 setWinner(gameWinner);
                 setIsGameOver(true);
+                
+                // Cập nhật điểm scoring
+                if (gameWinner === userSymbol && gameMode !== "pvp") {
+                    setScore((prev) => prev + 1000);
+                }
+                
                 Toast({ 
-                    type: gameWinner === "X" ? "success" : "error", 
+                    type: gameWinner === userSymbol && gameMode !== "pvp" ? "success" : "error", 
                     title: "Game Over", 
-                    message: gameWinner === "X" ? "You win!" : "You lose!"
+                    message: gameMode === "pvp" ? `${gameWinner} wins!` : (gameWinner === userSymbol ? "You win!" : "You lose!")
                 });
             } else if (isBoardFull(newBoard)) {
                 // Nước cờ hòa
                 setIsGameOver(true);
+                if (gameMode !== "pvp") {
+                    setScore((prev) => prev + 500);
+                }
                 Toast({ 
                     type: "info", 
                     title: "Draw", 
@@ -350,7 +361,57 @@ const Caro5Content = ({
     };
     
     const modesBoards = createModesBoard();
-    console.log(modesBoards);
+    
+    const leftPanelContent = (
+        <div>
+            <h3 className={styles["game-title"]}>CARO 5</h3>
+            <div className={styles["player-turn-indicator"]}>
+                <p>Match 5 in a row to win.</p>
+            </div>
+        </div>
+    );
+
+    const rightPanelContent = gameMode ? (
+        <div className={styles["player-turn-indicator"]} 
+            style={{ textAlign: "center" }}>            
+            <h3>Score</h3>
+            <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+            <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
+            {!isGameOver ? (
+                <div>
+                    <h4>Current Turn</h4>
+                    <p style={{ fontSize: "18px", fontWeight: "bold" }}>
+                        {   
+                            gameMode === "pvp" 
+                                ? `Current Player: `
+                                : `Your symbol: ${userSymbol} | Current: `
+                        }
+                        <span style={{ color: color[currentPlayer] }}>
+                            {currentPlayer}
+                        </span>
+                    </p>
+                </div>
+            ) : (
+                <div>
+                    <h4>Game Over</h4>
+                    {winner ? (
+                        <p style={{ fontSize: "18px", fontWeight: "bold", color: color[winner] }}>
+                            {gameMode === "pvp" ? `${winner} wins!` : (winner === userSymbol ? "You win!" : "You lose!")}
+                        </p>
+                    ) : (
+                        <p style={{ fontSize: "18px", fontWeight: "bold" }}>It's a draw!</p>
+                    )}
+                </div>
+            )}
+        </div>
+    ) : (
+        <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
+            <h3>Select Game Mode</h3>
+            <p style={{ marginBottom: "10px" }}>Use &larr; &rarr; to navigate, Enter to select</p>
+            <h2 style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</h2>
+            <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
+        </div>
+    );
 
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
@@ -383,70 +444,15 @@ const Caro5Content = ({
                 fontSize: "18px",
                 fontWeight: "bold"
             }}>
-                {
-                    !gameMode ? (
-                        <div className={styles["player-turn-indicator"]}>
-                            <p>Select Game Mode:</p>
-                            <p>
-                                Mode: <span style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</span> - {modes[selectedModeIndex].description}
-                            </p>
-                            <p style={{ marginTop: "10px", fontSize: "14px", color: "#888" }}>
-                                Use Left/Right arrows to select mode, Enter to confirm
-                            </p>
-                        </div>
-                    ) : (
-                        <div>
-                            {isGameOver && winner ? (
-                                <p style={{ color: "#4CAF50" }}>
-                                    {gameMode === "pvp" 
-                                        ? `🎉 ${winner} wins! 🎉` 
-                                        : winner === userSymbol ? "🎉 You win! 🎉" : "Computer wins!"
-                                    }
-                                </p>
-                            ) : isGameOver ? (
-                                <p style={{ color: "#FF9800" }}>
-                                    Game is a Draw! 🤝
-                                </p>
-                            ) : (
-                                <p className={styles["player-turn-indicator"]}>
-
-                                    {   
-                                        gameMode === "pvp" 
-                                            ? `Current Player: `
-                                            : `Your symbol: ${userSymbol} | Current: `
-                                    }
-                                    <span style={{ color: color[currentPlayer] }}>
-                                        {currentPlayer}
-                                    </span>
-                                </p>
-                            )
-                        }
-                        </div>
-                    )
-                }
-                
             </div>
 
-            <div className={styles["board-game-container"]}>
-                {(gameMode ? gameBoard : modesBoards[selectedModeIndex]).map((row, rowIndex) => (
-                    <div key={rowIndex} className={styles["board-game-row"]}>
-                        {row.map((cell, colIndex) => (
-                            <button
-                                key={colIndex}
-                                className={styles["board-game-cell"]}
-                                style={{ 
-                                    backgroundColor: cell === "VS" ? "" : cell, 
-                                    color: cell === "VS" ? "#888" : "transparent",
-                                }}
-                                onClick={() => handleCellClick(rowIndex, colIndex)}
-                                disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
-                            >
-                                {cell === "VS" ? "VS" : ""}
-                            </button>
-                        ))}
-                    </div>
-                ))}
-            </div>
+            <GameZone
+                gameBoard={gameMode ? gameBoard : modesBoards[selectedModeIndex]}
+                handleCellClick={handleCellClick}
+                leftPanelContent={leftPanelContent}
+                rightPanelContent={rightPanelContent}
+            />
+            
         </div>
     );
 }

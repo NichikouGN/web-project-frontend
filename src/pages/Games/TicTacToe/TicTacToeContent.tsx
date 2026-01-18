@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
+import GameZone from "../GameZone/GameZone";
 
 interface TicTacToeContentProps {
   gameBoard: string[][];
@@ -30,6 +31,7 @@ const TicTacToeContent = ({
     setWinner: propsSetWinner,
 }: TicTacToeContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
+    const [score, setScore] = useState(0);
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [winner, setWinner] = useState<"X" | "O" | null>(propsWinner);
@@ -111,6 +113,18 @@ const TicTacToeContent = ({
             if (gameWinner) {
                 setWinner(gameWinner);
                 setIsGameOver(true);
+                
+                // Cập nhật điểm scoring
+                if (gameWinner === userSymbol && gameMode !== "pvp") {
+                    let scoreGain = 0;
+                    if (gameMode === "goFirst") {
+                        scoreGain = 100;
+                    } else if (gameMode === "goSecond") {
+                        scoreGain = 120;
+                    }
+                    setScore((prev) => prev + scoreGain);
+                }
+                
                 if (gameMode === "pvp") {
                     Toast({
                         type: "success", 
@@ -319,25 +333,35 @@ const TicTacToeContent = ({
         [["","",""], [color["X"], "VS", color["O"]], ["","",""]],
     ];
 
+    const leftPanelContent = (gameMode && gameMode !== "pvp") ? (
+        <div style={{ textAlign: "center" }}>
+            <h3 className={styles["player-turn-indicator"]}>Score</h3>
+            <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
+        </div>
+    ) : null;
+
+    const rightPanelContent = null;
+
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-            <div className={styles["game-options-menu"]}>
-                <button
-                    className={styles["reset-board-button"]}
-                    onClick={() => setGameState && setGameState("unloaded")}
-                >
-                    Return
-                </button>
-                <button className={styles["reset-board-button"]} onClick={saveGame}>
-                    Save Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={loadGame}>
-                    Load Game
-                </button>
-                <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                    Reset Board
-                </button>
-            </div>
+            {gameMode ? 
+                <div className={styles["game-options-menu"]}>
+                    <button
+                        className={styles["reset-board-button"]}
+                        onClick={() => setGameState && setGameState("unloaded")}
+                    >
+                        Return
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={saveGame}>
+                        Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                        Reset Board
+                    </button>
+                </div> : null}
 
             {/* Hiển thị trạng thái game */}
             <div style={{ 
@@ -386,26 +410,35 @@ const TicTacToeContent = ({
                 
             </div>
 
-            <div className={styles["board-game-container"]}>
-                {(gameMode ? gameBoard : modesBoard[selectedModeIndex]).map((row, rowIndex) => (
-                    <div key={rowIndex} className={styles["board-game-row"]}>
-                        {row.map((cell, colIndex) => (
-                            <button
-                                key={colIndex}
-                                className={styles["board-game-cell"]}
-                                style={{ 
-                                    backgroundColor: cell === "VS" ? "" : cell, 
-                                    color: cell === "VS" ? textPrimaryColor : "transparent",
-                                }}
-                                onClick={() => handleCellClick(rowIndex, colIndex)}
-                                disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
-                            >
-                                {cell === "VS" ? "VS" : ""}
-                            </button>
-                        ))}
-                    </div>
-                ))}
-            </div>
+            {gameMode ? (
+                <GameZone
+                    gameBoard={gameBoard}
+                    handleCellClick={handleCellClick}
+                    leftPanelContent={leftPanelContent}
+                    rightPanelContent={rightPanelContent}
+                />
+            ) : (
+                <div className={styles["board-game-container"]}>
+                    {modesBoard[selectedModeIndex].map((row, rowIndex) => (
+                        <div key={rowIndex} className={styles["board-game-row"]}>
+                            {row.map((cell, colIndex) => (
+                                <button
+                                    key={colIndex}
+                                    className={styles["board-game-cell"]}
+                                    style={{ 
+                                        backgroundColor: cell === "VS" ? "" : cell, 
+                                        color: cell === "VS" ? textPrimaryColor : "transparent",
+                                    }}
+                                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                                    disabled={isGameOver || isComputerThinking || (gameMode !== "pvp" && currentPlayer !== userSymbol)}
+                                >
+                                    {cell === "VS" ? "VS" : ""}
+                                </button>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
