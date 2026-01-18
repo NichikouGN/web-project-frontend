@@ -22,7 +22,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
 
-  height: auto;
+  height: 100%;
 }
 
 .chat-sidebar {
@@ -30,10 +30,12 @@
   flex-direction: column;
 
   width: 320px;
-  padding: 0.5rem;
+  height: auto;
   margin: 0.5rem 0.25rem;
+  padding: 0.5rem;
 
   background: var(--theme-body-primary-bg);
+  overflow-y: auto;
   border-radius: 0.5rem;
   animation: fadeIn 1s ease;
   transition: background-color 0.3s ease;
@@ -129,13 +131,13 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
 
-  height: calc(100% - 1rem);
+  height: auto;
   margin: 0.5rem 0.25rem;
   padding: 0.5rem;
 
   border-radius: 0.5rem;
-  overflow: hidden;
   background: var(--theme-body-primary-bg);
+  overflow-y: auto;
 
   animation: fadeIn 1s ease;
   transition: background-color 0.3s ease;
@@ -144,9 +146,9 @@
 .message-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 
-  padding: 1rem;
+  padding: 0.5rem;
   background: var(--theme-body-primary-bg);
   border-bottom: 1px solid var(--theme-border-color);
 
@@ -180,6 +182,7 @@
   flex-direction: column;
 
   width: 100%;
+  min-height: 0;
   padding: 1rem;
 
   background: var(--theme-body-primary-bg);

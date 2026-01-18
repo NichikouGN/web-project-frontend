@@ -5,11 +5,12 @@
 
   background-color: var(--theme-body-bg);
 
-  width: 100svw;
-  min-height: 100svh;
+  width: 100vw;
+  min-height: 100vh;
   padding: 1rem;
 
-  background: radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.3) 0%, transparent 30%),
+  background:
+    radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 10% 60%, rgba(56, 189, 248, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 60% 40%, rgba(250, 204, 21, 0.3) 0%, transparent 30%)
@@ -74,11 +75,15 @@
   border-radius: 50%;
   background-color: var(--theme-body-primary-bg);
 
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), -2px -2px 4px rgba(255, 255, 255, 0.7);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    -2px -2px 4px rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="dark"] .return-btn {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
 }
 
 .return-btn-icon {
@@ -88,8 +93,8 @@
 
 .content {
   width: 100%;
-  min-height: 80svh;
-  padding: 1rem 1rem calc(7.5svh + 2rem) 1rem;
+  min-height: 80vh;
+  padding: 1rem 1rem calc(7.5vh + 2rem) 1rem;
 
   display: flex;
   flex-direction: column;
@@ -140,11 +145,15 @@
   border-radius: 0.5rem;
   border: none;
 
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="dark"] .input {
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.75), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.75),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.16);
 }
 
 .preview-profile-image {
@@ -159,16 +168,20 @@
   border-radius: 50%;
   object-fit: cover;
 
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="dark"] .preview-profile-image {
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.75), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.75),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.16);
 }
 
 .bio-input {
   align-items: flex-start;
-  height: 20svh;
+  height: 20vh;
 }
 
 .action-section {
@@ -191,7 +204,9 @@
   background: var(--theme-body-secondary-bg);
 
   border-radius: 0.75rem;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), -2px -2px 4px rgba(255, 255, 255, 0.7);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    -2px -2px 4px rgba(255, 255, 255, 0.7);
 
   transition: box-shadow 0.3s ease-in-out;
 }
@@ -202,5 +217,7 @@
 
 [data-theme="dark"] .revert-button,
 [data-theme="dark"] .save-button {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
 }

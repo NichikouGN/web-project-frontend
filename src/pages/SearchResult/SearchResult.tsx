@@ -27,13 +27,13 @@ const SearchResult = () => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/search/results?query=${encodeURIComponent(
-          searchQuery
+          searchQuery,
         )}&page=${searchPage}&limit=10`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Failed to fetch search results");
@@ -44,7 +44,7 @@ const SearchResult = () => {
       setSearchUserResults(
         searchPage === 1
           ? data.searchResults || []
-          : [...searchUserResults, ...(data.searchResults || [])]
+          : [...searchUserResults, ...(data.searchResults || [])],
       );
     } catch (error) {
       setSearchUserResults([]);
@@ -68,7 +68,7 @@ const SearchResult = () => {
           fetchResulsts();
         }
       },
-      { threshold: 0.5 } //half of the reference is needed to trigger observer
+      { threshold: 0.5 }, //half of the reference is needed to trigger observer
     );
 
     if (fetchTrigger.current) postObserver.observe(fetchTrigger.current);
@@ -146,7 +146,6 @@ const SearchResult = () => {
                     <div className={styles["user-info"]}>
                       <h2 className={styles["display-name"]}>{fullName}</h2>
                       <h3 className={styles["username"]}>@{username}</h3>
-                      <p className={styles["user-bio"]}>{bio}</p>
                     </div>
                   </button>
                   {index === searchUserResults.length - 4 ? (

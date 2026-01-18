@@ -69,7 +69,7 @@ const ProfileContent = () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         if (!res.ok) {
           throw new Error("Failed to fetch achievements data");
@@ -81,14 +81,14 @@ const ProfileContent = () => {
         console.error("Error fetching achievements data:", error);
       }
     },
-    [userInformation.userId]
+    [userInformation.userId],
   );
 
   const fetchRankingData = useCallback(
     async (filter: RankingFilterType, game: RankingGameType) => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/user/${
+          `${import.meta.env.VITE_API_URL}/api/users/${
             userInformation.userId
           }/rankings?type=${filter}&game=${game}`,
           {
@@ -96,7 +96,7 @@ const ProfileContent = () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!res.ok) {
@@ -109,7 +109,7 @@ const ProfileContent = () => {
         console.error("Error fetching ranking data:", error);
       }
     },
-    [rankingFilter, rankingGame, userInformation.userId]
+    [rankingFilter, rankingGame, userInformation.userId],
   );
 
   useEffect(() => {
