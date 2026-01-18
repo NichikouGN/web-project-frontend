@@ -24,7 +24,7 @@ const MemoryMatching = () => {
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(null);
   const [isWaiting, setIsWaiting] = useState<boolean>(false);
   
-  const mockedBoardSize = { rows: 4, cols: 4 };
+  const mockedBoardSize = { rows: 6, cols: 6 };
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded"
   );

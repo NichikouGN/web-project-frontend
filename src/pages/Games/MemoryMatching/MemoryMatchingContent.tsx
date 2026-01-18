@@ -62,17 +62,49 @@ const MemoryMatchingContent = ({
   const [score, setScore] = useState(0);
   const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
+  
+  const cellCount = gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols : 0;
+  const timeLimit = (
+    cellCount <= 16 ? 60 :
+    cellCount <= 36 ? 180 :
+    cellCount * 15
+  )
+
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);
   
   const modes = [
     { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
-    { id: "timeAttack", label: "Time Attack (30s)", description: "Score before time runs out, penalty for unmatched pairs" },
+    { id: "timeAttack", label: `Time Attack (${timeLimit}s)`, description: "Score before time runs out, penalty for unmatched pairs" },
   ];
-  
-
   const reward = 100 + (gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols * 20 : 0); // điểm thưởng khi ghép đúng
   const penalty = 10;  // điểm phạt khi ghép sai
+
+  const modesArt = {
+    "classic":
+      `CCC...\nCCC...\nCCCBBB\nCCCBBB\n...BBB\n...BBB`,
+    "timeAttack":
+      `YYYYYY\n.Y..Y.\n..YY..\n..YY..\n.Y..Y.\nYYYYYY`
+  };
+
+  // Create modeBoard for visualization
+  const createModesBoard = () => {
+      const modesList = ["classic", "timeAttack"] as const;
+      return modesList.map((mode) => {
+          const art = modesArt[mode].trim().split("\n");
+          return art.map((line) =>
+              line.split("").map((char) => {
+                  if (char === ".") return "";
+                  if (char === "C") return "#33F5FF";
+                  if (char === "B") return "#3357FF";
+                  if (char === "Y") return "#FFD700";
+                  return "";
+              })
+          );
+      });
+  };
+
+  const modesBoards = createModesBoard();
 
   // Mode selector keyboard handler
   useEffect(() => {
@@ -89,7 +121,7 @@ const MemoryMatchingContent = ({
         e.preventDefault();
         const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
         setGameMode(selectedMode);
-        setTimeLeft(30);
+        setTimeLeft(timeLimit);
         setIsGameOver(false);
       }
     };
@@ -97,6 +129,7 @@ const MemoryMatchingContent = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes]);
+
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {
@@ -295,7 +328,7 @@ const MemoryMatchingContent = ({
     setIsFirstSelection(true);
     setIsWaiting(false);
     setMatchedCells(new Set());
-    setTimeLeft(45);
+    setTimeLeft(timeLimit);
     setIsGameOver(false);
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
@@ -409,7 +442,7 @@ const MemoryMatchingContent = ({
       </div>
 
       <GameZone
-        gameBoard={gameBoard}
+        gameBoard={gameMode ? gameBoard : modesBoards[selectedModeIndex]}
         handleCellClick={handleOnClick}
         getCellStyle={(row, col) => {
           const cellKey = `${row}-${col}`;
