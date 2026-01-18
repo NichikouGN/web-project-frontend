@@ -38,7 +38,10 @@
   font-size: 1rem;
 
   border-radius: 0.5rem;
-  transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .navbar-link:hover {
@@ -56,7 +59,10 @@
 
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .theme-toggle,
@@ -75,7 +81,9 @@
   border: none;
   cursor: pointer;
 
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .theme-toggle-icon,
@@ -122,7 +130,9 @@
   border-radius: 1rem 0rem 1rem 1rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
   z-index: 9999999999999999999;
 }
 
@@ -138,7 +148,9 @@
   color: var(--theme-text-secondary);
   font-size: 0.9rem;
 
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .notification-item:hover {
@@ -161,11 +173,13 @@
   font-size: 1rem;
   color: var(--theme-body-bg);
 
-  border: 2px solid var(--theme-text-secondary);
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
   overflow: hidden;
 
-  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+  transition:
+    background-color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out,
     color 0.3s ease-in-out;
 }
 
@@ -175,7 +189,7 @@
 
   object-fit: cover;
 
-  border: 2px solid var(--theme-text-secondary);
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
 
   transition: border-color 0.3s ease-in-out;
@@ -212,7 +226,9 @@
   cursor: pointer;
   background: var(--neutral-300);
 
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .accept-button {

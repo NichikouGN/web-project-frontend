@@ -37,6 +37,12 @@ npm run dev
 
 # Version
 
+## v0.6.2 (2026-01-18)
+
+- Add ability to open a direct chat to anyone.
+- Fixed handling of message to be able to handle direct chat without prior conversation.
+- Decorate the UI of the chat window.
+
 ## v0.6.1 (2026-01-18)
 
 - Added ability to change user information.

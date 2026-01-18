@@ -4,19 +4,50 @@ import { IoCopySharp } from "react-icons/io5";
 import { handleUIDShare } from "../../utils/Profile";
 import type { userInformation } from "../../types/userType";
 import { IoPersonAddSharp } from "react-icons/io5";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useUserStore } from "../../stores/userStore";
 import { useAuthStore } from "../../stores/authStore";
 import { formatConsoleError } from "../../consoleError";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 import { FiRadio } from "react-icons/fi";
+import { FaRegMessage } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 const UserContent = ({ userInformation }: { userInformation: userInformation }) => {
+  const navigation = useNavigate();
   const [friendStatus, setFriendStatus] = useState<
     "not_friends" | "friends" | "request_sent" | "request_received"
   >("not_friends");
   const currentUser = useUserStore((state) => state.userInformation);
   const accessToken = useAuthStore((state) => state.accessToken);
+
+  const handleDirectMessage = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/users/${userInformation.userId}/direct-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error("Failed to create or fetch direct message");
+      }
+      const data = await res.json();
+      const hasConversation = data.hasConversation;
+
+      if (!hasConversation) {
+        navigation(`/messages/new/${userInformation.userId}`);
+      } else {
+        navigation(`/messages/${data.conversationId}`);
+      }
+    } catch (error) {
+      formatConsoleError("UserContent.tsx", "handleDirectMessage", error);
+    }
+  }, [accessToken, userInformation.userId, currentUser.userId, navigation]);
 
   useEffect(() => {
     const checkFriendStatus = async () => {
@@ -29,7 +60,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
               "Content-Type": "application/json",
               authorization: `Bearer ${accessToken}`,
             },
-          }
+          },
         );
         if (!res.ok) {
           const text = await res.text();
@@ -45,7 +76,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
     };
 
     checkFriendStatus();
-  }, [currentUser.userId, userInformation.userId]);
+  }, [currentUser.userId, userInformation.userId, accessToken]);
 
   const addFriend = async () => {
     try {
@@ -61,7 +92,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
             userId: currentUser.userId,
             friendId: userInformation.userId,
           }),
-        }
+        },
       );
       if (!res.ok) {
         throw new Error("Failed to add friend");
@@ -97,6 +128,9 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
             <p>{userInformation.bio}</p>
           </div>
           <div style={{ flex: 1 }} />
+          <button className={styles["friends-button"]} onClick={handleDirectMessage}>
+            <FaRegMessage className={styles["friends-button-icon"]} />
+          </button>
           {friendStatus === "friends" && (
             <button className={styles["friends-button"]} disabled>
               <FiRadio className={styles["friends-button-icon"]} />

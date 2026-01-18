@@ -21,6 +21,8 @@
 .chat-body {
   display: grid;
   grid-template-columns: auto 1fr;
+
+  height: auto;
 }
 
 .chat-sidebar {
@@ -49,12 +51,27 @@
 
   border-radius: 0.5rem;
   background: var(--theme-body-primary-bg);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   cursor: pointer;
 }
 
 .chat-active {
   background: var(--theme-body-secondary-bg);
+}
+
+.chat-sidebar-item-avatar {
+  flex-shrink: 0;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+  overflow: hidden;
+
+  transition: border-color 0.3s ease;
 }
 
 .chat-sidebar-item-icon {
@@ -68,11 +85,14 @@
   font-size: 1rem;
   color: var(--theme-body-bg);
 
-  border: 2px solid var(--theme-text-secondary);
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
   overflow: hidden;
 
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .chat-sidebar-item-info {
@@ -84,7 +104,7 @@
 .chat-sidebar-item-info h2 {
   margin: 0;
 
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--theme-text-primary);
   transition: color 0.3s ease;
@@ -109,8 +129,10 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
 
+  height: calc(100% - 1rem);
   margin: 0.5rem 0.25rem;
-  padding: 1rem;
+  padding: 0.5rem;
+
   border-radius: 0.5rem;
   overflow: hidden;
   background: var(--theme-body-primary-bg);
@@ -124,11 +146,24 @@
   align-items: center;
   gap: 1rem;
 
-  padding: 1rem 2rem;
+  padding: 1rem;
   background: var(--theme-body-primary-bg);
   border-bottom: 1px solid var(--theme-border-color);
 
   transition: background-color 0.3s ease;
+}
+
+.message-header-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+
+  object-fit: cover;
+  object-position: center;
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+
+  transition: border-color 0.3s ease;
 }
 
 .message-header h2 {
@@ -156,31 +191,98 @@
 }
 
 .message-item {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 0.25rem;
+
   max-width: 60%;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
+}
 
-  border-radius: 1rem;
-  background: var(--theme-body-secondary-bg);
-  box-shadow: var(--theme-box-shadow);
-
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: var(--theme-text-primary);
+.new-group {
+  margin-top: 1rem;
 }
 
 .message-item.sender {
   align-self: flex-end;
-  background: var(--sky-500);
-  color: var(--theme-body-bg);
-  border-radius: 0.75rem 0.75rem 0 0.75rem;
 }
 
 .message-item.receiver {
   align-self: flex-start;
+}
+
+.message-item-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+
+  object-fit: cover;
+  object-position: center;
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+
+  transition: border-color 0.3s ease;
+}
+
+.new-group-image {
+  opacity: 0;
+}
+
+.message-item-icon {
+  flex-shrink: 0;
+
+  width: 1.5rem;
+  height: 1.5rem;
+
+  background: var(--theme-text-secondary);
+
+  font-size: 0.75rem;
+  color: var(--theme-body-bg);
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.message-item-content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.message-item-username {
+  margin-left: 0.5rem;
+
+  font-size: 0.5rem;
+  color: var(--theme-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.message-item-content {
+  padding: 0.5rem 0.75rem;
+
+  background: var(--theme-body-secondary-bg);
+  box-shadow: var(--theme-box-shadow);
+
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--theme-text-primary);
+}
+
+.message-item-content.sender {
+  background: var(--sky-500);
+  color: var(--theme-body-bg);
+  border-radius: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.message-item-content.receiver {
   background: var(--theme-body-secondary-bg);
   color: var(--theme-text-primary);
-  border-radius: 0.75rem 0.75rem 0.75rem 0;
+  border-radius: 0.5rem 0.5rem 0.5rem 0;
 }
 
 .message-form-section {
@@ -203,11 +305,16 @@
 
   font-size: 1rem;
   color: var(--theme-text-primary);
+
   background: var(--theme-body-secondary-bg);
+  outline: none;
   border: 1px solid var(--theme-border-color);
   border-radius: 0.5rem;
 
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .message-send-button {
@@ -226,7 +333,9 @@
   cursor: pointer;
 
   font-size: 1.25rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .no-chats-available {

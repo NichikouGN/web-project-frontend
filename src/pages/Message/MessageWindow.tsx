@@ -1,28 +1,42 @@
 import { IoSend } from "react-icons/io5";
 import styles from "./Message.module.css";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 import type { ChatSidebarItemType } from "./Message";
 import { Toast } from "../../stores/toastStore";
+import { FaUser } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface MessageWindowProps {
   currentChat: ChatSidebarItemType | undefined;
   chatContent: {
     role: "sender" | "receiver";
-    message: string;
+    content: string;
   }[];
   setChatContent: React.Dispatch<
     React.SetStateAction<
       {
         role: "sender" | "receiver";
-        message: string;
+        content: string;
       }[]
     >
   >;
+  draftMode?: boolean;
 }
 
-const MessageWindow = ({ currentChat, chatContent, setChatContent }: MessageWindowProps) => {
+const MessageWindow = ({
+  currentChat,
+  chatContent,
+  setChatContent,
+  draftMode,
+}: MessageWindowProps) => {
+  const navigate = useNavigate();
   const [inputMessage, setInputMessage] = useState<string>("");
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatContent, currentChat]);
 
   const handleInputMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputMessage(e.target.value);
@@ -35,14 +49,14 @@ const MessageWindow = ({ currentChat, chatContent, setChatContent }: MessageWind
 
     try {
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/messages/${currentChat?.conversationId}/send`,
+        `${import.meta.env.VITE_API_URL}/api/messages/${currentChat?.conversationId}/send`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: inputMessage }),
-        }
+          body: JSON.stringify({ content: inputMessage }),
+        },
       );
 
       if (!res.ok) {
@@ -50,7 +64,13 @@ const MessageWindow = ({ currentChat, chatContent, setChatContent }: MessageWind
         return;
       }
 
-      setChatContent((prevContent) => [...prevContent, { role: "sender", message: inputMessage }]);
+      const data = await res.json();
+
+      if (draftMode) {
+        navigate(`/messages/${data.conversationId}`);
+      }
+
+      setChatContent((prevContent) => [...prevContent, { role: "sender", content: inputMessage }]);
       setInputMessage("");
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -62,18 +82,53 @@ const MessageWindow = ({ currentChat, chatContent, setChatContent }: MessageWind
       {currentChat ? (
         <>
           <div className={styles["message-header"]}>
-            <h2>{currentChat?.chatName}</h2>
+            <img
+              src={currentChat.avatarUrl}
+              alt={currentChat.username}
+              className={styles["message-header-avatar"]}
+            />
+            <h2>{currentChat.username}</h2>
           </div>
           <ul className={styles["message-content-list"]}>
-            {chatContent.map((chat, index) => (
-              <li
-                key={index}
-                className={`${styles["message-item"]}
+            {chatContent.map((chat, index) => {
+              const prevChat = chatContent[index - 1];
+              const isNewGroup = !prevChat || prevChat.role !== chat.role;
+
+              return (
+                <li
+                  key={index}
+                  className={`${styles["message-item"]}
+                 ${chat.role === "sender" ? styles["sender"] : styles["receiver"]}
+                 ${isNewGroup ? styles["new-group"] : ""}`}
+                >
+                  {chat.role === "receiver" && currentChat?.avatarUrl ? (
+                    <img
+                      src={currentChat.avatarUrl}
+                      alt={currentChat.username}
+                      className={`${styles["message-item-avatar"]} ${!isNewGroup ? styles["new-group-image"] : ""}`}
+                    />
+                  ) : (
+                    chat.role === "receiver" && (
+                      <FaUser
+                        className={`${styles["message-item-avatar"]} ${!isNewGroup ? styles["new-group-image"] : ""}`}
+                      />
+                    )
+                  )}
+                  <div className={styles["message-item-content-container"]}>
+                    {chat.role === "receiver" && isNewGroup && (
+                      <div className={styles["message-item-username"]}>{currentChat.username}</div>
+                    )}
+                    <div
+                      className={`${styles["message-item-content"]}
                  ${chat.role === "sender" ? styles["sender"] : styles["receiver"]}`}
-              >
-                {chat.message}
-              </li>
-            ))}
+                    >
+                      {chat.content}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+            {scrollRef.current && <div ref={scrollRef} />}
           </ul>
           <form className={styles["message-form-section"]} onSubmit={handleMessageSend}>
             <input

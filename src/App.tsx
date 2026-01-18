@@ -71,7 +71,8 @@ function App() {
 
             <Route element={<ProtectedRoute requireAuthorization="authorized" />}>
               <Route path="/messages" element={<Message />} />
-              <Route path="/messages/:chatId" element={<Message />} />
+              <Route path="/messages/:conversationId" element={<Message />} />
+              <Route path="/messages/new/:userId" element={<Message />} />
             </Route>
 
             <Route path="/game/caro-5" element={<Caro5 />} />

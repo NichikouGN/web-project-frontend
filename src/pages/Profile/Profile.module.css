@@ -21,7 +21,8 @@
   width: 100%;
   height: 40vh;
   padding: 20px;
-  background: radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.6) 0%, transparent 30%),
+  background:
+    radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.6) 0%, transparent 30%),
     radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.6) 0%, transparent 30%),
     radial-gradient(circle at 35% 90%, rgba(56, 189, 248, 0.6) 0%, transparent 30%),
     radial-gradient(circle at 60% 25%, rgba(250, 204, 21, 0.6) 0%, transparent 30%)
@@ -45,7 +46,8 @@
 }
 
 [data-theme="dark"] .header {
-  background: radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.3) 0%, transparent 30%),
+  background:
+    radial-gradient(circle at 10% 10%, rgba(74, 222, 128, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 35% 90%, rgba(56, 189, 248, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 60% 25%, rgba(250, 204, 21, 0.3) 0%, transparent 30%)
@@ -87,7 +89,9 @@
 
   background: var(--theme-body-bg);
 
-  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  transition:
+    background-color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out;
 }
 
 .user-personal-info-section {
@@ -110,11 +114,13 @@
   font-size: 1rem;
   color: var(--theme-body-bg);
 
-  border: 2px solid var(--theme-text-secondary);
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
   overflow: hidden;
 
-  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+  transition:
+    background-color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out,
     color 0.3s ease-in-out;
 }
 
@@ -123,7 +129,7 @@
   height: 6rem;
   align-self: center;
 
-  border: 2px solid var(--theme-text-secondary);
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
   object-fit: cover;
 
@@ -177,7 +183,9 @@
   color: var(--theme-text-secondary);
 
   border-radius: 0.5rem;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.16),
+    -2px -2px 4px rgba(255, 255, 255, 0.75);
 
   font-weight: bold;
   cursor: pointer;
@@ -186,7 +194,9 @@
 }
 
 [data-theme="dark"] .profile-button {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
 }
 
@@ -215,7 +225,9 @@
 }
 
 [data-theme="dark"] .ranking-button {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
 }
 
@@ -223,12 +235,16 @@
   color: var(--theme-text-primary);
   transition: color 0.3s ease-in-out;
 
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.16), inset -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.16),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.75);
   transition: all 0.3s ease-in-out;
 }
 
 [data-theme="dark"] .current {
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.75), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.75),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
 }
 
@@ -250,7 +266,9 @@
   border: none;
 
   cursor: pointer;
-  transition: color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition:
+    color 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
 }
 
 .friends-button:hover {
@@ -312,13 +330,17 @@
   padding: 0.5rem;
   background: var(--theme-body-secondary-bg);
   border-radius: 0.5rem;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.16),
+    -2px -2px 4px rgba(255, 255, 255, 0.75);
 
   transition: all 0.3s ease-in-out;
 }
 
 [data-theme="dark"] .achievement-item {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
 }
 
@@ -363,7 +385,9 @@
   color: var(--theme-text-secondary);
 
   border-radius: 0.5rem;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.16),
+    -2px -2px 4px rgba(255, 255, 255, 0.75);
 
   font-weight: bold;
   cursor: pointer;
@@ -372,7 +396,9 @@
 }
 
 [data-theme="dark"] .achievement-load-more {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), -2px -2px 4px rgba(255, 255, 255, 0.16);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.75),
+    -2px -2px 4px rgba(255, 255, 255, 0.16);
   transition: all 0.3s ease-in-out;
 }
 
@@ -402,7 +428,9 @@
   color: var(--theme-text-secondary);
 
   border-radius: 0.5rem;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.16), -2px -2px 4px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.16),
+    -2px -2px 4px rgba(255, 255, 255, 0.75);
 
   font-weight: bold;
   white-space: nowrap;
@@ -428,7 +456,9 @@
   color: var(--theme-text-primary);
 
   border-bottom: 1px solid var(--theme-text-secondary);
-  transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  transition:
+    color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out;
 }
 
 .ranking-row td {
@@ -439,7 +469,9 @@
   font-size: 0.75rem;
   color: var(--theme-text-secondary);
 
-  transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  transition:
+    color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out;
 }
 
 .ranking-username-cell {

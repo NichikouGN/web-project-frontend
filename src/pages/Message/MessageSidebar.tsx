@@ -23,7 +23,7 @@ const MessageSidebar = ({ chatList, currentChatId, setChatPage }: ChatSidebarPro
           observer.disconnect();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     if (fetchTrigger.current) observer.observe(fetchTrigger.current);
@@ -49,11 +49,19 @@ const MessageSidebar = ({ chatList, currentChatId, setChatPage }: ChatSidebarPro
                 navigate(`/messages/${chat.conversationId}`);
               }}
             >
-              <FaUser className={styles["chat-sidebar-item-icon"]} />
+              {chat.avatarUrl ? (
+                <img
+                  src={chat.avatarUrl}
+                  alt={chat.username}
+                  className={styles["chat-sidebar-item-avatar"]}
+                />
+              ) : (
+                <FaUser className={styles["chat-sidebar-item-icon"]} />
+              )}
               <div className={styles["chat-sidebar-item-info"]}>
-                <h2>{chat.chatName}</h2>
+                <h2>{chat.username}</h2>
                 <p>
-                  {chat.lastMessage.role === "sender" ? "You: " : ""}
+                  {chat.lastMessage.role === "sender" ? "You: " : chat.username + ": "}
                   {chat.lastMessage.content}
                 </p>
               </div>
