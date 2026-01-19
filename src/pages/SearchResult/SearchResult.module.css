@@ -202,15 +202,18 @@
 .card-author-icon {
   width: 4rem;
   height: 4rem;
-  z-index: 2;
+  background: var(--theme-text-secondary);
 
+  font-size: 0.75rem;
+  color: var(--theme-body-bg);
+
+  border: 1px solid var(--theme-text-secondary);
   border-radius: 50%;
 
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-
-  color: var(--theme-text-primary);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .user-info {

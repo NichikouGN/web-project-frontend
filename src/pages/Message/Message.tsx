@@ -10,7 +10,7 @@ export interface ChatSidebarItemType {
   conversationId: string;
   username: string;
   avatarUrl: string;
-  lastMessage: {
+  lastMessage?: {
     content: string;
     role: "sender" | "receiver";
   };
@@ -31,15 +31,6 @@ const Message = () => {
   const [chatContent, setChatContent] = useState<ChatContentType[]>([]);
 
   useEffect(() => {
-    console.log("Conversation ID:", conversationId);
-    console.log("User ID:", userId);
-  }, [conversationId, userId]);
-
-  useEffect(() => {
-    console.log("Draft mode:", draftMode);
-  }, [draftMode]);
-
-  useEffect(() => {
     const fetchSidebarChats = async () => {
       try {
         const res = await fetchWithAuth(
@@ -56,11 +47,25 @@ const Message = () => {
 
         const data = await res.json();
         const chatList = data.chatList;
+
+        console.log("Fetched sidebar chats:", chatList);
+
         if (draftMode) {
+          const userRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!userRes.ok) throw new Error("Failed to fetch user profile");
+
+          const userData = await userRes.json();
+
           const draftSidebarChat = {
             conversationId: "new/" + userId,
-            username: "Test",
-            avatarUrl: "https://example.com/avatar.jpg",
+            username: userData.username,
+            avatarUrl: userData.avatarUrl || "",
           };
 
           setChatList((prev) =>
@@ -74,7 +79,7 @@ const Message = () => {
       }
     };
     fetchSidebarChats();
-  }, [accessToken, chatPage, draftMode]);
+  }, [accessToken, chatPage, draftMode, userId]);
 
   const fetchChatContent = useCallback(async () => {
     if (!conversationId) return;
@@ -93,6 +98,7 @@ const Message = () => {
       if (!res.ok) throw new Error("Failed to fetch chat content");
 
       const data = await res.json();
+      console.log("Fetched chat content:", data.messages);
       setChatContent(data.messages);
     } catch (error) {
       setChatContent([]);
@@ -124,13 +130,10 @@ const Message = () => {
         setChatPage={setChatPage}
       />
       <MessageWindow
-        currentChat={
-          draftMode
-            ? chatList.find((chat) => chat.conversationId === "new/" + userId)
-            : chatList.find((chat) => chat.conversationId === conversationId)
-        }
+        conversationId={conversationId}
         chatContent={chatContent}
         setChatContent={setChatContent}
+        draftModeCurrentChat={chatList.find((chat) => chat.conversationId === "new/" + userId)}
         draftMode={draftMode}
       />
     </main>

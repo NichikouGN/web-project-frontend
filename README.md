@@ -37,6 +37,12 @@ npm run dev
 
 # Version
 
+## v0.7.1 (2026-01-19)
+
+- Fixed unable to create new chat.
+- Fixed unable to open up chat window after click on a chat.
+- Fixed problem with not displaying default avatar when avatar is null on chat and search page.
+
 ## v0.7.0 (2026-01-19)
 
 - Added Caro 5 Game.
