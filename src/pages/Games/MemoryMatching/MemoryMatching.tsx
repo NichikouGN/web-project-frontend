@@ -24,7 +24,7 @@ const MemoryMatching = () => {
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(null);
   const [isWaiting, setIsWaiting] = useState<boolean>(false);
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
-    "unloaded"
+    "unloaded",
   );
 
   const mockedBoardSize = { rows: 6, cols: 6 };
@@ -34,34 +34,34 @@ const MemoryMatching = () => {
     if (savedGameData) {
       try {
         const gameData = JSON.parse(savedGameData);
-        
+
         // Restore board config
         setGameBoardSize(gameData.boardSize);
-        
+
         // Restore board display
         setBoard(gameData.board);
-        
+
         // Restore game array
         setGameArray(gameData.gameArray || []);
-        
+
         // Restore game progress
         setMatchedCount(gameData.matchedCount || 0);
         setTurnCount(gameData.turnCount || 0);
         setIsGameComplete(gameData.isGameComplete || false);
         setMatchedCells(new Set(gameData.matchedCells || []));
-        
+
         // Restore selection state
         setIsFirstSelection(gameData.isFirstSelection ?? true);
         setFirstSelection(gameData.firstSelection || null);
         setIsWaiting(gameData.isWaiting ?? false);
-        
+
         // Change state to loaded
         setGameState("loaded");
-        
+
         Toast({
           type: "success",
           title: "Game Loaded",
-          message: `Restored game: ${gameData.turnCount} turns, ${gameData.matchedCount} matched pairs`
+          message: `Restored game: ${gameData.turnCount} turns, ${gameData.matchedCount} matched pairs`,
         });
       } catch (error) {
         Toast({ type: "error", message: "Failed to load game data" });
@@ -76,7 +76,7 @@ const MemoryMatching = () => {
   const fetchGameBoardSize = useCallback(async () => {
     try {
       /*
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/game/free-play/board-size`, {
         method: "GET",
         credentials: "include",
       });
@@ -99,12 +99,12 @@ const MemoryMatching = () => {
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
       const emptyBoard = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => "var(--theme-body-primary-bg)")
+        Array.from({ length: cols }, () => "var(--theme-body-primary-bg)"),
       );
 
       return emptyBoard;
     },
-    [gameBoardSize]
+    [gameBoardSize],
   );
 
   useEffect(() => {
