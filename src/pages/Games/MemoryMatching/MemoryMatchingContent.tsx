@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { postGameResult } from "../../../api/games.api";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -72,6 +73,7 @@ const MemoryMatchingContent = ({
 
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [playTime, setPlayTime] = useState(0);
   
   const modes = [
     { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
@@ -130,6 +132,35 @@ const MemoryMatchingContent = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes]);
 
+  // Đếm thời gian chơi
+  useEffect(() => {
+    if (isGameOver || isGameComplete || !gameMode) return;
+    const timer = setInterval(() => {
+      setPlayTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isGameOver, isGameComplete, gameMode]);
+
+  // Post game result khi game kết thúc
+  useEffect(() => {
+    if ((!isGameOver && !isGameComplete) || !gameMode || playTime === 0) return;
+
+    const postResult = async () => {
+      try {
+        await postGameResult(6, score, playTime, accessToken);
+        Toast({ 
+          type: "success", 
+          title: "Game Recorded", 
+          message: "Your game record has been saved!" 
+        });
+      } catch (error) {
+        console.error("Failed to post game result:", error);
+        // Toast is already shown by postGameResult function
+      }
+    };
+
+    postResult();
+  }, [isGameOver, isGameComplete, gameMode, score, accessToken]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {
