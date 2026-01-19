@@ -231,7 +231,6 @@ const Home = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}` //
         },
         body: JSON.stringify({
           game_id: gameMenu[rotationSelected].gameId,
