@@ -27,6 +27,7 @@ interface FreePlayContentProps {
   setFirstSelection?: React.Dispatch<React.SetStateAction<{ row: number; col: number } | null>>;
   isWaiting?: boolean;
   setIsWaiting?: React.Dispatch<React.SetStateAction<boolean>>;
+  timer: number;
 }
 
 const MemoryMatchingContent = ({
@@ -50,6 +51,7 @@ const MemoryMatchingContent = ({
   setFirstSelection: propsSetFirstSelection,
   isWaiting: propsIsWaiting = false,
   setIsWaiting: propsSetIsWaiting,
+  timer,
 }: FreePlayContentProps) => {
   // Sử dụng props từ parent nếu có, nếu không dùng local state
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -66,11 +68,7 @@ const MemoryMatchingContent = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   
   const cellCount = gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols : 0;
-  const timeLimit = (
-    cellCount <= 16 ? 60 :
-    cellCount <= 36 ? 180 :
-    cellCount * 15
-  )
+  const timeLimit = timer;
 
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);

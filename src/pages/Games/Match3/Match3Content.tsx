@@ -1,8 +1,9 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, use } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { number } from "zod";
 
 interface Match3ContentProps {
     gameBoard: string[][];
@@ -13,6 +14,7 @@ interface Match3ContentProps {
     >;
     isGameOver?: boolean;
     setIsGameOver?: React.Dispatch<React.SetStateAction<boolean>>;
+    timer: number;
 }
 
 const Match3Content = ({
@@ -22,25 +24,18 @@ const Match3Content = ({
     setGameState,
     isGameOver: propsIsGameOver = false,
     setIsGameOver: propsSetIsGameOver ,
+    timer,
 }: Match3ContentProps) => {
-
     const accessToken = useAuthStore((state) => state.accessToken);
-
-    const mockedGameArray = gameBoardSize
-        ? Array.from({ length: gameBoardSize.rows }, () =>
-            Array.from({ length: gameBoardSize.cols }, () => "")
-        )
-        : [];
-
     const [score, setScore] = useState(0);
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
     const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | "endless" | null>(null);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [turnsLeft, setTurnsLeft] = useState(30);
-    const [timeLeft, setTimeLeft] = useState(60);
+    const [timeLeft, setTimeLeft] = useState(timer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
-
+    
     const modes = [
         { id: "classic", label: "Classic", description: "Score as much as possible with limited turn count" },
         { id: "timeAttack", label: "Time Attack", description: "Score as much as possible in 60 seconds" },
@@ -184,7 +179,7 @@ const Match3Content = ({
                 const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack" | "endless";
                 setGameMode(selectedMode);
                 setTurnsLeft(15);
-                setTimeLeft(60);
+                setTimeLeft(timer);
                 setIsGameOver(false);
             }
         };
@@ -448,7 +443,7 @@ const Match3Content = ({
         generateGameArray();
         setScore(0);
         setTurnsLeft(30);
-        setTimeLeft(60);
+        setTimeLeft(timer);
         setIsGameOver(false);
         setSelectedCell(null);
     }, [generateGameArray]);
@@ -506,7 +501,7 @@ const Match3Content = ({
             setGameBoard(data.board || gameBoard);
             setScore(data.score ?? 0);
             setTurnsLeft(data.turnsLeft ?? 30);
-            setTimeLeft(data.timeLeft ?? 60);
+            setTimeLeft(data.timeLeft ?? timer);
             setGameMode(data.gameMode ?? null);
             setIsGameOver(data.isGameOver ?? false);
             setSelectedCell(data.selectedCell ?? null);

@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
+import {
+  getGameBoardSize,
+} from "../../../api/games.api";
 import { Toast } from "../../../stores/toastStore";
 import Caro4Content from "./Caro4Content";
 
 const Caro4 = () => {
+  const gameId = 2; // Assuming Caro 4 has gameId 2
+
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);
   const [board, setBoard] = useState<string[][]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
@@ -12,31 +17,19 @@ const Caro4 = () => {
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded"
   );
-
-  const mockedBoardSize = { rows: 10, cols: 10 };
+  const [playTime, setPlayTime] = useState(0);
 
   const fetchGameBoardSize = useCallback(async () => {
     try {
-      /*
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch game board size");
-      }
-      const data = await res.json();
-      */
-      //Temporary hardcoded board size until backend is ready
-      const data = { boardSize: mockedBoardSize };
-      setGameBoardSize(data.boardSize);
-      setBoard(generateEmptyBoard(data.boardSize));
+      const data = await getGameBoardSize(gameId);
+      setGameBoardSize(data);
+      setBoard(generateEmptyBoard(data));
       setGameState("loaded");
     } catch (error) {
       Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
       setGameState("fetchError");
     }
-  }, [gameState]);
+  }, [gameId]);
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
@@ -46,7 +39,7 @@ const Caro4 = () => {
 
       return emptyBoard;
     },
-    [gameBoardSize]
+    []
   );
 
   const loadGame = useCallback(() => {

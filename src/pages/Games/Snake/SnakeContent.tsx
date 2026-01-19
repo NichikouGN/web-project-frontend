@@ -14,6 +14,7 @@ interface SnakeContentProps {
   >;
   isGameOver?: boolean;
   setIsGameOver?: React.Dispatch<React.SetStateAction<boolean>>;
+  timer: number;
 }
 
 const SnakeContent = ({
@@ -23,6 +24,7 @@ const SnakeContent = ({
     setGameState,
     isGameOver: propsIsGameOver = false,
     setIsGameOver: propsSetIsGameOver,
+    timer,
 }: SnakeContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
     const accessToken = useAuthStore((state) => state.accessToken);
@@ -36,7 +38,7 @@ const SnakeContent = ({
     const [speed, setSpeed] = useState(900); // Tốc độ di chuyển của rắn (ms)
     const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(60); // 60 giây cho time attack
+    const [timeLeft, setTimeLeft] = useState(timer); // 60 giây cho time attack
     
     const modes = [
         { id: "classic", label: "Classic", description: "Classic mode" },
@@ -77,7 +79,7 @@ const SnakeContent = ({
                 // Khởi tạo tốc độ dựa trên mode
                 if (selectedMode === "timeAttack") {
                     setSpeed(400); // Tốc độ cao cho time attack
-                    setTimeLeft(60); // Reset timer cho time attack
+                    setTimeLeft(timer); // Reset timer cho time attack
                 } else {
                     setSpeed(900); // Tốc độ thường cho classic
                 }
@@ -86,7 +88,7 @@ const SnakeContent = ({
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [selectedModeIndex, gameMode, modes]);
+    }, [selectedModeIndex, gameMode, modes, timer]);
 
     // Create modeBoard for visualization
     const createModesBoard = () => {
@@ -124,28 +126,7 @@ const SnakeContent = ({
     }, [gameBoardSize, gameBoard, setGameBoard, colors]);
 
     const handleCellClick = useCallback((row: number, col: number) => {
-        // Không cho chơi nếu chưa chọn mode
-        if (!gameMode) return;
-        
-        // Kiểm tra nếu click vào ô có táo
-        if (gameBoard[row][col] === colors.apple) {
-            // Ăn táo: xóa táo hiện tại
-            setGameBoard((prevBoard) => {
-                const newBoard = prevBoard.map(r => [...r]);
-                newBoard[row][col] = "";
-                return newBoard;
-            });
-        
-            setApplePlaced(false);
-
-        } else if (gameBoard[row][col] !== "") {
-            // Nếu click vào ô có phần thân rắn
-            Toast({ 
-                type: "warning", 
-                message: "You hit the snake's body!" 
-            });
-            setIsGameOver(true);
-        }
+        return; // Không xử lý click khi đang chơi
     }, [gameMode, gameBoard, spawnApple, setGameBoard, setIsGameOver]);
 
     useEffect(() => {
@@ -374,10 +355,10 @@ const SnakeContent = ({
         setApplePlaced(false);
         setIsGameOver(false);
         if (gameMode === "timeAttack") {
-            setTimeLeft(60); // Reset timer cho time attack
+            setTimeLeft(timer); // Reset timer cho time attack
         }
         Toast({ type: "info", message: "Board reset!" });
-    }, [gameBoardSize, colors, gameMode]);
+    }, [gameBoardSize, colors, gameMode, timer]);
 
     const saveGame = useCallback(async () => {
         try {
@@ -445,7 +426,7 @@ const SnakeContent = ({
             setSpeed(data.speed ?? 900);
             setGameMode(data.gameMode ?? null);
             setSelectedModeIndex(data.selectedModeIndex ?? 0);
-            setTimeLeft(data.timeLeft ?? 60);
+            setTimeLeft(data.timeLeft ?? timer);
             setApplePlaced(data.applePlaced ?? false);
 
             Toast({ 

@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
+import {
+  getGameBoardSize,
+} from "../../../api/games.api";
 import { Toast } from "../../../stores/toastStore";
 import Caro5Content from "./Caro5Content";
 
 const Caro5 = () => {
+  const gameId = 1; // Assuming Caro 5 has gameId 1
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);
   const [board, setBoard] = useState<string[][]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
@@ -16,27 +20,16 @@ const Caro5 = () => {
   const mockedBoardSize = { rows: 10, cols: 10 };
 
   const fetchGameBoardSize = useCallback(async () => {
-    try {
-      /*
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch game board size");
+      try {
+        const data = await getGameBoardSize(gameId);
+        setGameBoardSize(data);
+        setBoard(generateEmptyBoard(data));
+        setGameState("loaded");
+      } catch (error) {
+        Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
+        setGameState("fetchError");
       }
-      const data = await res.json();
-      */
-      //Temporary hardcoded board size until backend is ready
-      const data = { boardSize: mockedBoardSize };
-      setGameBoardSize(data.boardSize);
-      setBoard(generateEmptyBoard(data.boardSize));
-      setGameState("loaded");
-    } catch (error) {
-      Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
-      setGameState("fetchError");
-    }
-  }, [gameState]);
+    }, [gameId]);
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
@@ -46,7 +39,7 @@ const Caro5 = () => {
 
       return emptyBoard;
     },
-    [gameBoardSize]
+    []
   );
 
   const loadGame = useCallback(() => {
