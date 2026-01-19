@@ -5,11 +5,14 @@ import { useNavigate } from "react-router";
 import { 
   FaChevronCircleLeft, 
   FaChevronCircleRight, 
-  FaStar, 
+  FaStar,
+  FaStarHalfAlt,
+  FaRegStar,
   FaRegCommentDots, 
   FaPaperPlane 
 } from "react-icons/fa";
 import { useAuthStore } from "../../stores/authStore";
+import { fetchWithAuth } from "../../api/fetchWithAuth";
 
 
 interface Review {
@@ -199,7 +202,7 @@ const Home = () => {
     setIsLoadingReviews(true);
     try {
       // URL
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews/${gameId}`);
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/reviews/${gameId}`);
       const data = await res.json();
       if (data.success) {
         setReviews(data.data);
@@ -224,7 +227,7 @@ const Home = () => {
     if (!newComment.trim()) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -251,11 +254,34 @@ const Home = () => {
     }
   };
 
-  // Helper render sao
+  // Tính điểm trung bình
+  const averageRating = reviews.length > 0
+    ? parseFloat((reviews.reduce((acc, item) => acc + item.rating, 0) / reviews.length).toFixed(1)) 
+    : 0;
+
+  // Render sao
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
       <FaStar key={index} color={index < rating ? "#fbbf24" : "#555"} />
     ));
+  };
+
+  // Render sao trung bình
+  const renderAverageStars = (avg: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (avg >= i) {
+        // Sao nguyên
+        stars.push(<FaStar key={i} className={styles["star-icon-avg"]} />);
+      } else if (avg > i - 1 && avg < i) {
+        // Sao nửa
+        stars.push(<FaStarHalfAlt key={i} className={styles["star-icon-avg"]} />);
+      } else {
+        // Sao rỗng
+        stars.push(<FaRegStar key={i} className={styles["star-icon-avg"]} />);
+      }
+    }
+    return stars;
   };
 
   const currentGame = gameMenu[rotationSelected];
@@ -315,9 +341,15 @@ const Home = () => {
 
             {/* Review panel */}
             <div className={`${styles["review-panel"]} ${showReviews ? styles["open"] : ""}`}>
-              <h3 style={{marginBottom: '1rem', borderBottom:'1px solid #444', paddingBottom:'0.5rem'}}>
-                Reviews ({reviews.length})
-              </h3>
+              <div className={styles["review-header-container"]}>
+                <h3>Reviews ({reviews.length})</h3>
+                <div className={styles["average-rating-box"]}>
+                  <span className={styles["avg-score"]}>{averageRating}</span>
+                  <div className={styles["avg-stars"]}>
+                    {renderAverageStars(averageRating)}
+                  </div>
+                </div>
+              </div>
               
               <div className={styles["review-list"]}>
                 {isLoadingReviews ? (

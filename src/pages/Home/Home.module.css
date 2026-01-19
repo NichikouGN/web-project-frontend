@@ -211,6 +211,38 @@
   margin-bottom: 2px;
 }
 
+.review-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+}
+
+.average-rating-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.avg-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fbbf24;
+}
+
+.avg-stars {
+  display: flex;
+  gap: 2px;
+  color: #fbbf24;
+  font-size: 0.9rem;
+}
+
+.star-icon-avg {
+  transition: all 0.3s ease;
+}
+
 .review-username {
   font-weight: bold;
   font-size: 0.9rem;
