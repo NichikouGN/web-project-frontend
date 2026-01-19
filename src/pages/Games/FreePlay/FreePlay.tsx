@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import FreePlayContent from "./FreePlayContent";
-import { set } from "zod";
 
 const FreePlay = () => {
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);

@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface Match3ContentProps {
     gameBoard: string[][];
@@ -22,6 +23,8 @@ const Match3Content = ({
     isGameOver: propsIsGameOver = false,
     setIsGameOver: propsSetIsGameOver ,
 }: Match3ContentProps) => {
+
+    const accessToken = useAuthStore((state) => state.accessToken);
 
     const mockedGameArray = gameBoardSize
         ? Array.from({ length: gameBoardSize.rows }, () =>
@@ -450,15 +453,77 @@ const Match3Content = ({
         setSelectedCell(null);
     }, [generateGameArray]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-        boardSize: gameBoardSize,
-        board: gameBoard,
-        score: score,
-        };
-        localStorage.setItem("match3GameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, score]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "5",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        score: score,
+                        turnsLeft: turnsLeft,
+                        timeLeft: timeLeft,
+                        gameMode: gameMode,
+                        isGameOver: isGameOver,
+                        selectedCell: selectedCell,
+                    },
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to save game");
+            }
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        }
+        catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, score, turnsLeft, timeLeft, gameMode, isGameOver, selectedCell, accessToken]);
+
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=5`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            const data = gameData?.data?.data ?? {};
+            setGameBoard(data.board || gameBoard);
+            setScore(data.score ?? 0);
+            setTurnsLeft(data.turnsLeft ?? 30);
+            setTimeLeft(data.timeLeft ?? 60);
+            setGameMode(data.gameMode ?? null);
+            setIsGameOver(data.isGameOver ?? false);
+            setSelectedCell(data.selectedCell ?? null);
+
+            // Sync mode selector index for UI highlighting
+            if (data.gameMode) {
+                const foundIndex = modes.findIndex((m) => m.id === data.gameMode);
+                if (foundIndex !== -1) {
+                    setSelectedModeIndex(foundIndex);
+                }
+            }
+
+            Toast({ type: "success", title: "Success", message: "Game loaded successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to load game" });
+        }
+    }, [accessToken, modes, gameBoard]);
 
     const leftPanelContent = gameMode ? (
         <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
@@ -525,6 +590,9 @@ const Match3Content = ({
                     </button>
                     <button className={styles["reset-board-button"]} onClick={saveGame}>
                         Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
                     </button>
                     <button className={styles["reset-board-button"]} onClick={resetBoard}>
                         Reset Board

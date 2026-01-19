@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -18,6 +19,7 @@ const FreePlayContent = ({
   gameBoardSize,
   setGameState,
 }: FreePlayContentProps) => {
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [selectedColor, setSelectedColor] = useState<string>("#000000");
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,22 +46,68 @@ const FreePlayContent = ({
     );
   }, [gameBoardSize]);
 
-  const saveGame = useCallback(() => {
-    const gameData = {
-      boardSize: gameBoardSize,
-      board: gameBoard,
-    };
-    localStorage.setItem("freePlayGameData", JSON.stringify(gameData));
-    Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-  }, [gameBoardSize, gameBoard]);
+  const saveGame = useCallback(async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken || ""}`,
+        },
+        body: JSON.stringify({
+          game_id: "7",
+          data: {
+            boardSize: gameBoardSize,
+            board: gameBoard,
+          },
+        }),
+      })
 
-  const loadGame = useCallback(() => {
-    const savedData = localStorage.getItem("freePlayGameData");
-    if (savedData) {
-      const gameData = JSON.parse(savedData);
-      setGameBoard(gameData.board);
+      if (!res.ok) {
+        throw new Error("Failed to save game");
+      }
+
+      Toast({ type: "success", title: "Success", message: "Game saved successfully" });
     }
-  }, [setGameBoard]);
+    catch (error) {
+      Toast({ type: "error", title: "Error", message: "Failed to save game" });
+    }
+    // const gameData = {
+    //   boardSize: gameBoardSize,
+    //   board: gameBoard,
+    // };
+    // localStorage.setItem("freePlayGameData", JSON.stringify(gameData));
+    // Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+  }, [gameBoardSize, gameBoard, accessToken]);
+
+  const loadGame = useCallback(async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=7`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken || ""}`,
+        },
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to load game");
+      }
+
+      const gameData = await res.json();
+      setGameBoard(gameData.data.data.board);
+      console.log(gameData.data.data);
+      Toast({ type: "success", title: "Success", message: "Game loaded successfully" });
+    } catch (error) {
+      console.error(error);
+      Toast({ type: "error", title: "Error", message: "Failed to load game" });
+    }
+    // const savedData = localStorage.getItem("freePlayGameData");
+    // if (savedData) {
+    //   const gameData = JSON.parse(savedData);
+    //   setGameBoard(gameData.board);
+    // }
+  }, [setGameBoard, accessToken]);
 
   const leftPanelContent = (
     <div style={{ textAlign: "center" }}>

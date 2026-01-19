@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -24,6 +25,7 @@ const SnakeContent = ({
     setIsGameOver: propsSetIsGameOver,
 }: SnakeContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
+    const accessToken = useAuthStore((state) => state.accessToken);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [applePlaced, setApplePlaced] = useState(false);
     const [direction, setDirection] = useState<{ row: number; col: number }>({ row: 0, col: 1 }); // Hướng di chuyển (0,1) = phải
@@ -377,59 +379,87 @@ const SnakeContent = ({
         Toast({ type: "info", message: "Board reset!" });
     }, [gameBoardSize, colors, gameMode]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-            boardSize: gameBoardSize,
-            board: gameBoard,
-            snake: snake,
-            direction: direction,
-            snakeLength: snakeLength,
-            score: score,
-            speed: speed,
-            isGameOver: isGameOver,
-            applePlaced: applePlaced,
-            timeLeft: timeLeft,
-            gameMode: gameMode,
-            savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem("snakeGameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, isGameOver, direction, snake, snakeLength, score, speed, timeLeft, gameMode]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "4",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        snake: snake,
+                        direction: direction,
+                        nextDirection: nextDirection,
+                        snakeLength: snakeLength,
+                        score: score,
+                        speed: speed,
+                        isGameOver: isGameOver,
+                        applePlaced: applePlaced,
+                        timeLeft: timeLeft,
+                        gameMode: gameMode,
+                        selectedModeIndex: selectedModeIndex,
+                    },
+                }),
+            });
 
-    // Hàm tải game từ localStorage
-    const loadGame = useCallback(() => {
-        const savedGameData = localStorage.getItem("snakeGameData");
-        if (savedGameData) {
-            try {
-                const gameData = JSON.parse(savedGameData);
-                setGameBoard(gameData.board);
-                setIsGameOver(gameData.isGameOver);
-                setDirection(gameData.direction);
-                setSnake(gameData.snake);
-                setSnakeLength(gameData.snakeLength);
-                setScore(gameData.score);
-                setSpeed(gameData.speed);
-                setGameMode(gameData.gameMode);
-                setTimeLeft(gameData.timeLeft || 60);
-                setApplePlaced(gameData.applePlaced); // Đặt lại để spawn táo mới nếu cần
-                Toast({ 
-                    type: "success", 
-                    title: "Success", 
-                    message: "Game loaded successfully" 
-                });
-            } catch (error) {
-                Toast({ 
-                    type: "error", 
-                    message: "Failed to load game data" 
-                });
+            if (!res.ok) {
+                throw new Error("Failed to save game");
             }
-        } else {
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, snake, direction, nextDirection, snakeLength, score, speed, isGameOver, applePlaced, timeLeft, gameMode, selectedModeIndex, accessToken]);
+
+    // Hàm tải game từ API
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=4`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            const data = gameData?.data?.data ?? {};
+
+            setGameBoard(data.board || gameBoard);
+            setIsGameOver(data.isGameOver ?? false);
+            setDirection(data.direction ?? { row: 0, col: 1 });
+            setNextDirection(data.nextDirection ?? { row: 0, col: 1 });
+            setSnake(data.snake ?? []);
+            setSnakeLength(data.snakeLength ?? 4);
+            setScore(data.score ?? 0);
+            setSpeed(data.speed ?? 900);
+            setGameMode(data.gameMode ?? null);
+            setSelectedModeIndex(data.selectedModeIndex ?? 0);
+            setTimeLeft(data.timeLeft ?? 60);
+            setApplePlaced(data.applePlaced ?? false);
+
             Toast({ 
-                type: "warning", 
-                message: "No saved game found" 
+                type: "success", 
+                title: "Success", 
+                message: "Game loaded successfully" 
+            });
+        } catch (error) {
+            Toast({ 
+                type: "error", 
+                message: "Failed to load game" 
             });
         }
-    }, []);
+    }, [accessToken, gameBoard]);
 
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
