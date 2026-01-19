@@ -2,6 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import MemoryMatchingContent from "./MemoryMatchingContent";
+import {
+  getGameBoardSize,
+  getTimer,
+} from "../../../api/games.api";
+import { set } from "zod";
 
 interface MemoryMatchingProps {
   gameBoard: string[][];
@@ -13,6 +18,7 @@ interface MemoryMatchingProps {
 }
 
 const MemoryMatching = () => {
+  const gameId = 6; // Assuming Memory Matching has gameId 6
   const [gameBoardSize, setGameBoardSize] = useState<{ rows: number; cols: number } | null>(null);
   const [board, setBoard] = useState<string[][]>([]);
   const [gameArray, setGameArray] = useState<string[][]>([]);
@@ -23,6 +29,7 @@ const MemoryMatching = () => {
   const [isFirstSelection, setIsFirstSelection] = useState<boolean>(true);
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(null);
   const [isWaiting, setIsWaiting] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(0);
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded",
   );
@@ -74,27 +81,18 @@ const MemoryMatching = () => {
   }, []);
 
   const fetchGameBoardSize = useCallback(async () => {
-    try {
-      /*
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/game/free-play/board-size`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch game board size");
+      try {
+        const data = await getGameBoardSize(gameId);
+        const timerValue = await getTimer(gameId);
+        setGameBoardSize(data);
+        setBoard(generateEmptyBoard(data));
+        setTimer(timerValue);
+        setGameState("loaded");
+      } catch (error) {
+        Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
+        setGameState("fetchError");
       }
-      const data = await res.json();
-      */
-      //Temporary hardcoded board size until backend is ready
-      const data = { boardSize: mockedBoardSize };
-      setGameBoardSize(data.boardSize);
-      setBoard(generateEmptyBoard(data.boardSize));
-      setGameState("loaded");
-    } catch (error) {
-      Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
-      setGameState("fetchError");
-    }
-  }, [gameState]);
+    }, []);
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
@@ -108,10 +106,10 @@ const MemoryMatching = () => {
   );
 
   useEffect(() => {
-    if (!(gameBoardSize && gameState === "loaded")) {
+    if (!(gameBoardSize && timer && gameState === "loaded")) {
       fetchGameBoardSize();
     }
-  }, [gameBoardSize, gameState, fetchGameBoardSize]);
+  }, [gameBoardSize, timer, gameState, fetchGameBoardSize]);
 
   return (
     <>
@@ -137,6 +135,7 @@ const MemoryMatching = () => {
           setFirstSelection={setFirstSelection}
           isWaiting={isWaiting}
           setIsWaiting={setIsWaiting}
+          timer={timer}
         />
       ) : null}
     </>

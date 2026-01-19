@@ -1,8 +1,8 @@
 import { useCallback, useState, useEffect, use } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
-import { set } from "zod";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface Caro4ContentProps {
   gameBoard: string[][];
@@ -31,6 +31,8 @@ const Caro4Content = ({
     winner: propsWinner = null,
     setWinner: propsSetWinner,
 }: Caro4ContentProps) => {
+    const accessToken = useAuthStore((state) => state.accessToken);
+
     const [score, setScore] = useState(0);
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
@@ -288,50 +290,61 @@ const Caro4Content = ({
         Toast({ type: "info", message: "Board reset!" });
     }, [gameBoardSize]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-            boardSize: gameBoardSize,
-            board: gameBoard,
-            gameMode: gameMode,
-            currentPlayer: currentPlayer,
-            isGameOver: isGameOver,
-            winner: winner,
-            savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem("caro5GameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, gameMode, currentPlayer, isGameOver, winner]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "2",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        currentPlayer,
+                        isGameOver,
+                        winner,
+                    },
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to save game");
+            }
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, currentPlayer, isGameOver, winner, accessToken]);
 
     // Hàm tải game từ localStorage
-    const loadGame = useCallback(() => {
-        const savedGameData = localStorage.getItem("caro5GameData");
-        if (savedGameData) {
-            try {
-                const gameData = JSON.parse(savedGameData);
-                setGameBoard(gameData.board);
-                setCurrentPlayer(gameData.currentPlayer);
-                setIsGameOver(gameData.isGameOver);
-                setWinner(gameData.winner);
-                setGameMode(gameData.gameMode);
-                setUserSymbol(gameData.gameMode === "goSecond" ? "O" : "X");
-                Toast({ 
-                    type: "success", 
-                    title: "Success", 
-                    message: "Game loaded successfully" 
-                });
-            } catch (error) {
-                Toast({ 
-                    type: "error", 
-                    message: "Failed to load game data" 
-                });
-            }
-        } else {
-            Toast({ 
-                type: "warning", 
-                message: "No saved game found" 
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=2`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
             });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            setGameBoard(gameData.data.data.board);
+            setCurrentPlayer(gameData.data.data.currentPlayer);
+            setIsGameOver(gameData.data.data.isGameOver);
+            setWinner(gameData.data.data.winner);
+            Toast({ type: "success", title: "Success", message: "Game loaded successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to load game" });
         }
-    }, []);
+    }, [setGameBoard, setCurrentPlayer, setIsGameOver, setWinner, accessToken]);
 
     const modesArt = {
         "goFirst": 

@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface TicTacToeContentProps {
   gameBoard: string[][];
@@ -31,6 +32,7 @@ const TicTacToeContent = ({
     setWinner: propsSetWinner,
 }: TicTacToeContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
+    const accessToken = useAuthStore((state) => state.accessToken);
     const [score, setScore] = useState(0);
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
@@ -282,50 +284,83 @@ const TicTacToeContent = ({
         Toast({ type: "info", message: "Board reset!" });
     }, [gameBoardSize]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-            boardSize: gameBoardSize,
-            board: gameBoard,
-            gameMode: gameMode,
-            currentPlayer: currentPlayer,
-            isGameOver: isGameOver,
-            winner: winner,
-            savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem("ticTacToeGameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, gameMode, currentPlayer, isGameOver, winner]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "3",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        gameMode: gameMode,
+                        currentPlayer: currentPlayer,
+                        isGameOver: isGameOver,
+                        winner: winner,
+                        userSymbol: userSymbol,
+                    },
+                }),
+            });
 
-    // Hàm tải game từ localStorage
-    const loadGame = useCallback(() => {
-        const savedGameData = localStorage.getItem("ticTacToeGameData");
-        if (savedGameData) {
-            try {
-                const gameData = JSON.parse(savedGameData);
-                setGameBoard(gameData.board);
-                setGameMode(gameData.gameMode);
-                setUserSymbol(gameData.gameMode === "goSecond" ? "O" : "X");
-                setCurrentPlayer(gameData.currentPlayer);
-                setIsGameOver(gameData.isGameOver);
-                setWinner(gameData.winner);
-                Toast({ 
-                    type: "success", 
-                    title: "Success", 
-                    message: "Game loaded successfully" 
-                });
-            } catch (error) {
-                Toast({ 
-                    type: "error", 
-                    message: "Failed to load game data" 
-                });
+            if (!res.ok) {
+                throw new Error("Failed to save game");
             }
-        } else {
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, gameMode, currentPlayer, isGameOver, winner, userSymbol, accessToken]);
+
+    // Hàm tải game từ API
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=3`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            const data = gameData?.data?.data ?? {};
+
+            setGameBoard(data.board || gameBoard);
+            setGameMode(data.gameMode ?? null);
+            setUserSymbol(data.userSymbol ?? (data.gameMode === "goSecond" ? "O" : "X"));
+            setCurrentPlayer(data.currentPlayer ?? "X");
+            setIsGameOver(data.isGameOver ?? false);
+            setWinner(data.winner ?? null);
+
+            // Sync mode selector UI
+            if (data.gameMode) {
+                const foundIndex = modes.findIndex((m) => m.id === data.gameMode);
+                if (foundIndex !== -1) {
+                    setSelectedModeIndex(foundIndex);
+                }
+            }
+
             Toast({ 
-                type: "warning", 
-                message: "No saved game found" 
+                type: "success", 
+                title: "Success", 
+                message: "Game loaded successfully" 
+            });
+        } catch (error) {
+            Toast({ 
+                type: "error", 
+                message: "Failed to load game" 
             });
         }
-    }, []);
+    }, [accessToken, modes, gameBoard]);
 
     const modesBoard = [
         [["","",""], ["",color["X"],""], ["","",""]],

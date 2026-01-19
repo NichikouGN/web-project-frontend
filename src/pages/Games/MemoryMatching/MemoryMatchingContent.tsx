@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -26,6 +27,7 @@ interface FreePlayContentProps {
   setFirstSelection?: React.Dispatch<React.SetStateAction<{ row: number; col: number } | null>>;
   isWaiting?: boolean;
   setIsWaiting?: React.Dispatch<React.SetStateAction<boolean>>;
+  timer: number;
 }
 
 const MemoryMatchingContent = ({
@@ -49,8 +51,10 @@ const MemoryMatchingContent = ({
   setFirstSelection: propsSetFirstSelection,
   isWaiting: propsIsWaiting = false,
   setIsWaiting: propsSetIsWaiting,
+  timer,
 }: FreePlayContentProps) => {
   // Sử dụng props từ parent nếu có, nếu không dùng local state
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [gameArray, setGameArray] = useState<string[][]>(propsGameArray);
   const [isFirstSelection, setIsFirstSelection] = useState<boolean>(propsIsFirstSelection);
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(propsFirstSelection);
@@ -64,11 +68,7 @@ const MemoryMatchingContent = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   
   const cellCount = gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols : 0;
-  const timeLimit = (
-    cellCount <= 16 ? 60 :
-    cellCount <= 36 ? 180 :
-    cellCount * 15
-  )
+  const timeLimit = timer;
 
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -333,76 +333,88 @@ const MemoryMatchingContent = ({
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
 
-  const saveGame = useCallback(() => {
-    const gameData = {
-      // Thông tin cơ bản
-      boardSize: gameBoardSize,
-      
-      // Trạng thái board
-      board: gameBoard,
-      gameArray: gameArray,
-      
-      // Trạng thái game
-      matchedCount: matchedCount,
-      turnCount: turnCount,
-      score: score,
-      isGameComplete: isGameComplete,
-      matchedCells: Array.from(matchedCells),
-      
-      // Trạng thái lựa chọn
-      isFirstSelection: isFirstSelection,
-      firstSelection: firstSelection,
-      isWaiting: isWaiting,
-      
-      // Metadata
-      savedAt: new Date().toISOString(),
-    };
-    localStorage.setItem("memoryMatchingGameData", JSON.stringify(gameData));
-    Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-  }, [gameBoardSize, gameBoard, gameArray, matchedCount, turnCount, score, isGameComplete, matchedCells, isFirstSelection, firstSelection, isWaiting]);
+  const saveGame = useCallback(async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken || ""}`,
+        },
+        body: JSON.stringify({
+          game_id: "6",
+          data: {
+            boardSize: gameBoardSize,
+            board: gameBoard,
+            gameArray: gameArray,
+            matchedCount: matchedCount,
+            turnCount: turnCount,
+            score: score,
+            isGameComplete: isGameComplete,
+            matchedCells: Array.from(matchedCells),
+            isFirstSelection: isFirstSelection,
+            firstSelection: firstSelection,
+            isWaiting: isWaiting,
+            timeLeft: timeLeft,
+            gameMode: gameMode,
+            selectedModeIndex: selectedModeIndex,
+          },
+        }),
+      });
 
-  const loadGame = useCallback(() => {
-    const savedGameData = localStorage.getItem("memoryMatchingGameData");
-    if (savedGameData) {
-      try {
-        const gameData = JSON.parse(savedGameData);
-        
-        // Restore board
-        setGameBoard(gameData.board);
-        
-        // Restore game array
-        setGameArray(gameData.gameArray || []);
-        
-        // Restore game state
-        setMatchedCount(gameData.matchedCount || 0);
-        setTurnCount(gameData.turnCount || 0);
-        setScore(gameData.score || 0);
-        setIsGameComplete(gameData.isGameComplete || false);
-        setMatchedCells(new Set(gameData.matchedCells || []));
-        
-        // Restore selection state
-        setIsFirstSelection(gameData.isFirstSelection ?? true);
-        setFirstSelection(gameData.firstSelection || null);
-        setIsWaiting(gameData.isWaiting ?? false);
-        
-        Toast({
-          type: "success",
-          title: "Success",
-          message: `Game loaded! Progress: ${gameData.turnCount} turns, ${gameData.matchedCount} matched`
-        });
-      } catch (error) {
-        Toast({
-          type: "error",
-          message: "Failed to load game data"
-        });
+      if (!res.ok) {
+        throw new Error("Failed to save game");
       }
-    } else {
+
+      Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+    } catch (error) {
+      Toast({ type: "error", title: "Error", message: "Failed to save game" });
+    }
+  }, [gameBoardSize, gameBoard, gameArray, matchedCount, turnCount, score, isGameComplete, matchedCells, isFirstSelection, firstSelection, isWaiting, timeLeft, gameMode, selectedModeIndex, accessToken]);
+
+  const loadGame = useCallback(async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=6`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken || ""}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to load game");
+      }
+
+      const gameData = await res.json();
+      const data = gameData?.data?.data ?? {};
+
+      setGameBoard(data.board || gameBoard);
+      setGameArray(data.gameArray || []);
+      setMatchedCount(data.matchedCount || 0);
+      setTurnCount(data.turnCount || 0);
+      setScore(data.score || 0);
+      setIsGameComplete(data.isGameComplete || false);
+      setMatchedCells(new Set(data.matchedCells || []));
+      setIsFirstSelection(data.isFirstSelection ?? true);
+      setFirstSelection(data.firstSelection || null);
+      setIsWaiting(data.isWaiting ?? false);
+      setTimeLeft(data.timeLeft ?? timeLimit);
+      setGameMode(data.gameMode ?? null);
+      setSelectedModeIndex(data.selectedModeIndex ?? 0);
+
       Toast({
-        type: "warning",
-        message: "No saved game found"
+        type: "success",
+        title: "Success",
+        message: "Game loaded successfully"
+      });
+    } catch (error) {
+      Toast({
+        type: "error",
+        message: "Failed to load game"
       });
     }
-  }, []);
+  }, [accessToken, timeLimit, gameBoard]);
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

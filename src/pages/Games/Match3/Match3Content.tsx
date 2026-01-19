@@ -1,7 +1,9 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, use } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
+import { number } from "zod";
 
 interface Match3ContentProps {
     gameBoard: string[][];
@@ -12,6 +14,7 @@ interface Match3ContentProps {
     >;
     isGameOver?: boolean;
     setIsGameOver?: React.Dispatch<React.SetStateAction<boolean>>;
+    timer: number;
 }
 
 const Match3Content = ({
@@ -21,23 +24,18 @@ const Match3Content = ({
     setGameState,
     isGameOver: propsIsGameOver = false,
     setIsGameOver: propsSetIsGameOver ,
+    timer,
 }: Match3ContentProps) => {
-
-    const mockedGameArray = gameBoardSize
-        ? Array.from({ length: gameBoardSize.rows }, () =>
-            Array.from({ length: gameBoardSize.cols }, () => "")
-        )
-        : [];
-
+    const accessToken = useAuthStore((state) => state.accessToken);
     const [score, setScore] = useState(0);
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
     const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | "endless" | null>(null);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [turnsLeft, setTurnsLeft] = useState(30);
-    const [timeLeft, setTimeLeft] = useState(60);
+    const [timeLeft, setTimeLeft] = useState(timer);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
-
+    
     const modes = [
         { id: "classic", label: "Classic", description: "Score as much as possible with limited turn count" },
         { id: "timeAttack", label: "Time Attack", description: "Score as much as possible in 60 seconds" },
@@ -181,7 +179,7 @@ const Match3Content = ({
                 const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack" | "endless";
                 setGameMode(selectedMode);
                 setTurnsLeft(15);
-                setTimeLeft(60);
+                setTimeLeft(timer);
                 setIsGameOver(false);
             }
         };
@@ -445,20 +443,82 @@ const Match3Content = ({
         generateGameArray();
         setScore(0);
         setTurnsLeft(30);
-        setTimeLeft(60);
+        setTimeLeft(timer);
         setIsGameOver(false);
         setSelectedCell(null);
     }, [generateGameArray]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-        boardSize: gameBoardSize,
-        board: gameBoard,
-        score: score,
-        };
-        localStorage.setItem("match3GameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, score]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "5",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        score: score,
+                        turnsLeft: turnsLeft,
+                        timeLeft: timeLeft,
+                        gameMode: gameMode,
+                        isGameOver: isGameOver,
+                        selectedCell: selectedCell,
+                    },
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to save game");
+            }
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        }
+        catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, score, turnsLeft, timeLeft, gameMode, isGameOver, selectedCell, accessToken]);
+
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=5`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            const data = gameData?.data?.data ?? {};
+            setGameBoard(data.board || gameBoard);
+            setScore(data.score ?? 0);
+            setTurnsLeft(data.turnsLeft ?? 30);
+            setTimeLeft(data.timeLeft ?? timer);
+            setGameMode(data.gameMode ?? null);
+            setIsGameOver(data.isGameOver ?? false);
+            setSelectedCell(data.selectedCell ?? null);
+
+            // Sync mode selector index for UI highlighting
+            if (data.gameMode) {
+                const foundIndex = modes.findIndex((m) => m.id === data.gameMode);
+                if (foundIndex !== -1) {
+                    setSelectedModeIndex(foundIndex);
+                }
+            }
+
+            Toast({ type: "success", title: "Success", message: "Game loaded successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to load game" });
+        }
+    }, [accessToken, modes, gameBoard]);
 
     const leftPanelContent = gameMode ? (
         <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
@@ -525,6 +585,9 @@ const Match3Content = ({
                     </button>
                     <button className={styles["reset-board-button"]} onClick={saveGame}>
                         Save Game
+                    </button>
+                    <button className={styles["reset-board-button"]} onClick={loadGame}>
+                        Load Game
                     </button>
                     <button className={styles["reset-board-button"]} onClick={resetBoard}>
                         Reset Board

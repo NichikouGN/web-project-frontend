@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
 import GameZone from "../GameZone/GameZone";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -13,6 +14,7 @@ interface SnakeContentProps {
   >;
   isGameOver?: boolean;
   setIsGameOver?: React.Dispatch<React.SetStateAction<boolean>>;
+  timer: number;
 }
 
 const SnakeContent = ({
@@ -22,8 +24,10 @@ const SnakeContent = ({
     setGameState,
     isGameOver: propsIsGameOver = false,
     setIsGameOver: propsSetIsGameOver,
+    timer,
 }: SnakeContentProps) => {
     // Sử dụng props từ parent nếu có, nếu không dùng local state
+    const accessToken = useAuthStore((state) => state.accessToken);
     const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
     const [applePlaced, setApplePlaced] = useState(false);
     const [direction, setDirection] = useState<{ row: number; col: number }>({ row: 0, col: 1 }); // Hướng di chuyển (0,1) = phải
@@ -34,7 +38,7 @@ const SnakeContent = ({
     const [speed, setSpeed] = useState(900); // Tốc độ di chuyển của rắn (ms)
     const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(60); // 60 giây cho time attack
+    const [timeLeft, setTimeLeft] = useState(timer); // 60 giây cho time attack
     
     const modes = [
         { id: "classic", label: "Classic", description: "Classic mode" },
@@ -75,7 +79,7 @@ const SnakeContent = ({
                 // Khởi tạo tốc độ dựa trên mode
                 if (selectedMode === "timeAttack") {
                     setSpeed(400); // Tốc độ cao cho time attack
-                    setTimeLeft(60); // Reset timer cho time attack
+                    setTimeLeft(timer); // Reset timer cho time attack
                 } else {
                     setSpeed(900); // Tốc độ thường cho classic
                 }
@@ -84,7 +88,7 @@ const SnakeContent = ({
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [selectedModeIndex, gameMode, modes]);
+    }, [selectedModeIndex, gameMode, modes, timer]);
 
     // Create modeBoard for visualization
     const createModesBoard = () => {
@@ -122,28 +126,7 @@ const SnakeContent = ({
     }, [gameBoardSize, gameBoard, setGameBoard, colors]);
 
     const handleCellClick = useCallback((row: number, col: number) => {
-        // Không cho chơi nếu chưa chọn mode
-        if (!gameMode) return;
-        
-        // Kiểm tra nếu click vào ô có táo
-        if (gameBoard[row][col] === colors.apple) {
-            // Ăn táo: xóa táo hiện tại
-            setGameBoard((prevBoard) => {
-                const newBoard = prevBoard.map(r => [...r]);
-                newBoard[row][col] = "";
-                return newBoard;
-            });
-        
-            setApplePlaced(false);
-
-        } else if (gameBoard[row][col] !== "") {
-            // Nếu click vào ô có phần thân rắn
-            Toast({ 
-                type: "warning", 
-                message: "You hit the snake's body!" 
-            });
-            setIsGameOver(true);
-        }
+        return; // Không xử lý click khi đang chơi
     }, [gameMode, gameBoard, spawnApple, setGameBoard, setIsGameOver]);
 
     useEffect(() => {
@@ -372,64 +355,92 @@ const SnakeContent = ({
         setApplePlaced(false);
         setIsGameOver(false);
         if (gameMode === "timeAttack") {
-            setTimeLeft(60); // Reset timer cho time attack
+            setTimeLeft(timer); // Reset timer cho time attack
         }
         Toast({ type: "info", message: "Board reset!" });
-    }, [gameBoardSize, colors, gameMode]);
+    }, [gameBoardSize, colors, gameMode, timer]);
 
-    const saveGame = useCallback(() => {
-        const gameData = {
-            boardSize: gameBoardSize,
-            board: gameBoard,
-            snake: snake,
-            direction: direction,
-            snakeLength: snakeLength,
-            score: score,
-            speed: speed,
-            isGameOver: isGameOver,
-            applePlaced: applePlaced,
-            timeLeft: timeLeft,
-            gameMode: gameMode,
-            savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem("snakeGameData", JSON.stringify(gameData));
-        Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }, [gameBoardSize, gameBoard, isGameOver, direction, snake, snakeLength, score, speed, timeLeft, gameMode]);
+    const saveGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+                body: JSON.stringify({
+                    game_id: "4",
+                    data: {
+                        boardSize: gameBoardSize,
+                        board: gameBoard,
+                        snake: snake,
+                        direction: direction,
+                        nextDirection: nextDirection,
+                        snakeLength: snakeLength,
+                        score: score,
+                        speed: speed,
+                        isGameOver: isGameOver,
+                        applePlaced: applePlaced,
+                        timeLeft: timeLeft,
+                        gameMode: gameMode,
+                        selectedModeIndex: selectedModeIndex,
+                    },
+                }),
+            });
 
-    // Hàm tải game từ localStorage
-    const loadGame = useCallback(() => {
-        const savedGameData = localStorage.getItem("snakeGameData");
-        if (savedGameData) {
-            try {
-                const gameData = JSON.parse(savedGameData);
-                setGameBoard(gameData.board);
-                setIsGameOver(gameData.isGameOver);
-                setDirection(gameData.direction);
-                setSnake(gameData.snake);
-                setSnakeLength(gameData.snakeLength);
-                setScore(gameData.score);
-                setSpeed(gameData.speed);
-                setGameMode(gameData.gameMode);
-                setTimeLeft(gameData.timeLeft || 60);
-                setApplePlaced(gameData.applePlaced); // Đặt lại để spawn táo mới nếu cần
-                Toast({ 
-                    type: "success", 
-                    title: "Success", 
-                    message: "Game loaded successfully" 
-                });
-            } catch (error) {
-                Toast({ 
-                    type: "error", 
-                    message: "Failed to load game data" 
-                });
+            if (!res.ok) {
+                throw new Error("Failed to save game");
             }
-        } else {
+
+            Toast({ type: "success", title: "Success", message: "Game saved successfully" });
+        } catch (error) {
+            Toast({ type: "error", title: "Error", message: "Failed to save game" });
+        }
+    }, [gameBoardSize, gameBoard, snake, direction, nextDirection, snakeLength, score, speed, isGameOver, applePlaced, timeLeft, gameMode, selectedModeIndex, accessToken]);
+
+    // Hàm tải game từ API
+    const loadGame = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=4`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken || ""}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load game");
+            }
+
+            const gameData = await res.json();
+            const data = gameData?.data?.data ?? {};
+
+            setGameBoard(data.board || gameBoard);
+            setIsGameOver(data.isGameOver ?? false);
+            setDirection(data.direction ?? { row: 0, col: 1 });
+            setNextDirection(data.nextDirection ?? { row: 0, col: 1 });
+            setSnake(data.snake ?? []);
+            setSnakeLength(data.snakeLength ?? 4);
+            setScore(data.score ?? 0);
+            setSpeed(data.speed ?? 900);
+            setGameMode(data.gameMode ?? null);
+            setSelectedModeIndex(data.selectedModeIndex ?? 0);
+            setTimeLeft(data.timeLeft ?? timer);
+            setApplePlaced(data.applePlaced ?? false);
+
             Toast({ 
-                type: "warning", 
-                message: "No saved game found" 
+                type: "success", 
+                title: "Success", 
+                message: "Game loaded successfully" 
+            });
+        } catch (error) {
+            Toast({ 
+                type: "error", 
+                message: "Failed to load game" 
             });
         }
-    }, []);
+    }, [accessToken, gameBoard]);
 
     return (
         <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
