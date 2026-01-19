@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface Caro5ContentProps {
   gameBoard: string[][];
@@ -293,7 +294,7 @@ const Caro5Content = ({
 
     const saveGame = useCallback(async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+            const res = await fetchWithAuth(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -324,7 +325,7 @@ const Caro5Content = ({
     // Hàm tải game từ localStorage
     const loadGame = useCallback(async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=1`, {
+            const res = await fetchWithAuth(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=1`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
