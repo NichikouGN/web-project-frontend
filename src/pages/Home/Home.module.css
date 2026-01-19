@@ -1,44 +1,54 @@
 .home {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
-
-  width: 100%;
-  height: 100%;
-
-  background: var(--theme-body-bg);
-
-  transition: background-color 0.3s ease, color 0.3s ease;
-
-  color: var(--theme-text-primary);
+  align-items: center;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
 }
 
 .game-selection {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  gap: 1.5rem;
-
+  gap: 2rem;
   width: 100%;
+  justify-content: center;
+  transition: all 0.5s ease;
 }
 
 .game-container {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 2rem;
+  transition: all 0.5s ease-in-out; 
 }
 
-.game-play-prompt {
-  padding: 0.5rem 1rem;
+/* Wrapper chứa Info, Board và Review */
+.board-and-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2rem;
+  background-color: #2a2a2a;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  transition: all 0.5s ease;
+  max-width: 900px; 
+}
 
-  font-size: 1.2rem;
+.board-and-info.expanded {
+  max-width: 1300px;
+}
+
+/* --- Phần Game Info & Nút play --- */
+.game-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 300px;
   text-align: center;
-
-  background: var(--green-400);
-  border-radius: 0.5rem;
 }
 
 .game-card {
@@ -50,6 +60,26 @@
   text-align: center;
   width: 300px;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.game-card-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.game-play-prompt {
+  background-color: #22c55e;
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.2s;
+}
+
+.game-play-prompt:hover {
+  transform: scale(1.05);
 }
 
 .game-select-button {
@@ -65,89 +95,225 @@
   transform: scale(1.2);
 }
 
+/* --- Game Board --- */
 .board-game-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 5px;
+  padding: 1rem;
+  background: #111;
   justify-content: center;
   width: auto;
   height: auto;
   aspect-ratio: 1;
-
   border-radius: 1rem;
   background: var(--theme-body-primary-bg);
   padding: 1rem;
   gap: 0.3rem;
-
   transition: background-color 0.3s ease;
 }
 
 .board-game-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: auto;
-  gap: 0.5rem;
+  gap: 5px;
 }
 
 .board-game-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  width: 2.5rem;
-  height: 2.5rem;
-
-  background: var(--theme-body-primary-bg);
-
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  box-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.2),
-    -2px -2px 4px rgba(255, 255, 255, 0.75);
-
-  transition:
-    box-shadow 0.2s ease,
-    background-color 0.3s ease;
+  border: none;
 }
 
-[data-theme="dark"] .board-game-cell {
-  box-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.75),
-    -2px -2px 4px rgba(255, 255, 255, 0.16);
+/* --- Nút Toggle Review --- */
+.review-toggle-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.3s;
+  z-index: 10;
+  margin: -0.3rem -0.3rem 0 0;
 }
 
-.board-game-cell:hover {
-  transition: box-shadow 0.2s ease;
-  box-shadow:
-    inset 2px 2px 4px rgba(0, 0, 0, 0.2),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+.review-toggle-btn:hover, .review-toggle-btn.active {
+  color: #fff;
 }
 
-[data-theme="dark"] .board-game-cell:hover {
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.7), inset -2px -2px 4px rgba(255, 255, 255, 0.16);
-}
-
-.board-game-cell:active {
-  box-shadow: inset 4px 4px 6px rgba(0, 0, 0, 0.3), inset -4px -4px 6px rgba(255, 255, 255, 0.8);
-}
-
-.board-game-cell-selected {
-  border: 4px solid rgba(34, 197, 94, 0.6) !important;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
-}
-
-.board-and-info {
+/* ---  Review Panel --- */
+.review-panel {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  height: auto;
-  aspect-ratio: 1;
+  flex-direction: column;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  height: 450px;
+  transition: all 0.5s ease;
+  position: relative;
+}
 
-  border-radius: 1rem;
+/* Activee */
+.review-panel.open {
+  width: 350px;
+  opacity: 1;
   padding: 1rem;
-  gap: 2rem;
-  transition: background-color 0.3s ease;
+  margin-left: 1rem;
+  border-left: 1px solid #444;
+}
+
+/* Danh sách review scrollable */
+.review-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 5px;
+}
+
+.review-list::-webkit-scrollbar {
+  width: 6px;
+}
+.review-list::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 3px;
+}
+
+.review-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #555;
+}
+
+.review-content {
+  flex: 1;
+  text-align: left;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.review-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+}
+
+.average-rating-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.avg-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fbbf24;
+}
+
+.avg-stars {
+  display: flex;
+  gap: 2px;
+  color: #fbbf24;
+  font-size: 0.9rem;
+}
+
+.star-icon-avg {
+  transition: all 0.3s ease;
+}
+
+.review-username {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+.review-stars {
+  color: #fbbf24; /* Màu vàng sao */
+  font-size: 0.8rem;
+}
+
+.review-date {
+  font-size: 0.7rem;
+  color: #888;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.review-text {
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Khu vực nhập review */
+.review-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #252525;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.star-selector {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.star-icon {
+  color: #555;
+  transition: color 0.2s;
+}
+.star-icon.selected {
+  color: #fbbf24;
+}
+
+.comment-input {
+  background: #333;
+  border: 1px solid #444;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  resize: none;
+  font-size: 0.9rem;
+}
+
+.submit-review-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.submit-review-btn:hover {
+  background-color: #2563eb;
 }
