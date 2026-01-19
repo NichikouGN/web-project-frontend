@@ -36,6 +36,10 @@ npm run dev
 ```
 
 # Version
+
+## v0.8.0 (2026-01-19)
+- Added ability to send reviews for all games
+
 ## v0.7.2 (2026-01-19)
 - Added fetch gameboard Size and timer for games.
 - Fixed missing dependecies causing bug in chat windows.
