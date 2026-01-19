@@ -14,7 +14,7 @@ const Match3 = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [timer, setTimer] = useState(0);
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
-    "unloaded"
+    "unloaded",
   );
 
   const mockedBoardSize = { rows: 10, cols: 10 };
@@ -35,9 +35,7 @@ const Match3 = () => {
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
-      const emptyBoard = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => "")
-      );
+      const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
 
       return emptyBoard;
     },
@@ -53,15 +51,15 @@ const Match3 = () => {
         setBoard(gameData.board);
         setIsGameOver(gameData.isGameOver || false);
         setGameState("loaded");
-        Toast({ 
-          type: "success", 
-          title: "Success", 
-          message: "Game loaded successfully" 
+        Toast({
+          type: "success",
+          title: "Success",
+          message: "Game loaded successfully",
         });
       } catch (error) {
-        Toast({ 
-          type: "error", 
-          message: "Failed to load game data" 
+        Toast({
+          type: "error",
+          message: "Failed to load game data",
         });
         setGameState("loadError");
       }
@@ -92,8 +90,6 @@ const Match3 = () => {
       ) : null}
     </>
   );
-
-
 };
 
 export default Match3;

@@ -9,19 +9,19 @@ interface FetchUsersResponse {
 export const fetchUsersForManagement = async (
   accessToken: string,
   curPage: number,
-  setTotalPages: React.Dispatch<React.SetStateAction<number>>
+  setTotalPages: React.Dispatch<React.SetStateAction<number>>,
 ) => {
   try {
     console.log("Fetching users for page:", curPage);
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/admin/user-management?page=${curPage}`,
+      `${import.meta.env.VITE_API_URL}/api/admin/user-management?page=${curPage}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     if (!res.ok) {
@@ -40,14 +40,14 @@ export const fetchUsersForManagement = async (
 export const fetchUsersFromSearch = async (searchInput: string, accessToken: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/admin/user-management/search?query=${searchInput}`,
+      `${import.meta.env.VITE_API_URL}/api/admin/user-management/search?query=${searchInput}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to fetch user from search");
@@ -62,17 +62,14 @@ export const fetchUsersFromSearch = async (searchInput: string, accessToken: str
 
 export const activateUserAccount = async (userId: string, accessToken: string) => {
   try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/admin/user-management/activate`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ userId }),
-      }
-    );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/user-management/activate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ userId }),
+    });
     if (!res.ok) {
       throw new Error("Failed to activate user account");
     }
@@ -84,7 +81,7 @@ export const activateUserAccount = async (userId: string, accessToken: string) =
 export const deactivateUserAccount = async (userId: string, accessToken: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/admin/user-management/deactivate`,
+      `${import.meta.env.VITE_API_URL}/api/admin/user-management/deactivate`,
       {
         method: "POST",
         headers: {
@@ -92,7 +89,7 @@ export const deactivateUserAccount = async (userId: string, accessToken: string)
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ userId }),
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to deactivate user account");

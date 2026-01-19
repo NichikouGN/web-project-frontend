@@ -76,7 +76,7 @@ const MessageWindow = ({
     };
 
     fetchCurrentChat();
-  }, [conversationId]);
+  }, [conversationId, draftMode, draftModeCurrentChat]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });

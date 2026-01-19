@@ -15,7 +15,7 @@ const Caro4 = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [winner, setWinner] = useState<"X" | "O" | null>(null);
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
-    "unloaded"
+    "unloaded",
   );
   const [playTime, setPlayTime] = useState(0);
 
@@ -33,9 +33,7 @@ const Caro4 = () => {
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
-      const emptyBoard = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => "")
-      );
+      const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
 
       return emptyBoard;
     },
@@ -53,15 +51,15 @@ const Caro4 = () => {
         setIsGameOver(gameData.isGameOver || false);
         setWinner(gameData.winner || null);
         setGameState("loaded");
-        Toast({ 
-          type: "success", 
-          title: "Success", 
-          message: "Game loaded successfully" 
+        Toast({
+          type: "success",
+          title: "Success",
+          message: "Game loaded successfully",
         });
       } catch (error) {
-        Toast({ 
-          type: "error", 
-          message: "Failed to load game data" 
+        Toast({
+          type: "error",
+          message: "Failed to load game data",
         });
         setGameState("loadError");
       }
@@ -124,8 +122,6 @@ const Caro4 = () => {
         */}
     </>
   );
-
-
 };
 
 export default Caro4;

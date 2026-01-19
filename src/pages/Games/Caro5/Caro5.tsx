@@ -14,7 +14,7 @@ const Caro5 = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [winner, setWinner] = useState<"X" | "O" | null>(null);
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
-    "unloaded"
+    "unloaded",
   );
 
   const mockedBoardSize = { rows: 10, cols: 10 };
@@ -33,9 +33,7 @@ const Caro5 = () => {
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
-      const emptyBoard = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => "")
-      );
+      const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
 
       return emptyBoard;
     },
@@ -53,15 +51,15 @@ const Caro5 = () => {
         setIsGameOver(gameData.isGameOver || false);
         setWinner(gameData.winner || null);
         setGameState("loaded");
-        Toast({ 
-          type: "success", 
-          title: "Success", 
-          message: "Game loaded successfully" 
+        Toast({
+          type: "success",
+          title: "Success",
+          message: "Game loaded successfully",
         });
       } catch (error) {
-        Toast({ 
-          type: "error", 
-          message: "Failed to load game data" 
+        Toast({
+          type: "error",
+          message: "Failed to load game data",
         });
         setGameState("loadError");
       }
@@ -72,10 +70,10 @@ const Caro5 = () => {
   }, []);
 
   useEffect(() => {
-      if (!(gameBoardSize && gameState === "loaded")) {
-        fetchGameBoardSize();
-      }
-    }, [gameBoardSize, gameState, fetchGameBoardSize]);
+    if (!(gameBoardSize && gameState === "loaded")) {
+      fetchGameBoardSize();
+    }
+  }, [gameBoardSize, gameState, fetchGameBoardSize]);
 
   return (
     <>
@@ -95,8 +93,6 @@ const Caro5 = () => {
       ) : null}
     </>
   );
-
-
 };
 
 export default Caro5;
