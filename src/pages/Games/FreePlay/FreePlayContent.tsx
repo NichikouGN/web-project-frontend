@@ -36,23 +36,23 @@ const FreePlayContent = ({
 
   const handleCellClick = (row: number, col: number) => {
     updateCellColor(row, col, selectedColor);
-  }
+  };
 
   const resetBoard = useCallback(() => {
     setGameBoard(
       Array.from({ length: gameBoardSize?.rows ?? 0 }, () =>
-        Array.from({ length: gameBoardSize?.cols ?? 0 }, () => "var(--theme-body-primary-bg)")
-      )
+        Array.from({ length: gameBoardSize?.cols ?? 0 }, () => "var(--theme-body-primary-bg)"),
+      ),
     );
   }, [gameBoardSize]);
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken || ""}`,
+          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "7",
@@ -61,15 +61,14 @@ const FreePlayContent = ({
             board: gameBoard,
           },
         }),
-      })
+      });
 
       if (!res.ok) {
         throw new Error("Failed to save game");
       }
 
       Toast({ type: "success", title: "Success", message: "Game saved successfully" });
-    }
-    catch (error) {
+    } catch (error) {
       Toast({ type: "error", title: "Error", message: "Failed to save game" });
     }
     // const gameData = {
@@ -82,13 +81,13 @@ const FreePlayContent = ({
 
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=7`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=7`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken || ""}`,
+          Authorization: `Bearer ${accessToken || ""}`,
         },
-      })
+      });
 
       if (!res.ok) {
         throw new Error("Failed to load game");
@@ -145,7 +144,6 @@ const FreePlayContent = ({
           onChange={handleColorChange}
           className={styles["color-picker"]}
         />
-
       </div>
       <GameZone
         gameBoard={gameBoard}

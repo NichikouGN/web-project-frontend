@@ -57,7 +57,9 @@ const MemoryMatchingContent = ({
   const accessToken = useAuthStore((state) => state.accessToken);
   const [gameArray, setGameArray] = useState<string[][]>(propsGameArray);
   const [isFirstSelection, setIsFirstSelection] = useState<boolean>(propsIsFirstSelection);
-  const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(propsFirstSelection);
+  const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(
+    propsFirstSelection,
+  );
   const [matchedCount, setMatchedCount] = useState<number>(propsMatchedCount);
   const [turnCount, setTurnCount] = useState<number>(propsTurnCount);
   const [isGameComplete, setIsGameComplete] = useState<boolean>(propsIsGameComplete);
@@ -66,42 +68,44 @@ const MemoryMatchingContent = ({
   const [score, setScore] = useState(0);
   const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
-  
+
   const cellCount = gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols : 0;
   const timeLimit = timer;
 
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);
-  
+
   const modes = [
     { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
-    { id: "timeAttack", label: `Time Attack (${timeLimit}s)`, description: "Score before time runs out, penalty for unmatched pairs" },
+    {
+      id: "timeAttack",
+      label: `Time Attack (${timeLimit}s)`,
+      description: "Score before time runs out, penalty for unmatched pairs",
+    },
   ];
   const reward = 100 + (gameBoardSize ? gameBoardSize.rows * gameBoardSize.cols * 20 : 0); // điểm thưởng khi ghép đúng
-  const penalty = 10;  // điểm phạt khi ghép sai
+  const penalty = 10; // điểm phạt khi ghép sai
 
   const modesArt = {
-    "classic":
-      `CCC...\nCCC...\nCCCBBB\nCCCBBB\n...BBB\n...BBB`,
-    "timeAttack":
-      `YYYYYY\n.Y..Y.\n..YY..\n..YY..\n.Y..Y.\nYYYYYY`
+    classic: `CCC...\nCCC...\nCCCBBB\nCCCBBB\n...BBB\n...BBB`,
+    timeAttack: `YYYYYY\n.Y..Y.\n..YY..\n..YY..\n.Y..Y.\nYYYYYY`,
   };
 
   // Create modeBoard for visualization
   const createModesBoard = () => {
-      const modesList = ["classic", "timeAttack"] as const;
-      return modesList.map((mode) => {
-          const art = modesArt[mode].trim().split("\n");
-          return art.map((line) =>
-              line.split("").map((char) => {
-                  if (char === ".") return "";
-                  if (char === "C") return "#33F5FF";
-                  if (char === "B") return "#3357FF";
-                  if (char === "Y") return "#FFD700";
-                  return "";
-              })
-          );
-      });
+    const modesList = ["classic", "timeAttack"] as const;
+    return modesList.map((mode) => {
+      const art = modesArt[mode].trim().split("\n");
+      return art.map((line) =>
+        line.split("").map((char) => {
+          if (char === ".") return "";
+          if (char === "C") return "#33F5FF";
+          if (char === "B") return "#3357FF";
+          if (char === "Y") return "#FFD700";
+          return "";
+        }),
+      );
+    });
   };
 
   const modesBoards = createModesBoard();
@@ -130,7 +134,6 @@ const MemoryMatchingContent = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes]);
 
-
   // Timer countdown cho Time Attack mode
   useEffect(() => {
     if (gameMode !== "timeAttack" || isGameOver || isGameComplete) return;
@@ -144,10 +147,10 @@ const MemoryMatchingContent = ({
           const unmatchedPairs = totalPairs - matchedCount;
           const finalPenalty = unmatchedPairs * 10;
           setScore((prev) => Math.max(0, prev - finalPenalty));
-          Toast({ 
-            type: "error", 
-            title: "Time's Up!", 
-            message: `Penalty: ${finalPenalty} points for ${unmatchedPairs} unmatched pairs` 
+          Toast({
+            type: "error",
+            title: "Time's Up!",
+            message: `Penalty: ${finalPenalty} points for ${unmatchedPairs} unmatched pairs`,
           });
           return 0;
         }
@@ -180,11 +183,26 @@ const MemoryMatchingContent = ({
 
     // Danh sách màu để gán cho các cặp
     const colors = [
-      "#FF5733", "#33FF57", "#3357FF", "#FF33F5", 
-      "#33F5FF", "#FFD700", "#FF8C00", "#20B2AA",
-      "#FFB6C1", "#90EE90", "#87CEEB", "#DDA0DD",
-      "#F0E68C", "#FF1493", "#00CED1", "#32CD32",
-      "#FF69B4", "#4169E1", "#00FF00", "#FF0000"
+      "#FF5733",
+      "#33FF57",
+      "#3357FF",
+      "#FF33F5",
+      "#33F5FF",
+      "#FFD700",
+      "#FF8C00",
+      "#20B2AA",
+      "#FFB6C1",
+      "#90EE90",
+      "#87CEEB",
+      "#DDA0DD",
+      "#F0E68C",
+      "#FF1493",
+      "#00CED1",
+      "#32CD32",
+      "#FF69B4",
+      "#4169E1",
+      "#00FF00",
+      "#FF0000",
     ];
 
     const numPairs = totalCells / 2;
@@ -262,13 +280,13 @@ const MemoryMatchingContent = ({
       // Lựa chọn thứ hai
       const selectedColor = gameArray[row][col];
       updateCellColor(row, col, selectedColor);
-      
+
       if (firstSelection) {
         const firstColor = gameArray[firstSelection.row][firstSelection.col];
-        
+
         // Bật trạng thái waiting
         setIsWaiting(true);
-        
+
         if (firstColor !== selectedColor) {
           // Không khớp, ẩn lại sau 1 giây
           setScore((prev) => prev - (prev > 0 ? (gameMode === "timeAttack" ? 0 : 1) * penalty : 0));
@@ -284,7 +302,7 @@ const MemoryMatchingContent = ({
           newMatched.add(`${firstSelection.row}-${firstSelection.col}`);
           newMatched.add(cellKey);
           setMatchedCells(newMatched);
-          
+
           // Tăng bộ đếm
           setMatchedCount((prevCount) => {
             const newCount = prevCount + 1;
@@ -299,7 +317,7 @@ const MemoryMatchingContent = ({
               Toast({
                 type: "success",
                 title: "🎉 Congratulations!",
-                message: "You matched all pairs!"
+                message: "You matched all pairs!",
               });
             }
             setIsWaiting(false);
@@ -316,8 +334,8 @@ const MemoryMatchingContent = ({
   const resetBoard = useCallback(() => {
     setGameBoard(
       Array.from({ length: gameBoardSize?.rows ?? 0 }, () =>
-        Array.from({ length: gameBoardSize?.cols ?? 0 }, () => "var(--theme-body-primary-bg)")
-      )
+        Array.from({ length: gameBoardSize?.cols ?? 0 }, () => "var(--theme-body-primary-bg)"),
+      ),
     );
     setGameArray(generateGameArray());
     setMatchedCount(0);
@@ -335,11 +353,11 @@ const MemoryMatchingContent = ({
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/save`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken || ""}`,
+          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "6",
@@ -370,15 +388,31 @@ const MemoryMatchingContent = ({
     } catch (error) {
       Toast({ type: "error", title: "Error", message: "Failed to save game" });
     }
-  }, [gameBoardSize, gameBoard, gameArray, matchedCount, turnCount, score, isGameComplete, matchedCells, isFirstSelection, firstSelection, isWaiting, timeLeft, gameMode, selectedModeIndex, accessToken]);
+  }, [
+    gameBoardSize,
+    gameBoard,
+    gameArray,
+    matchedCount,
+    turnCount,
+    score,
+    isGameComplete,
+    matchedCells,
+    isFirstSelection,
+    firstSelection,
+    isWaiting,
+    timeLeft,
+    gameMode,
+    selectedModeIndex,
+    accessToken,
+  ]);
 
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/games/load?game_id=6`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=6`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken || ""}`,
+          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -406,12 +440,12 @@ const MemoryMatchingContent = ({
       Toast({
         type: "success",
         title: "Success",
-        message: "Game loaded successfully"
+        message: "Game loaded successfully",
       });
     } catch (error) {
       Toast({
         type: "error",
-        message: "Failed to load game"
+        message: "Failed to load game",
       });
     }
   }, [accessToken, timeLimit, gameBoard]);
@@ -440,14 +474,16 @@ const MemoryMatchingContent = ({
 
       <div>
         {isGameComplete && (
-          <div style={{
-            textAlign: "center",
-            marginTop: "10px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "#4CAF50",
-            marginBottom: "20px"
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "10px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: "#4CAF50",
+              marginBottom: "20px",
+            }}
+          >
             🎉 All pairs matched! 🎉
           </div>
         )}
@@ -461,53 +497,57 @@ const MemoryMatchingContent = ({
           const isMatched = matchedCells.has(cellKey);
           return {
             opacity: isMatched ? 0.5 : 1,
-            cursor: isMatched || isWaiting ? "not-allowed" : "pointer"
+            cursor: isMatched || isWaiting ? "not-allowed" : "pointer",
           };
         }}
         leftPanelContent={
           gameMode ? (
             <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
               <h3 className={styles["game-title"]}>Memory Matching</h3>
-              <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
-                Click on a card to reveal it.
-              </p>
-              <p style={{ fontSize: "14px", color: "#888" }}>
-                Match all pairs to win!
-              </p>
+              <p style={{ fontSize: "16px", lineHeight: "1.4" }}>Click on a card to reveal it.</p>
+              <p style={{ fontSize: "14px", color: "#888" }}>Match all pairs to win!</p>
             </div>
           ) : (
             <div style={{ textAlign: "center" }} className={styles["player-turn-indicator"]}>
               <h3 className={styles["game-title"]}>Memory Matching</h3>
-              <p style={{ fontSize: "14px", color: "#888" }}>
-                Select your preferred game mode
-              </p>
+              <p style={{ fontSize: "14px", color: "#888" }}>Select your preferred game mode</p>
             </div>
           )
         }
         rightPanelContent={
           gameMode ? (
-            <div className={styles["player-turn-indicator"]} 
-              style={{ textAlign: "center" }}>            
+            <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
               <h3>Score</h3>
               <p style={{ fontSize: "24px", fontWeight: "bold", color: "#22c55e" }}>{score}</p>
               <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
               {gameMode === "timeAttack" && (
                 <>
-                  <p style={{ fontSize: "18px", fontWeight: "bold", color: timeLeft <= 5 ? "#FF6B6B" : "#FFC107" }}>
+                  <p
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                      color: timeLeft <= 5 ? "#FF6B6B" : "#FFC107",
+                    }}
+                  >
                     Time: {timeLeft}s
                   </p>
                   <hr style={{ margin: "1rem 0", borderColor: "#444" }} />
                 </>
               )}
               <p>Tries count: {turnCount}</p>
-              <p>Matched pairs: {matchedCount} / {(gameBoardSize ? (gameBoardSize.rows * gameBoardSize.cols) / 2 : 0)}</p>
+              <p>
+                Matched pairs: {matchedCount} /{" "}
+                {gameBoardSize ? (gameBoardSize.rows * gameBoardSize.cols) / 2 : 0}
+              </p>
             </div>
           ) : (
             <div className={styles["player-turn-indicator"]} style={{ textAlign: "center" }}>
               <h3>Select Game Mode</h3>
               <p style={{ marginBottom: "10px" }}>Use &larr; &rarr; to navigate, Enter to select</p>
               <h2 style={{ color: "#22c55e" }}>{modes[selectedModeIndex].label}</h2>
-              <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
+              <p style={{ fontSize: "14px", color: "#888" }}>
+                {modes[selectedModeIndex].description}
+              </p>
             </div>
           )
         }

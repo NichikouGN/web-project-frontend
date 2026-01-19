@@ -1,14 +1,10 @@
 import { Toast } from "../stores/toastStore";
-import { useAuthStore } from "../stores/authStore";
 
 export const getGameBoardSize = async (gameId: number) => {
   try {
-    const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/games/${gameId}/board-size`,
-        {
-            method: "GET",
-        }
-    );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/${gameId}/board-size`, {
+      method: "GET",
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch game board size");
     }
@@ -24,12 +20,9 @@ export const getGameBoardSize = async (gameId: number) => {
 
 export const getTimer = async (gameId: number) => {
   try {
-    const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/games/${gameId}/timer`,
-        {
-            method: "GET",
-        }
-    );
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/${gameId}/timer`, {
+      method: "GET",
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch game timer");
     }
