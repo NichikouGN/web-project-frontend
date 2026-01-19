@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import styles from "./SearchResult.module.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { formatConsoleError } from "../../consoleError";
-import { FaCircleUser } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
 interface searchUserType {
@@ -140,7 +140,7 @@ const SearchResult = () => {
                     {avatarUrl ? (
                       <img className={styles["card-author-avatar"]} src={avatarUrl} />
                     ) : (
-                      <FaCircleUser className={styles["card-author-icon"]} />
+                      <FaUser className={styles["card-author-icon"]} />
                     )}
 
                     <div className={styles["user-info"]}>

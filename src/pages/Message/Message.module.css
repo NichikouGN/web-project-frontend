@@ -168,6 +168,26 @@
   transition: border-color 0.3s ease;
 }
 
+.message-header-icon {
+  flex-shrink: 0;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  background: var(--theme-text-secondary);
+
+  font-size: 1rem;
+  color: var(--theme-body-bg);
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
 .message-header h2 {
   margin: 0;
 
@@ -225,6 +245,27 @@
   border-radius: 50%;
 
   transition: border-color 0.3s ease;
+}
+
+.message-item-icon {
+  flex-shrink: 0;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+
+  background: var(--theme-text-secondary);
+
+  font-size: 0.75rem;
+  color: var(--theme-body-bg);
+
+  border: 1px solid var(--theme-text-secondary);
+  border-radius: 50%;
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .new-group-image {

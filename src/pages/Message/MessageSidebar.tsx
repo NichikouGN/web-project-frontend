@@ -60,10 +60,12 @@ const MessageSidebar = ({ chatList, currentChatId, setChatPage }: ChatSidebarPro
               )}
               <div className={styles["chat-sidebar-item-info"]}>
                 <h2>{chat.username}</h2>
-                <p>
-                  {chat.lastMessage.role === "sender" ? "You: " : chat.username + ": "}
-                  {chat.lastMessage.content}
-                </p>
+                {chat.lastMessage && (
+                  <p>
+                    {chat.lastMessage.role === "sender" ? "You: " : chat.username + ": "}
+                    {chat.lastMessage.content}
+                  </p>
+                )}
               </div>
             </div>
           ))}
