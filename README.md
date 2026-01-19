@@ -37,6 +37,17 @@ npm run dev
 
 # Version
 
+## v0.7.0 (2026-01-19)
+
+- Added Caro 5 Game.
+- Added Caro 4 Game.
+- Added Tic Tac Toe Game.
+- Added Snake Game.
+- Added Match 3 Game.
+- Added Memory Matching Game.
+- Change UI selection of all games in home menu.
+- Added Mode selection for all games.
+
 ## v0.6.2 (2026-01-18)
 
 - Added achievements and ranking page to the user page.
