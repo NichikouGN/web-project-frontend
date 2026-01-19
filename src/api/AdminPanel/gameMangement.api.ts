@@ -4,14 +4,14 @@ import type { GameInfo } from "../../types/AdminPanel/gameManagement.types";
 export const fetchAvailableGames = async (accessToken: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/available-games`,
+      `${import.meta.env.VITE_API_URL}/admin/game-management/available-games`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to fetch available games");
@@ -27,14 +27,14 @@ export const fetchAvailableGames = async (accessToken: string) => {
 export const fetchGameDetails = async (accessToken: string, gameId: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/game-details/${gameId}`,
+      `${import.meta.env.VITE_API_URL}/admin/game-management/game-details/${gameId}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to fetch game details");
@@ -50,14 +50,14 @@ export const fetchGameDetails = async (accessToken: string, gameId: string) => {
 export const activateGameMode = async (accessToken: string, gameId: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/activate-game-mode/${gameId}`,
+      `${import.meta.env.VITE_API_URL}/admin/game-management/activate-game-mode/${gameId}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to activate game mode");
@@ -71,14 +71,14 @@ export const activateGameMode = async (accessToken: string, gameId: string) => {
 export const deactivateGameMode = async (accessToken: string, gameId: string) => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/deactivate-game-mode/${gameId}`,
+      `${import.meta.env.VITE_API_URL}/admin/game-management/deactivate-game-mode/${gameId}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to deactivate game mode");
@@ -91,9 +91,8 @@ export const deactivateGameMode = async (accessToken: string, gameId: string) =>
 
 export const updateBoardSize = async (accessToken: string, gameId: string, boardSize: number) => {
   try {
-    
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/admin/game-management/update-board-size/${gameId}`,
+      `${import.meta.env.VITE_API_URL}/admin/game-management/update-board-size/${gameId}`,
       {
         method: "PUT",
         headers: {
@@ -101,7 +100,7 @@ export const updateBoardSize = async (accessToken: string, gameId: string, board
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ boardSize }),
-      }
+      },
     );
     if (!res.ok) {
       throw new Error("Failed to update board size");

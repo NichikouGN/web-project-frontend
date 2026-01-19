@@ -7,7 +7,7 @@ const FreePlay = () => {
   const [board, setBoard] = useState<string[][]>([]);
 
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
-    "unloaded"
+    "unloaded",
   );
 
   const loadGame = useCallback(() => {
@@ -26,7 +26,7 @@ const FreePlay = () => {
   const fetchGameBoardSize = useCallback(async () => {
     try {
       /*
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/game/free-play/board-size`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/game/free-play/board-size`, {
         method: "GET",
         credentials: "include",
       });
@@ -38,7 +38,7 @@ const FreePlay = () => {
       //Temporary hardcoded board size until backend is ready
 
       const data = { boardSize: { rows: 10, cols: 10 } };
-      
+
       setGameBoardSize(data.boardSize);
       setBoard(generateEmptyBoard(data.boardSize));
       setGameState("loaded");
@@ -51,19 +51,19 @@ const FreePlay = () => {
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {
       const emptyBoard = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => "var(--theme-body-primary-bg)")
+        Array.from({ length: cols }, () => "var(--theme-body-primary-bg)"),
       );
 
       return emptyBoard;
     },
-    [gameBoardSize]
+    [gameBoardSize],
   );
 
   useEffect(() => {
-      if (!(gameBoardSize && gameState === "loaded")) {
-        fetchGameBoardSize();
-      }
-    }, [gameBoardSize, gameState, fetchGameBoardSize]);
+    if (!(gameBoardSize && gameState === "loaded")) {
+      fetchGameBoardSize();
+    }
+  }, [gameBoardSize, gameState, fetchGameBoardSize]);
 
   return (
     <>
@@ -74,8 +74,8 @@ const FreePlay = () => {
           gameBoardSize={gameBoardSize}
           setGameState={setGameState}
         />
-      ) : null }
-      
+      ) : null}
+
       {/*
           (
         <div className={styles["game-page"]}>
