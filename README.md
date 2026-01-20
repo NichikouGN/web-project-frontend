@@ -36,6 +36,11 @@ npm run dev
 ```
 
 # Version
+## v0.8.3 (2026-01-20)
+- Fixed incorrect theme on the review panel.
+- Fixed admin panel sending wrong data to update the game board size.
+- Fixed authStore doesnt correct update signInState for admins.
+- 
 ## v0.8.2 (2026-01-20)
 - Aded timer to majority of game modes.
 

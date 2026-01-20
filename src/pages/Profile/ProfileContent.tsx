@@ -86,6 +86,8 @@ const ProfileContent = () => {
 
   const fetchRankingData = useCallback(
     async (filter: RankingFilterType, game: RankingGameType) => {
+      console.log("Fetching ranking data with filter:", filter, "and game:", game);
+      setRankingData([]);
       try {
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/api/users/${
@@ -103,6 +105,7 @@ const ProfileContent = () => {
           throw new Error("Failed to fetch ranking data");
         }
         const data = await res.json();
+        console.log("Fetched ranking data:", data);
         setUserRankings(data.userOwnRanking);
         setRankingData(data.rankings);
       } catch (error) {

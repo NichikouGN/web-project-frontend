@@ -265,7 +265,7 @@ const Home = () => {
   // Render sao
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
-      <FaStar key={index} color={index < rating ? "#fbbf24" : "#555"} />
+      <FaStar key={index} color={index < rating ? "#fbbf24" : "var(--theme-body-tertiary-bg)"} />
     ));
   };
 

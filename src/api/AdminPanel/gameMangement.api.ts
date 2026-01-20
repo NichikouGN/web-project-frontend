@@ -71,7 +71,8 @@ export const deactivateGameMode = async (accessToken: string, gameId: number) =>
 export const updateBoardSize = async (
   accessToken: string,
   gameId: number,
-  boardSize: { width: number; height: number },
+  width: number,
+  height: number,
 ) => {
   try {
     const res = await fetchWithAuth(
@@ -82,7 +83,7 @@ export const updateBoardSize = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ boardSize }),
+        body: JSON.stringify({ board_width: width, board_height: height }),
       },
     );
     if (!res.ok) {
