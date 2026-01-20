@@ -139,7 +139,7 @@ const SnakeContent = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime, accessToken];
+  }, [isGameOver, gameMode, score, playTime, accessToken]);
 
   // Create modeBoard for visualization
   const createModesBoard = () => {

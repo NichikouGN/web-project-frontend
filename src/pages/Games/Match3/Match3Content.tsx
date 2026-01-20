@@ -237,7 +237,7 @@ const Match3Content = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime, accessToken];
+  }, [isGameOver, gameMode, score, playTime, accessToken]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {
