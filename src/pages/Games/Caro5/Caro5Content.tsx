@@ -146,6 +146,18 @@ const Caro5Content = ({
     const postResult = async () => {
       try {
         await postGameResult(1, score, playTime, accessToken);
+        
+        // Gọi API increment match count
+        fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -158,7 +170,7 @@ const Caro5Content = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+  }, [isGameOver, gameMode, score, playTime, accessToken]);
 
   // Handle keyboard input cho mode selector
   useEffect(() => {
@@ -211,6 +223,17 @@ const Caro5Content = ({
           // Cập nhật điểm scoring
           if (gameWinner === userSymbol && gameMode !== "pvp") {
             setScore((prev) => prev + 1000);
+            
+            // Gọi API increment win count
+            fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-win`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken || ""}`,
+              },
+            }).catch((error) => {
+              console.error("Failed to increment win count:", error);
+            });
           }
 
           Toast({

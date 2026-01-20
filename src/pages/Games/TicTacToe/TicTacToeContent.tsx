@@ -124,6 +124,18 @@ const TicTacToeContent = ({
     const postResult = async () => {
       try {
         await postGameResult(3, score, playTime, accessToken);
+        
+        // Gọi API increment match count
+        fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -136,7 +148,7 @@ const TicTacToeContent = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+  }, [isGameOver, gameMode, score, playTime, accessToken]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(
@@ -162,6 +174,17 @@ const TicTacToeContent = ({
               scoreGain = 120;
             }
             setScore((prev) => prev + scoreGain);
+            
+            // Gọi API increment win count
+            fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-win`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken || ""}`,
+              },
+            }).catch((error) => {
+              console.error("Failed to increment win count:", error);
+            });
           }
 
           if (gameMode === "pvp") {

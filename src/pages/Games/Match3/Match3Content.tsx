@@ -213,6 +213,18 @@ const Match3Content = ({
     const postResult = async () => {
       try {
         await postGameResult(5, score, playTime, accessToken);
+        
+        // Gọi API increment match count
+        fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -225,7 +237,7 @@ const Match3Content = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+  }, [isGameOver, gameMode, score, playTime, accessToken];
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {

@@ -154,6 +154,18 @@ const MemoryMatchingContent = ({
     const postResult = async () => {
       try {
         await postGameResult(6, score, playTime, accessToken);
+        
+        // Gọi API increment match count
+        fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -166,7 +178,7 @@ const MemoryMatchingContent = ({
     };
 
     postResult();
-  }, [isGameOver, isGameComplete, gameMode, score, accessToken]);
+  }, [isGameOver, isGameComplete, gameMode, score, playTime, accessToken]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {

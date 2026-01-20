@@ -143,6 +143,18 @@ export const useAuthStore = create<authStoreType>()(
 
           const data = await res.json();
 
+          // Gọi API increment login count
+          // Gabage code but it works bro :))
+          fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.accessToken}`,
+            },
+          }).catch((error) => {
+            console.error("Failed to increment login count:", error);
+          });
+
           get().setUpToken(data.accessToken, data.refreshToken);
           get().setSignInState("authorized");
         } catch (error: any) {
