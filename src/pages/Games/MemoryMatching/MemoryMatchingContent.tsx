@@ -78,6 +78,7 @@ const MemoryMatchingContent = ({
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isGameOver, setIsGameOver] = useState(false);
   const [playTime, setPlayTime] = useState(0);
+  const [resPosted, setResPosted] = useState(false);
 
   const modes = [
     { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
@@ -178,7 +179,7 @@ const MemoryMatchingContent = ({
 
   // Post game result khi game kết thúc
   useEffect(() => {
-    if ((!isGameOver && !isGameComplete) || !gameMode || playTime === 0) return;
+    if ((!isGameOver && !isGameComplete) || !gameMode || playTime === 0 || resPosted) return;
 
     const postResult = async () => {
       try {
@@ -195,7 +196,8 @@ const MemoryMatchingContent = ({
     };
 
     postResult();
-  }, [isGameOver, isGameComplete, gameMode, score, accessToken]);
+    setResPosted(true);
+  }, [isGameOver, isGameComplete, gameMode, score, playTime, accessToken, resPosted]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {
@@ -411,6 +413,7 @@ const MemoryMatchingContent = ({
     setMatchedCells(new Set());
     setTimeLeft(timeLimit);
     setIsGameOver(false);
+    setResPosted(false);
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
 

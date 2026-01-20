@@ -44,6 +44,7 @@ const Caro4Content = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
   const [playTime, setPlayTime] = useState(0);
+  const [resPosted, setResPosted] = useState(false);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -56,7 +57,7 @@ const Caro4Content = ({
 
   // Post game result khi game kết thúc (trừ PvP mode)
   useEffect(() => {
-    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0) return;
+    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0 || resPosted) return;
 
     const postResult = async () => {
       try {
@@ -73,7 +74,8 @@ const Caro4Content = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime, accessToken]);
+    setResPosted(true);
+  }, [isGameOver, gameMode, score, playTime, accessToken, resPosted]);
 
   const modes = [
     { id: "goFirst", label: "Go First (X)", description: "You play first" },
@@ -360,6 +362,7 @@ const Caro4Content = ({
     setCurrentPlayer("X");
     setIsGameOver(false);
     setWinner(null);
+    setResPosted(false);
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
 

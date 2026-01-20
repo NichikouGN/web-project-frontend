@@ -38,6 +38,7 @@ const Match3Content = ({
   const [timeLeft, setTimeLeft] = useState(timer);
   const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
   const [playTime, setPlayTime] = useState(0);
+  const [resPosted, setResPosted] = useState(false);
   const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
   const modes = [
@@ -237,7 +238,7 @@ const Match3Content = ({
 
   // Post game result khi game kết thúc (không post cho endless mode)
   useEffect(() => {
-    if (!isGameOver || gameMode === "endless" || !gameMode || playTime === 0) return;
+    if (!isGameOver || gameMode === "endless" || !gameMode || playTime === 0 || resPosted) return;
 
     const postResult = async () => {
       try {
@@ -254,7 +255,8 @@ const Match3Content = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+    setResPosted(true);
+  }, [isGameOver, gameMode, score, playTime, accessToken, resPosted]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {
@@ -514,6 +516,8 @@ const Match3Content = ({
     setTimeLeft(timer);
     setIsGameOver(false);
     setSelectedCell(null);
+    setResPosted(false);
+
   }, [generateGameArray]);
 
   const saveGame = useCallback(async () => {

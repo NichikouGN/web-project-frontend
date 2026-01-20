@@ -46,6 +46,7 @@ const SnakeContent = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(timer); // 60 giây cho time attack
   const [playTime, setPlayTime] = useState(0);
+  const [resPosted, setResPosted] = useState(false);
 
   const modes = [
     { id: "classic", label: "Classic", description: "Classic mode" },
@@ -139,7 +140,7 @@ const SnakeContent = ({
 
   // Post game result khi game kết thúc
   useEffect(() => {
-    if (!isGameOver || !gameMode || playTime === 0) return;
+    if (!isGameOver || !gameMode || playTime === 0 || resPosted) return;
 
     const postResult = async () => {
       try {
@@ -156,7 +157,8 @@ const SnakeContent = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+    setResPosted(true);
+  }, [isGameOver, gameMode, score, playTime, accessToken, resPosted]);
 
   // Create modeBoard for visualization
   const createModesBoard = () => {
@@ -435,6 +437,8 @@ const SnakeContent = ({
     setSpeed(gameMode === "timeAttack" ? 400 : 900);
     setApplePlaced(false);
     setIsGameOver(false);
+    setResPosted(false);
+
     if (gameMode === "timeAttack") {
       setTimeLeft(timer); // Reset timer cho time attack
     }

@@ -45,6 +45,7 @@ const TicTacToeContent = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X"); // Track user's symbol
   const [playTime, setPlayTime] = useState(0);
+  const [resPosted, setResPosted] = useState(false);
 
   const modes = [
     { id: "goFirst", label: "Go First (X)", description: "You play first" },
@@ -119,7 +120,7 @@ const TicTacToeContent = ({
 
   // Post game result khi game kết thúc (trừ PvP mode)
   useEffect(() => {
-    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0) return;
+    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0 || resPosted) return;
 
     const postResult = async () => {
       try {
@@ -136,7 +137,8 @@ const TicTacToeContent = ({
     };
 
     postResult();
-  }, [isGameOver, gameMode, score, playTime]);
+    setResPosted(true);
+  }, [isGameOver, gameMode, score, playTime, accessToken, resPosted]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(
@@ -347,6 +349,7 @@ const TicTacToeContent = ({
 
     // Luôn bắt đầu lại với X
     setCurrentPlayer("X");
+    setResPosted(false);
 
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
