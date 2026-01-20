@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, use } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
@@ -200,6 +200,7 @@ const Caro5Content = ({
         e.preventDefault();
         handleEnter();
       } else if (e.key === "Escape") {
+        e.preventDefault();
         handleReturnButton();
       }
     };
@@ -207,6 +208,19 @@ const Caro5Content = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
+
+  useEffect(() => {
+    if (!gameMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReturnButton();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleReturnButton]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(

@@ -168,6 +168,22 @@ const Caro4Content = ({
     }
   };
 
+  const handleEnter = () => {
+    const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
+      setGameMode(selectedMode);
+
+      // Khởi tạo lần chơi đầu tiên
+      setCurrentPlayer("X");
+
+      if (selectedMode === "goFirst") {
+        setUserSymbol("X");
+      } else if (selectedMode === "goSecond") {
+        setUserSymbol("O");
+      } else {
+        setUserSymbol("X");
+      }
+  };
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -181,20 +197,9 @@ const Caro4Content = ({
         setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
       } else if (e.key === "Enter") {
         e.preventDefault();
-        const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
-        setGameMode(selectedMode);
-
-        // Khởi tạo lần chơi đầu tiên
-        setCurrentPlayer("X");
-
-        if (selectedMode === "goFirst") {
-          setUserSymbol("X");
-        } else if (selectedMode === "goSecond") {
-          setUserSymbol("O");
-        } else {
-          setUserSymbol("X");
-        }
+        handleEnter();
       } else if (e.key === "Escape") {
+        e.preventDefault();
         handleReturnButton();
       }
     };
@@ -202,6 +207,19 @@ const Caro4Content = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
+
+  useEffect(() => {
+    if (!gameMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReturnButton();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleReturnButton]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(
@@ -483,7 +501,7 @@ const Caro4Content = ({
           >
             Return
           </button>
-          {gameMode && (
+          {gameMode ? (
             <div>
               <button className={styles["reset-board-button"]} onClick={saveGame}>
                 Save Game
@@ -495,6 +513,10 @@ const Caro4Content = ({
                 Reset Board
               </button>
             </div>
+          ) : (
+            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+              Start Game
+            </button>
           )}
         </div>
 

@@ -205,20 +205,8 @@ const TicTacToeContent = ({
     }
   };
 
-  // Handle keyboard input cho mode selector
-  useEffect(() => {
-    if (gameMode) return; // Chỉ handle khi chưa chọn mode
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
+  const handleEnter = () => {
+    const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
         setGameMode(selectedMode);
 
         // Khởi tạo lần chơi đầu tiên
@@ -232,7 +220,23 @@ const TicTacToeContent = ({
         } else {
           setUserSymbol("X"); // Player 1 chơi X
         }
+    };
+  // Handle keyboard input cho mode selector
+  useEffect(() => {
+    if (gameMode) return; // Chỉ handle khi chưa chọn mode
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelectedModeIndex((prev) => (prev === 0 ? modes.length - 1 : prev - 1));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        handleEnter();
       } else if (e.key === "Escape") {
+        e.preventDefault();
         handleReturnButton();
       }
     };
@@ -240,6 +244,19 @@ const TicTacToeContent = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
+
+  useEffect(() => {
+    if (!gameMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReturnButton();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleReturnButton]);
 
   const handleCellClick = (row: number, col: number) => {
     // Không cho chơi nếu game đã kết thúc
@@ -497,7 +514,7 @@ const TicTacToeContent = ({
           >
             Return
           </button>
-          {gameMode && (
+          {gameMode ? (
             <div>
               <button className={styles["reset-board-button"]} onClick={saveGame}>
                 Save Game
@@ -509,6 +526,10 @@ const TicTacToeContent = ({
                 Reset Board
               </button>
             </div>
+          ) : (
+            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+              Start Game
+            </button>
           )}
         </div>
 

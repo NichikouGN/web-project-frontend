@@ -78,6 +78,19 @@ const SnakeContent = ({
     }
   };
 
+  const handleEnter = () => {
+    const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
+        setGameMode(selectedMode);
+
+        // Khởi tạo tốc độ dựa trên mode
+        if (selectedMode === "timeAttack") {
+          setSpeed(400); // Tốc độ cao cho time attack
+          setTimeLeft(timer); // Reset timer cho time attack
+        } else {
+          setSpeed(900); // Tốc độ thường cho classic
+        }
+  };
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -91,17 +104,9 @@ const SnakeContent = ({
         setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
       } else if (e.key === "Enter") {
         e.preventDefault();
-        const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
-        setGameMode(selectedMode);
-
-        // Khởi tạo tốc độ dựa trên mode
-        if (selectedMode === "timeAttack") {
-          setSpeed(400); // Tốc độ cao cho time attack
-          setTimeLeft(timer); // Reset timer cho time attack
-        } else {
-          setSpeed(900); // Tốc độ thường cho classic
-        }
+        handleEnter();
       } else if (e.key === "Escape") {
+        e.preventDefault();
         handleReturnButton();
       }
     };
@@ -109,6 +114,19 @@ const SnakeContent = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes, timer, handleReturnButton]);
+
+  useEffect(() => {
+    if (!gameMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReturnButton();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleReturnButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -530,7 +548,7 @@ const SnakeContent = ({
           >
             Return
           </button>
-          {gameMode && (
+          {gameMode ? (
             <div>
               <button className={styles["reset-board-button"]} onClick={saveGame}>
                 Save Game
@@ -542,6 +560,10 @@ const SnakeContent = ({
                 Reset Board
               </button>
             </div>
+          ) : (
+            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+              Start Game
+            </button>
           )}
         </div>
 
