@@ -86,6 +86,8 @@ const ProfileContent = () => {
 
   const fetchRankingData = useCallback(
     async (filter: RankingFilterType, game: RankingGameType) => {
+      console.log("Fetching ranking data with filter:", filter, "and game:", game);
+      setRankingData([]);
       try {
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/api/users/${
@@ -103,6 +105,7 @@ const ProfileContent = () => {
           throw new Error("Failed to fetch ranking data");
         }
         const data = await res.json();
+        console.log("Fetched ranking data:", data);
         setUserRankings(data.userOwnRanking);
         setRankingData(data.rankings);
       } catch (error) {
@@ -260,7 +263,7 @@ const ProfileContent = () => {
                         <tr
                           key={entry.userId}
                           className={`${styles["ranking-row"]} ${
-                            userRankings?.rank === entry.rank ? styles["current-user"] : ""
+                            userRankings?.score === entry.score ? styles["current-user"] : ""
                           }`}
                         >
                           <td>{entry.rank}</td>
@@ -279,12 +282,22 @@ const ProfileContent = () => {
                           <td>{entry.score}</td>
                         </tr>
                       ))}
+                      <tr className={styles["ranking-separator"]}>
+                        <td colSpan={4}></td>
+                      </tr>
 
                       {userRankings &&
-                        !rankingData.some((entry) => entry.rank === userRankings.rank) && (
-                          <tr className={styles["current-user"]}>
-                            <td>{userRankings.rank}</td>
-                            <td>{userInformation.username} (You)</td>
+                        !rankingData.some((entry) => entry.score === userRankings.score) && (
+                          <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
+                            <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
+                            <td className={styles["ranking-username-cell"]}>
+                              <img
+                                src={userInformation.avatarUrl}
+                                alt={userInformation.username}
+                                className={styles["ranking-avatar"]}
+                              />
+                              {userInformation.username}
+                            </td>
                             <td>{userInformation.fullName}</td>
                             <td>{userRankings.score}</td>
                           </tr>

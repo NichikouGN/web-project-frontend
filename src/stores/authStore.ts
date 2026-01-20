@@ -91,6 +91,7 @@ export const useAuthStore = create<authStoreType>()(
 
       requestNewAccessToken: async () => {
         const refreshToken = get().refreshToken;
+        console.log("Requesting new access token using refresh token:", refreshToken);
         try {
           if (!refreshToken) throw new Error("No refresh token found");
 
@@ -109,11 +110,9 @@ export const useAuthStore = create<authStoreType>()(
           if (!res.ok) throw get().throwAuthError(res.status);
 
           const data = await res.json();
+          console.log("New access token received:", data);
           get().setUpToken(data.accessToken, data.refreshToken);
-
-          if (get().signInState !== "admin") {
-            get().setSignInState("authorized");
-          }
+          get().setSignInState(data.isAdmin ? "admin" : "authorized");
 
           Toast({
             title: "Session Renewed",

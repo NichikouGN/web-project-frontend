@@ -340,7 +340,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                         <tr
                           key={entry.userId}
                           className={`${styles["ranking-row"]} ${
-                            userRankings?.rank === entry.rank ? styles["current-user"] : ""
+                            userRankings?.score === entry.score ? styles["current-user"] : ""
                           }`}
                         >
                           <td>{entry.rank}</td>
@@ -360,11 +360,22 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                         </tr>
                       ))}
 
+                      <tr className={styles["ranking-separator"]}>
+                        <td colSpan={4}></td>
+                      </tr>
+
                       {userRankings &&
-                        !rankingData.some((entry) => entry.rank === userRankings.rank) && (
-                          <tr className={styles["current-user"]}>
-                            <td>{userRankings.rank}</td>
-                            <td>{userInformation.username} (You)</td>
+                        !rankingData.some((entry) => entry.score === userRankings.score) && (
+                          <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
+                            <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
+                            <td className={styles["ranking-username-cell"]}>
+                              <img
+                                src={userInformation.avatarUrl}
+                                alt={userInformation.username}
+                                className={styles["ranking-avatar"]}
+                              />
+                              {userInformation.username}
+                            </td>
                             <td>{userInformation.fullName}</td>
                             <td>{userRankings.score}</td>
                           </tr>

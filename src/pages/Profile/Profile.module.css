@@ -476,6 +476,13 @@
     border-color 0.3s ease-in-out;
 }
 
+.ranking-separator td {
+  padding: 0;
+  border: none;
+  height: 1rem;
+  background: transparent;
+}
+
 .ranking-username-cell {
   display: flex;
   align-items: center;
@@ -488,4 +495,8 @@
 
   border-radius: 50%;
   object-fit: cover;
+}
+
+.current-user {
+  background: rgba(var(--theme-success-bg-rgb), 0.25);
 }

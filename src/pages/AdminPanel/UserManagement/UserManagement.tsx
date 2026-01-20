@@ -13,79 +13,6 @@ import { useAuthStore } from "../../../stores/authStore";
 import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 import { IoIosCheckmarkCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
-// const sampleData = [
-//   {
-//     userId: "1",
-//     username: "john_doe",
-//     email: "john@example.com",
-//     role: "admin",
-//     isActive: true,
-//   },
-//   {
-//     userId: "2",
-//     username: "jane_smith",
-//     email: "jane@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-//   {
-//     userId: "3",
-//     username: "alice_jones",
-//     email: "alice@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-//   {
-//     userId: "4",
-//     username: "bob_brown",
-//     email: "bob@example.com",
-//     role: "user",
-//     isActive: false,
-//   },
-//   {
-//     userId: "5",
-//     username: "charlie_black",
-//     email: "charlie@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-//   {
-//     userId: "6",
-//     username: "john_doe",
-//     email: "john@example.com",
-//     role: "admin",
-//     isActive: true,
-//   },
-//   {
-//     userId: "7",
-//     username: "jane_smith",
-//     email: "jane@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-//   {
-//     userId: "8",
-//     username: "alice_jones",
-//     email: "alice@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-//   {
-//     userId: "9",
-//     username: "bob_brown",
-//     email: "bob@example.com",
-//     role: "user",
-//     isActive: false,
-//   },
-//   {
-//     userId: "10",
-//     username: "charlie_black",
-//     email: "charlie@example.com",
-//     role: "user",
-//     isActive: true,
-//   },
-// ];
-
 const UserManagement = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const [users, setUsers] = useState<UserManagementType[]>([]);
@@ -123,8 +50,11 @@ const UserManagement = () => {
         }
 
         const fetchData = await fetchUsersFromSearch(searchInput, accessToken);
+
+        setUsers([]);
         setUsers(fetchData.users);
-        setPage((prev) => (prev + 1 > totalPages ? prev : prev + 1));
+        setPage(1);
+        setTotalPages(1);
       } catch (error) {
         Toast({ type: "error", title: "Error", message: "Failed to fetch user." });
       }
@@ -153,6 +83,7 @@ const UserManagement = () => {
     },
     [accessToken],
   );
+
   const handlePaginationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPagination(isNaN(Number(e.target.value)) ? 1 : Number(e.target.value));
   }, []);

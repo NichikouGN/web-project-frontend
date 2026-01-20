@@ -80,10 +80,7 @@ const GameManagement = () => {
   const handleBoardSizeFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await updateBoardSize(accessToken, selectedGameId!, {
-        width: boardWidth,
-        height: boardHeight,
-      });
+      await updateBoardSize(accessToken, selectedGameId!, boardWidth, boardHeight);
       setAvailableGames((prevGames) =>
         prevGames.map((game) =>
           game.gameId === selectedGameId
