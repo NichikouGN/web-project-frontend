@@ -196,6 +196,15 @@ const TicTacToeContent = ({
     [gameBoard, color, checkWinner, isBoardFull],
   );
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -223,12 +232,14 @@ const TicTacToeContent = ({
         } else {
           setUserSymbol("X"); // Player 1 chơi X
         }
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
 
   const handleCellClick = (row: number, col: number) => {
     // Không cho chơi nếu game đã kết thúc
@@ -475,15 +486,6 @@ const TicTacToeContent = ({
       )}
     </div>
   );
-
-const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

@@ -159,6 +159,15 @@ const Caro4Content = ({
     return board.every((row) => row.every((cell) => cell !== ""));
   }, []);
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -185,12 +194,14 @@ const Caro4Content = ({
         } else {
           setUserSymbol("X");
         }
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(
@@ -461,15 +472,6 @@ const Caro4Content = ({
       <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
     </div>
   );
-
-const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

@@ -114,6 +114,15 @@ const MemoryMatchingContent = ({
 
   const modesBoards = createModesBoard();
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   // Mode selector keyboard handler
   useEffect(() => {
     if (gameMode) return;
@@ -131,12 +140,14 @@ const MemoryMatchingContent = ({
         setGameMode(selectedMode);
         setTimeLeft(timeLimit);
         setIsGameOver(false);
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -483,15 +494,6 @@ const MemoryMatchingContent = ({
       });
     }
   }, [accessToken, timeLimit, gameBoard]);
-
-  const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

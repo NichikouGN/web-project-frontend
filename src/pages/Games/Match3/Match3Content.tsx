@@ -172,6 +172,15 @@ const Match3Content = ({
     }
   }, [gameMode, gameBoardSize]);
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   // Mode selector keyboard handler
   useEffect(() => {
     if (gameMode) return;
@@ -190,12 +199,14 @@ const Match3Content = ({
         setTurnsLeft(15);
         setTimeLeft(timer);
         setIsGameOver(false);
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -630,15 +641,6 @@ const Match3Content = ({
       <p style={{ fontSize: "14px", color: "#888" }}>{modes[selectedModeIndex].description}</p>
     </div>
   );
-
-  const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

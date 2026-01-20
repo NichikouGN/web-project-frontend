@@ -69,6 +69,15 @@ const SnakeContent = ({
     timeAttack: `..........\n..SSSSSS..\n..S....S..\n...S..S...\n....SS....\n....SS....\n...S..S...\n..S....S..\n..SSSSSS..\n..........`,
   };
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -92,12 +101,14 @@ const SnakeContent = ({
         } else {
           setSpeed(900); // Tốc độ thường cho classic
         }
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes, timer]);
+  }, [selectedModeIndex, gameMode, modes, timer, handleReturnButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -508,15 +519,6 @@ const SnakeContent = ({
       });
     }
   }, [accessToken, gameBoard]);
-
-const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

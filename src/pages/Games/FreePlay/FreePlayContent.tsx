@@ -4,6 +4,7 @@ import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -121,6 +122,16 @@ const FreePlayContent = ({
       <p className={styles["player-turn-indicator"]}>Draw whatever you want</p>
     </div>
   );
+
+  useEffect(() => {
+      const handleKeyPress = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          navigate("/");
+        }
+      };
+      window.addEventListener("keydown", handleKeyPress);
+      return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [navigate]);
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>

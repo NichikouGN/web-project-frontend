@@ -160,6 +160,31 @@ const Caro5Content = ({
     postResult();
   }, [isGameOver, gameMode, score, playTime]);
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
+  const handleEnter = () => {
+    const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
+    setGameMode(selectedMode);
+
+    // Khởi tạo lần chơi đầu tiên
+    setCurrentPlayer("X");
+
+    if (selectedMode === "goFirst") {
+      setUserSymbol("X");
+    } else if (selectedMode === "goSecond") {
+      setUserSymbol("O");
+    } else {
+      setUserSymbol("X");
+    }
+  };    
+
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -173,25 +198,15 @@ const Caro5Content = ({
         setSelectedModeIndex((prev) => (prev === modes.length - 1 ? 0 : prev + 1));
       } else if (e.key === "Enter") {
         e.preventDefault();
-        const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
-        setGameMode(selectedMode);
-
-        // Khởi tạo lần chơi đầu tiên
-        setCurrentPlayer("X");
-
-        if (selectedMode === "goFirst") {
-          setUserSymbol("X");
-        } else if (selectedMode === "goSecond") {
-          setUserSymbol("O");
-        } else {
-          setUserSymbol("X");
-        }
+        handleEnter();
+      } else if (e.key === "Escape") {
+        handleReturnButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
 
   // Hàm nội bộ để cập nhật board - dùng cho cả user và computer
   const makeMoveOnBoard = useCallback(
@@ -463,15 +478,6 @@ const Caro5Content = ({
     </div>
   );
 
-const handleReturnButton = () => {
-    if (gameMode) {
-      setGameState && setGameState("unloaded");
-      setGameMode(null);
-    } else {
-      navigate("/"); 
-    }
-  };
-
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
       
@@ -482,7 +488,7 @@ const handleReturnButton = () => {
           >
             Return
           </button>
-          {gameMode && (
+          {gameMode ? (
             <div>
               <button className={styles["reset-board-button"]} onClick={saveGame}>
                 Save Game
@@ -494,6 +500,10 @@ const handleReturnButton = () => {
                 Reset Board
               </button>
             </div>
+          ) : (
+            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+              Start Game
+            </button>
           )}
         </div>
 
