@@ -81,7 +81,7 @@ function App() {
             <Route path="/game/snake" element={<Snake />} />
             <Route path="/game/match-3" element={<Match3 />} />
             <Route path="/game/memory-matching" element={<MemoryMatching />} />
-            <Route path="/game/free-play" element={<FreePlay />} />
+            <Route path="/game/sketch" element={<FreePlay />} />
           </Route>
 
           <Route path="/profile/edit" element={<EditProfile />} />

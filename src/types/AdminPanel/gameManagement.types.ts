@@ -1,7 +1,9 @@
 export interface GameInfo {
-  gameId: string;
+  gameId: number;
   title: string;
   description: string;
-  boardSize: number;
-  status: "active" | "inactive";
+  isActive: boolean;
+  boardWidth: number;
+  boardHeight: number;
+  timer: number;
 }

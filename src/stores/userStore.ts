@@ -76,5 +76,5 @@ export const useUserStore = create<UserContextType>()(
         formatConsoleError("userStore.ts", "fetchUserInfo", e);
       }
     },
-  }))
+  })),
 );

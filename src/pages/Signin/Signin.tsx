@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const signInSchema = z.object({
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
@@ -37,7 +37,7 @@ const Signin = () => {
     async (data: z.infer<typeof signInSchema>) => {
       await signIn(data.email, data.password);
     },
-    [signIn]
+    [signIn],
   );
 
   //Forward to page passed on signin state
@@ -70,8 +70,8 @@ const Signin = () => {
                 <FaUser className={styles["input-icon"]} />
                 <input
                   type="text"
-                  placeholder="Enter your username"
-                  alt="Enter your username"
+                  placeholder="Enter your email"
+                  alt="Enter your email"
                   autoComplete="off"
                   className={styles["input-field"]}
                   {...register("email")}

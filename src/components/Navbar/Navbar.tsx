@@ -39,17 +39,22 @@ const Navbar = () => {
             <FaMoon className={styles["theme-toggle-icon"]} />
           )}
         </button>
-        {signInState === "authorized" || signInState === "admin" ? (
+        {signInState === "authorized" && (
           <>
             <FriendRequest />
-            <Link
-              to={`${useAuthStore.getState().signInState === "authorized" ? "/profile" : "/admin"}`}
-              className={styles["signin-text"]}
-            >
+            <Link to="/profile" className={styles["signin-text"]}>
               <FaUser className={styles["signin-icon"]} />
             </Link>
           </>
-        ) : (
+        )}
+
+        {signInState === "admin" && (
+          <Link to="/admin" className={styles["signin-text"]}>
+            <FaUser className={styles["signin-icon"]} />
+          </Link>
+        )}
+
+        {signInState !== "authorized" && signInState !== "admin" && (
           <Link to="/signin" className={styles["signin-text"]}>
             <FaSignInAlt className={styles["signin-icon"]} />
           </Link>

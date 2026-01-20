@@ -23,7 +23,7 @@ interface Review {
   avatar_url: string | null;
 }
 
-interface gameMenuType extends Omit<GameInfo, "status" | "boardSize"> {
+interface gameMenuType extends Omit<GameInfo, "isActive" | "boardWidth" | "boardHeight" | "timer"> {
   link: string;
   art: string;
 }
@@ -42,7 +42,7 @@ const colorMap: { [key: string]: string } = {
 
 const gameMenu: gameMenuType[] = [
   {
-    gameId: "1",
+    gameId: 1,
     title: "Caro 5",
     description: "Match 5 in a row",
     link: "/game/caro-5",
@@ -60,7 +60,7 @@ const gameMenu: gameMenuType[] = [
       `,
   },
   {
-    gameId: "2",
+    gameId: 2,
     title: "Caro 4",
     description: "Match 4 in a row",
     link: "/game/caro-4",
@@ -78,7 +78,7 @@ const gameMenu: gameMenuType[] = [
       `,
   },
   {
-    gameId: "3",
+    gameId: 3,
     title: "Tic Tac Toe",
     description: "Classic 3x3 grid game",
     link: "/game/tic-tac-toe",
@@ -96,7 +96,7 @@ const gameMenu: gameMenuType[] = [
       `,
   },
   {
-    gameId: "4",
+    gameId: 4,
     title: "Snake",
     description: "Control the snake to eat food",
     link: "/game/snake",
@@ -114,7 +114,7 @@ const gameMenu: gameMenuType[] = [
       `,
   },
   {
-    gameId: "5",
+    gameId: 5,
     title: "Match 3",
     description: "Match 3 or more items to score points",
     link: "/game/match-3",
@@ -132,7 +132,7 @@ const gameMenu: gameMenuType[] = [
     `,
   },
   {
-    gameId: "6",
+    gameId: 6,
     title: "Memory Matching",
     description: "Find pairs of matching cards",
     link: "/game/memory-matching",
@@ -150,10 +150,10 @@ const gameMenu: gameMenuType[] = [
       `,
   },
   {
-    gameId: "7",
-    title: "Free Play",
-    description: "Play any game without restrictions",
-    link: "/game/free-play",
+    gameId: 7,
+    title: "Sketch",
+    description: "Draw anything you desire",
+    link: "/game/sketch",
     art: `..........\n..........\n..........\n..RO..BB..\n.R..OP..G.\n.R..PO..G.\n..II..YY..\n..........\n..........\n..........`,
   },
 ];
@@ -199,7 +199,7 @@ const Home = () => {
   }, [rotationSelected]);
 
   // Gọi API lấy reviews
-  const fetchReviews = async (gameId: string) => {
+  const fetchReviews = async (gameId: number) => {
     setIsLoadingReviews(true);
     try {
       // URL

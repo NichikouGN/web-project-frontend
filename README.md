@@ -37,6 +37,12 @@ npm run dev
 
 # Version
 
+## v0.8.1 (2026-01-20)
+- Fixed Admin panel statistic page text color error
+- Fixed Admin panel displaying wrong data for user management
+- Fixed API routing error for user management
+- Simplified game management to direct buttons
+
 ## v0.8.0 (2026-01-19)
 - Added ability to send reviews for all games
 

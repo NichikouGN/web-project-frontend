@@ -42,7 +42,7 @@ export const useAuthStore = create<authStoreType>()(
         set({ signInState: state }),
 
       setUpToken: (accessToken: string, refreshToken: string) => {
-        set({ accessToken, refreshToken, signInState: "authorized" });
+        set({ accessToken, refreshToken });
       },
 
       clearToken: () => {
@@ -71,7 +71,7 @@ export const useAuthStore = create<authStoreType>()(
                 authorization: `Bearer ${accessToken}`,
                 "ngrok-skip-browser-warning": "true",
               },
-            }
+            },
           );
 
           if (!res.ok) throw get().throwAuthError(res.status);
@@ -103,13 +103,17 @@ export const useAuthStore = create<authStoreType>()(
                 authorization: `Bearer ${refreshToken}`,
                 "ngrok-skip-browser-warning": "true",
               },
-            }
+            },
           );
 
           if (!res.ok) throw get().throwAuthError(res.status);
 
           const data = await res.json();
           get().setUpToken(data.accessToken, data.refreshToken);
+
+          if (get().signInState !== "admin") {
+            get().setSignInState("authorized");
+          }
 
           Toast({
             title: "Session Renewed",
@@ -141,6 +145,7 @@ export const useAuthStore = create<authStoreType>()(
           const data = await res.json();
 
           get().setUpToken(data.accessToken, data.refreshToken);
+          get().setSignInState("authorized");
         } catch (error: any) {
           if (error.status === 401) {
             alert("Your username or password is incorrect");
@@ -166,6 +171,7 @@ export const useAuthStore = create<authStoreType>()(
           const data = await res.json();
 
           get().setUpToken(data.accessToken, data.refreshToken);
+          get().setSignInState("admin");
         } catch (error: any) {
           if (error.status === 401) {
             alert("Your username or password is incorrect");
@@ -210,6 +216,6 @@ export const useAuthStore = create<authStoreType>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
-    }
-  )
+    },
+  ),
 );

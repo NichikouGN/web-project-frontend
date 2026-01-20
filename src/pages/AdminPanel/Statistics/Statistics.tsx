@@ -28,7 +28,7 @@ const Statistics = () => {
     (variableName: string): string => {
       return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
     },
-    [theme]
+    [theme],
   );
 
   const chartOptions = useMemo(() => {
@@ -39,7 +39,7 @@ const Statistics = () => {
       plugins: {
         legend: {
           labels: {
-            color: getCSSVariable("--theme-text-primary"), // text color
+            color: theme === "dark" ? "#ffffff" : "#000000", // text color
           },
         },
       },
@@ -47,22 +47,31 @@ const Statistics = () => {
   }, [theme]);
 
   useEffect(() => {
+    console.log("playerCount", playerCount);
+  }, [playerCount]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const players = await fetch24HourPlayers();
-        setPlayerCount(players);
+        console.log("players", players.data);
+        setPlayerCount(players.data);
 
         const games = await fetch24HourGamesPlayed();
-        setGameCount(games);
+        console.log("games", games.data);
+        setGameCount(games.data);
 
         const serverLoads = await fetch24HourServerLoad();
-        setServerLoad(serverLoads);
+        console.log("serverLoads", serverLoads.data);
+        setServerLoad(serverLoads.data);
 
         const gameTypes = await fetchMonthlyGameTypePercentage();
-        setGameTypePercentage(gameTypes);
+        console.log("gameTypes", gameTypes.data);
+        setGameTypePercentage(gameTypes.data);
 
         const monthly = await fetchYearlyPlayers();
-        setMonthlyPlayers(monthly);
+        console.log("monthly", monthly.data);
+        setMonthlyPlayers(monthly.data);
       } catch (error) {
         Toast({ type: "error", title: "Error", message: "Failed to fetch statistics data." });
       }
@@ -81,7 +90,7 @@ const Statistics = () => {
           borderColor: getCSSVariable("--red-400"),
           borderWidth: 2,
           backgroundColor: getCSSVariable("--red-400"),
-          fill: true,
+          fill: false,
         },
       ],
     };
@@ -97,7 +106,7 @@ const Statistics = () => {
           borderColor: getCSSVariable("--green-400"),
           borderWidth: 2,
           backgroundColor: getCSSVariable("--green-400"),
-          fill: true,
+          fill: false,
         },
       ],
     };
@@ -113,7 +122,7 @@ const Statistics = () => {
           borderColor: getCSSVariable("--sky-400"),
           borderWidth: 2,
           backgroundColor: getCSSVariable("--sky-400"),
-          fill: true,
+          fill: false,
         },
       ],
     };
@@ -161,7 +170,7 @@ const Statistics = () => {
           borderColor: getCSSVariable("--neutral-400"),
           borderWidth: 2,
           backgroundColor: getCSSVariable("--sky-400"),
-          fill: true,
+          fill: false,
         },
       ],
     };
@@ -188,7 +197,7 @@ const Statistics = () => {
 
                 <div className={styles["summary-content"]}>
                   <div className={styles["summary-content__label"]}>24h High</div>
-                  <div className={styles["summary-content__value"]}></div>
+                  <div className={styles["summary-content__value"]}>{Math.max(...playerCount)}</div>
                 </div>
               </div>
               <div className={styles["card-summary-item"]}>

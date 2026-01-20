@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import styles from "../0-css/games.module.css";
-import {
-  getGameBoardSize,
-} from "../../../api/games.api";
+import { getGameBoardSize } from "../../../api/games.api";
 import { Toast } from "../../../stores/toastStore";
 import Caro4Content from "./Caro4Content";
 
@@ -31,14 +28,11 @@ const Caro4 = () => {
     }
   }, [gameId]);
 
-  const generateEmptyBoard = useCallback(
-    ({ rows, cols }: { rows: number; cols: number }) => {
-      const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
+  const generateEmptyBoard = useCallback(({ rows, cols }: { rows: number; cols: number }) => {
+    const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
 
-      return emptyBoard;
-    },
-    []
-  );
+    return emptyBoard;
+  }, []);
 
   const loadGame = useCallback(() => {
     const savedGameData = localStorage.getItem("caro4GameData");

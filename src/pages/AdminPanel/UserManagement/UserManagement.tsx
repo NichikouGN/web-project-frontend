@@ -13,78 +13,78 @@ import { useAuthStore } from "../../../stores/authStore";
 import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 import { IoIosCheckmarkCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
-const sampleData = [
-  {
-    userId: "1",
-    username: "john_doe",
-    email: "john@example.com",
-    role: "admin",
-    isActive: true,
-  },
-  {
-    userId: "2",
-    username: "jane_smith",
-    email: "jane@example.com",
-    role: "user",
-    isActive: true,
-  },
-  {
-    userId: "3",
-    username: "alice_jones",
-    email: "alice@example.com",
-    role: "user",
-    isActive: true,
-  },
-  {
-    userId: "4",
-    username: "bob_brown",
-    email: "bob@example.com",
-    role: "user",
-    isActive: false,
-  },
-  {
-    userId: "5",
-    username: "charlie_black",
-    email: "charlie@example.com",
-    role: "user",
-    isActive: true,
-  },
-  {
-    userId: "6",
-    username: "john_doe",
-    email: "john@example.com",
-    role: "admin",
-    isActive: true,
-  },
-  {
-    userId: "7",
-    username: "jane_smith",
-    email: "jane@example.com",
-    role: "user",
-    isActive: true,
-  },
-  {
-    userId: "8",
-    username: "alice_jones",
-    email: "alice@example.com",
-    role: "user",
-    isActive: true,
-  },
-  {
-    userId: "9",
-    username: "bob_brown",
-    email: "bob@example.com",
-    role: "user",
-    isActive: false,
-  },
-  {
-    userId: "10",
-    username: "charlie_black",
-    email: "charlie@example.com",
-    role: "user",
-    isActive: true,
-  },
-];
+// const sampleData = [
+//   {
+//     userId: "1",
+//     username: "john_doe",
+//     email: "john@example.com",
+//     role: "admin",
+//     isActive: true,
+//   },
+//   {
+//     userId: "2",
+//     username: "jane_smith",
+//     email: "jane@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+//   {
+//     userId: "3",
+//     username: "alice_jones",
+//     email: "alice@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+//   {
+//     userId: "4",
+//     username: "bob_brown",
+//     email: "bob@example.com",
+//     role: "user",
+//     isActive: false,
+//   },
+//   {
+//     userId: "5",
+//     username: "charlie_black",
+//     email: "charlie@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+//   {
+//     userId: "6",
+//     username: "john_doe",
+//     email: "john@example.com",
+//     role: "admin",
+//     isActive: true,
+//   },
+//   {
+//     userId: "7",
+//     username: "jane_smith",
+//     email: "jane@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+//   {
+//     userId: "8",
+//     username: "alice_jones",
+//     email: "alice@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+//   {
+//     userId: "9",
+//     username: "bob_brown",
+//     email: "bob@example.com",
+//     role: "user",
+//     isActive: false,
+//   },
+//   {
+//     userId: "10",
+//     username: "charlie_black",
+//     email: "charlie@example.com",
+//     role: "user",
+//     isActive: true,
+//   },
+// ];
 
 const UserManagement = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -95,17 +95,19 @@ const UserManagement = () => {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  const fetchInitialUsers = useCallback(async () => {
+    try {
+      const fetchData = await fetchUsersForManagement(accessToken, page, setTotalPages);
+      console.log("Fetched users:", fetchData);
+      setUsers(fetchData.users);
+    } catch (error) {
+      Toast({ type: "error", title: "Error", message: "Failed to fetch users." });
+    }
+  }, [accessToken, page]);
+
   useEffect(() => {
-    const fetchInitialUsers = async () => {
-      try {
-        const fetchData = await fetchUsersForManagement(accessToken, page, setTotalPages);
-        setUsers(fetchData.users);
-      } catch (error) {
-        Toast({ type: "error", title: "Error", message: "Failed to fetch users." });
-      }
-    };
     fetchInitialUsers();
-  }, [accessToken]);
+  }, [accessToken, page]);
 
   const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
@@ -115,6 +117,11 @@ const UserManagement = () => {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       try {
+        if (searchInput.trim() === "") {
+          fetchInitialUsers();
+          return;
+        }
+
         const fetchData = await fetchUsersFromSearch(searchInput, accessToken);
         setUsers(fetchData.users);
         setPage((prev) => (prev + 1 > totalPages ? prev : prev + 1));
@@ -122,7 +129,7 @@ const UserManagement = () => {
         Toast({ type: "error", title: "Error", message: "Failed to fetch user." });
       }
     },
-    [page, setPage, totalPages]
+    [page, setPage, totalPages, searchInput, accessToken],
   );
 
   const handleUserActivation = useCallback(
@@ -133,7 +140,7 @@ const UserManagement = () => {
         Toast({ type: "error", title: "Error", message: "Failed to activate user." });
       }
     },
-    [accessToken]
+    [accessToken],
   );
 
   const handleUserDeactivation = useCallback(
@@ -144,7 +151,7 @@ const UserManagement = () => {
         Toast({ type: "error", title: "Error", message: "Failed to deactivate user." });
       }
     },
-    [accessToken]
+    [accessToken],
   );
   const handlePaginationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPagination(isNaN(Number(e.target.value)) ? 1 : Number(e.target.value));
@@ -157,7 +164,7 @@ const UserManagement = () => {
       setPage(newPage);
       handlePageNavigation(newPage);
     },
-    [pagination, totalPages]
+    [pagination, totalPages],
   );
 
   const handleNavigationButtonClick = useCallback(
@@ -172,7 +179,7 @@ const UserManagement = () => {
         handlePageNavigation(newPage);
       }
     },
-    [page, setPage, totalPages]
+    [page, setPage, totalPages],
   );
 
   const handlePageNavigation = useCallback(
@@ -186,7 +193,7 @@ const UserManagement = () => {
         setPagination(newPage);
       }
     },
-    [page, pagination, totalPages]
+    [page, pagination, totalPages],
   );
 
   return (
@@ -255,14 +262,30 @@ const UserManagement = () => {
                 {user.isActive ? (
                   <button
                     className={`${styles["action-button"]} ${styles["deactivate"]}`}
-                    onClick={() => handleUserDeactivation(user.userId)}
+                    onClick={() => {
+                      handleUserDeactivation(user.userId).then(() => {
+                        setUsers((prevUsers) =>
+                          prevUsers.map((u) =>
+                            u.userId === user.userId ? { ...u, isActive: false } : u,
+                          ),
+                        );
+                      });
+                    }}
                   >
                     Deactivate
                   </button>
                 ) : (
                   <button
                     className={`${styles["action-button"]} ${styles["activate"]}`}
-                    onClick={() => handleUserActivation(user.userId)}
+                    onClick={() => {
+                      handleUserActivation(user.userId).then(() => {
+                        setUsers((prevUsers) =>
+                          prevUsers.map((u) =>
+                            u.userId === user.userId ? { ...u, isActive: true } : u,
+                          ),
+                        );
+                      });
+                    }}
                   >
                     Activate
                   </button>

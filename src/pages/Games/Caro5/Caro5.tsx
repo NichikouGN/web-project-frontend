@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import styles from "../0-css/games.module.css";
-import {
-  getGameBoardSize,
-} from "../../../api/games.api";
+import { getGameBoardSize } from "../../../api/games.api";
 import { Toast } from "../../../stores/toastStore";
 import Caro5Content from "./Caro5Content";
 
@@ -20,25 +17,22 @@ const Caro5 = () => {
   const mockedBoardSize = { rows: 10, cols: 10 };
 
   const fetchGameBoardSize = useCallback(async () => {
-      try {
-        const data = await getGameBoardSize(gameId);
-        setGameBoardSize(data);
-        setBoard(generateEmptyBoard(data));
-        setGameState("loaded");
-      } catch (error) {
-        Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
-        setGameState("fetchError");
-      }
-    }, [gameId]);
+    try {
+      const data = await getGameBoardSize(gameId);
+      setGameBoardSize(data);
+      setBoard(generateEmptyBoard(data));
+      setGameState("loaded");
+    } catch (error) {
+      Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
+      setGameState("fetchError");
+    }
+  }, [gameId]);
 
-  const generateEmptyBoard = useCallback(
-    ({ rows, cols }: { rows: number; cols: number }) => {
-      const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
+  const generateEmptyBoard = useCallback(({ rows, cols }: { rows: number; cols: number }) => {
+    const emptyBoard = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
 
-      return emptyBoard;
-    },
-    []
-  );
+    return emptyBoard;
+  }, []);
 
   const loadGame = useCallback(() => {
     const savedGameData = localStorage.getItem("caro5GameData");

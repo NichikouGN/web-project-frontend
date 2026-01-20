@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Toast } from "../../../stores/toastStore";
 import FreePlayContent from "./FreePlayContent";
-import {
-  getGameBoardSize,
-} from "../../../api/games.api";
+import { getGameBoardSize } from "../../../api/games.api";
 
 const FreePlay = () => {
   const gameId = 7; // Assuming Free Play has gameId 7
@@ -28,16 +26,16 @@ const FreePlay = () => {
   }, []);
 
   const fetchGameBoardSize = useCallback(async () => {
-      try {
-        const data = await getGameBoardSize(gameId);
-        setGameBoardSize(data);
-        setBoard(generateEmptyBoard(data));
-        setGameState("loaded");
-      } catch (error) {
-        Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
-        setGameState("fetchError");
-      }
-    }, [gameId]);
+    try {
+      const data = await getGameBoardSize(gameId);
+      setGameBoardSize(data);
+      setBoard(generateEmptyBoard(data));
+      setGameState("loaded");
+    } catch (error) {
+      Toast({ type: "error", title: "Error", message: "Failed to fetch game board size" });
+      setGameState("fetchError");
+    }
+  }, [gameId]);
 
   const generateEmptyBoard = useCallback(
     ({ rows, cols }: { rows: number; cols: number }) => {

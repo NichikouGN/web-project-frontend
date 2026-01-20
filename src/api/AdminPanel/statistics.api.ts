@@ -3,7 +3,7 @@ import { formatConsoleError } from "../../consoleError";
 export const fetch24HourPlayers = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-players`
+      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-players`,
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour players: ${response.statusText}`);
@@ -18,7 +18,7 @@ export const fetch24HourPlayers = async () => {
 export const fetch24HourGamesPlayed = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-games`
+      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-games`,
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour games: ${response.statusText}`);
@@ -33,7 +33,7 @@ export const fetch24HourGamesPlayed = async () => {
 export const fetch24HourServerLoad = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-server-load`
+      `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-server-load`,
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour server load: ${response.statusText}`);
@@ -48,7 +48,7 @@ export const fetch24HourServerLoad = async () => {
 export const fetchMonthlyGameTypePercentage = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/admin/statistics/monthly-game-type-percentage`
+      `${import.meta.env.VITE_API_URL}/api/admin/statistics/monthly-game-type-percentage`,
     );
     if (!response.ok) {
       throw new Error(`Error fetching game type percentage: ${response.statusText}`);
@@ -63,7 +63,7 @@ export const fetchMonthlyGameTypePercentage = async () => {
 export const fetchYearlyPlayers = async () => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/admin/statistics/yearly-players`
+      `${import.meta.env.VITE_API_URL}/api/admin/statistics/yearly-players`,
     );
     if (!response.ok) {
       throw new Error(`Error fetching yearly players: ${response.statusText}`);
