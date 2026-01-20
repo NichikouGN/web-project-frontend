@@ -5,6 +5,7 @@ import { set } from "zod";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
+import { useNavigate } from "react-router-dom";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -29,6 +30,7 @@ const SnakeContent = ({
 }: SnakeContentProps) => {
   // Sử dụng props từ parent nếu có, nếu không dùng local state
   const accessToken = useAuthStore((state) => state.accessToken);
+  const navigate = useNavigate();
   const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
   const [applePlaced, setApplePlaced] = useState(false);
   const [direction, setDirection] = useState<{ row: number; col: number }>({ row: 0, col: 1 }); // Hướng di chuyển (0,1) = phải
@@ -507,27 +509,39 @@ const SnakeContent = ({
     }
   }, [accessToken, gameBoard]);
 
+const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      {gameMode && (
+      
         <div className={styles["game-options-menu"]}>
           <button
             className={styles["reset-board-button"]}
-            onClick={() => setGameState && setGameState("unloaded")}
+            onClick={() => handleReturnButton()}
           >
             Return
           </button>
-          <button className={styles["reset-board-button"]} onClick={saveGame}>
-            Save Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={loadGame}>
-            Load Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={resetBoard}>
-            Reset Board
-          </button>
+          {gameMode && (
+            <div>
+              <button className={styles["reset-board-button"]} onClick={saveGame}>
+                Save Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={loadGame}>
+                Load Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                Reset Board
+              </button>
+            </div>
+          )}
         </div>
-      )}
 
       <GameZone
         gameBoard={gameMode ? gameBoard : modesBoards[selectedModeIndex]}

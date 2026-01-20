@@ -4,8 +4,9 @@ import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
-import { number } from "zod";
-
+import { useNavigate } from "react-router-dom";
+import { number, set } from "zod";
+  
 interface Match3ContentProps {
   gameBoard: string[][];
   setGameBoard: React.Dispatch<React.SetStateAction<string[][]>>;
@@ -27,6 +28,7 @@ const Match3Content = ({
   setIsGameOver: propsSetIsGameOver,
   timer,
 }: Match3ContentProps) => {
+  const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
   const [score, setScore] = useState(0);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
@@ -629,27 +631,40 @@ const Match3Content = ({
     </div>
   );
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      {gameMode && (
+      
         <div className={styles["game-options-menu"]}>
           <button
             className={styles["reset-board-button"]}
-            onClick={() => setGameState && setGameState("unloaded")}
+            onClick={() => handleReturnButton()}
           >
             Return
           </button>
-          <button className={styles["reset-board-button"]} onClick={saveGame}>
-            Save Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={loadGame}>
-            Load Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={resetBoard}>
-            Reset Board
-          </button>
+          {gameMode && (
+            <div>
+              <button className={styles["reset-board-button"]} onClick={saveGame}>
+                Save Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={loadGame}>
+                Load Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                Reset Board
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      
       <GameZone
         gameBoard={gameMode ? gameBoard : modesBoards[selectedModeIndex]}
         handleCellClick={handleCellClick}

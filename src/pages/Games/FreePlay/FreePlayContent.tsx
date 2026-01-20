@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -21,6 +22,7 @@ const FreePlayContent = ({
 }: FreePlayContentProps) => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const [selectedColor, setSelectedColor] = useState<string>("#000000");
+  const navigate = useNavigate();
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedColor(e.target.value);
@@ -125,7 +127,7 @@ const FreePlayContent = ({
       <div className={styles["game-options-menu"]}>
         <button
           className={styles["reset-board-button"]}
-          onClick={() => setGameState && setGameState("unloaded")}
+          onClick={() => navigate("/")}
         >
           Return
         </button>
