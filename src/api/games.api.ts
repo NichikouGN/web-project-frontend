@@ -1,4 +1,5 @@
 import { Toast } from "../stores/toastStore";
+import { fetchWithAuth } from "./fetchWithAuth";
 
 export const getGameBoardSize = async (gameId: number) => {
   try {
@@ -31,6 +32,38 @@ export const getTimer = async (gameId: number) => {
     return data.timer;
   } catch (error) {
     Toast({ type: "error", title: "Error", message: "Failed to fetch game timer" });
+    throw error;
+  }
+};
+
+export const postGameResult = async (
+  gameId: number,
+  score: number,
+  play_time: number,
+  accessToken: string,
+) => {
+  try {
+    const record = {
+      game_id: gameId,
+      score: score,
+      play_time: play_time,
+    };
+    const res = await fetchWithAuth(
+      `${import.meta.env.VITE_API_BASE_URL}/api/games/${gameId}/play-record`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(record),
+      },
+    );
+    if (!res.ok) {
+      throw new Error("Failed to post game result");
+    }
+  } catch (error) {
+    Toast({ type: "error", title: "Error", message: "Failed to post game result" });
     throw error;
   }
 };

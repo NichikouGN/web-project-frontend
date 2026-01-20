@@ -14,7 +14,6 @@ const Caro4 = () => {
   const [gameState, setGameState] = useState<"unloaded" | "loadError" | "fetchError" | "loaded">(
     "unloaded",
   );
-  const [playTime, setPlayTime] = useState(0);
 
   const fetchGameBoardSize = useCallback(async () => {
     try {

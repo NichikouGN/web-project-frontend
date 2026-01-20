@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { postGameResult } from "../../../api/games.api";
 import { number } from "zod";
 
 interface Match3ContentProps {
@@ -34,6 +35,7 @@ const Match3Content = ({
   const [turnsLeft, setTurnsLeft] = useState(30);
   const [timeLeft, setTimeLeft] = useState(timer);
   const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
+  const [playTime, setPlayTime] = useState(0);
   const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
   const modes = [
@@ -192,6 +194,36 @@ const Match3Content = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes]);
+
+  // Đếm thời gian chơi
+  useEffect(() => {
+    if (isGameOver || !gameMode) return;
+    const timer = setInterval(() => {
+      setPlayTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isGameOver, gameMode]);
+
+  // Post game result khi game kết thúc (không post cho endless mode)
+  useEffect(() => {
+    if (!isGameOver || gameMode === "endless" || !gameMode || playTime === 0) return;
+
+    const postResult = async () => {
+      try {
+        await postGameResult(5, score, playTime, accessToken);
+        Toast({
+          type: "success",
+          title: "Game Recorded",
+          message: "Your game record has been saved!",
+        });
+      } catch (error) {
+        console.error("Failed to post game result:", error);
+        // Toast is already shown by postGameResult function
+      }
+    };
+
+    postResult();
+  }, [isGameOver, gameMode, score, playTime]);
 
   // Timer countdown cho Time Attack mode
   useEffect(() => {

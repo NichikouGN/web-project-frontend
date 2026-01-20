@@ -3,6 +3,7 @@ import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { postGameResult } from "../../../api/games.api";
 
 interface Caro4ContentProps {
   gameBoard: string[][];
@@ -41,6 +42,37 @@ const Caro4Content = ({
   const [gameMode, setGameMode] = useState<"goFirst" | "goSecond" | "pvp" | null>(null);
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
+  const [playTime, setPlayTime] = useState(0);
+
+  // Đếm thời gian chơi
+  useEffect(() => {
+    if (isGameOver || !gameMode) return;
+    const timer = setInterval(() => {
+      setPlayTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isGameOver, gameMode]);
+
+  // Post game result khi game kết thúc (trừ PvP mode)
+  useEffect(() => {
+    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0) return;
+
+    const postResult = async () => {
+      try {
+        await postGameResult(2, score, playTime, accessToken);
+        Toast({
+          type: "success",
+          title: "Game Recorded",
+          message: "Your game record has been saved!",
+        });
+      } catch (error) {
+        console.error("Failed to post game result:", error);
+        // Toast is already shown by postGameResult function
+      }
+    };
+
+    postResult();
+  }, [isGameOver, gameMode, score, playTime, accessToken]);
 
   const modes = [
     { id: "goFirst", label: "Go First (X)", description: "You play first" },

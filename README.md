@@ -36,6 +36,8 @@ npm run dev
 ```
 
 # Version
+## v0.8.2 (2026-01-20)
+- Aded timer to majority of game modes.
 
 ## v0.8.1 (2026-01-20)
 - Fixed Admin panel statistic page text color error

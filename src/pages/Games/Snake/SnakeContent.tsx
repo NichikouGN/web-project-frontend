@@ -4,6 +4,7 @@ import { Toast } from "../../../stores/toastStore";
 import { set } from "zod";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
+import { postGameResult } from "../../../api/games.api";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -42,6 +43,7 @@ const SnakeContent = ({
   const [gameMode, setGameMode] = useState<"classic" | "timeAttack" | null>(null);
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(timer); // 60 giây cho time attack
+  const [playTime, setPlayTime] = useState(0);
 
   const modes = [
     { id: "classic", label: "Classic", description: "Classic mode" },
@@ -94,6 +96,36 @@ const SnakeContent = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedModeIndex, gameMode, modes, timer]);
+
+  // Đếm thời gian chơi
+  useEffect(() => {
+    if (isGameOver || !gameMode) return;
+    const timer = setInterval(() => {
+      setPlayTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isGameOver, gameMode]);
+
+  // Post game result khi game kết thúc
+  useEffect(() => {
+    if (!isGameOver || !gameMode || playTime === 0) return;
+
+    const postResult = async () => {
+      try {
+        await postGameResult(4, score, playTime, accessToken);
+        Toast({
+          type: "success",
+          title: "Game Recorded",
+          message: "Your game record has been saved!",
+        });
+      } catch (error) {
+        console.error("Failed to post game result:", error);
+        // Toast is already shown by postGameResult function
+      }
+    };
+
+    postResult();
+  }, [isGameOver, gameMode, score, playTime]);
 
   // Create modeBoard for visualization
   const createModesBoard = () => {
