@@ -4,6 +4,7 @@ import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
+import { useNavigate } from "react-router-dom";
 
 interface Caro4ContentProps {
   gameBoard: string[][];
@@ -33,7 +34,7 @@ const Caro4Content = ({
   setWinner: propsSetWinner,
 }: Caro4ContentProps) => {
   const accessToken = useAuthStore((state) => state.accessToken);
-
+  const navigate = useNavigate();
   const [score, setScore] = useState(0);
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">(propsCurrentPlayer);
   const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
@@ -461,27 +462,39 @@ const Caro4Content = ({
     </div>
   );
 
+const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      {gameMode ? (
+      
         <div className={styles["game-options-menu"]}>
           <button
             className={styles["reset-board-button"]}
-            onClick={() => setGameState && setGameState("unloaded")}
+            onClick={() => handleReturnButton()}
           >
             Return
           </button>
-          <button className={styles["reset-board-button"]} onClick={saveGame}>
-            Save Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={loadGame}>
-            Load Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={resetBoard}>
-            Reset Board
-          </button>
+          {gameMode && (
+            <div>
+              <button className={styles["reset-board-button"]} onClick={saveGame}>
+                Save Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={loadGame}>
+                Load Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                Reset Board
+              </button>
+            </div>
+          )}
         </div>
-      ) : null}
 
       {/* Hiển thị trạng thái game */}
       <div

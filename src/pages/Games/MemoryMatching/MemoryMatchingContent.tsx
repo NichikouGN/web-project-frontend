@@ -4,6 +4,7 @@ import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
+import { useNavigate } from "react-router-dom";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -56,6 +57,7 @@ const MemoryMatchingContent = ({
 }: FreePlayContentProps) => {
   // Sử dụng props từ parent nếu có, nếu không dùng local state
   const accessToken = useAuthStore((state) => state.accessToken);
+  const navigate = useNavigate();
   const [gameArray, setGameArray] = useState<string[][]>(propsGameArray);
   const [isFirstSelection, setIsFirstSelection] = useState<boolean>(propsIsFirstSelection);
   const [firstSelection, setFirstSelection] = useState<{ row: number; col: number } | null>(
@@ -482,27 +484,39 @@ const MemoryMatchingContent = ({
     }
   }, [accessToken, timeLimit, gameBoard]);
 
+  const handleReturnButton = () => {
+    if (gameMode) {
+      setGameState && setGameState("unloaded");
+      setGameMode(null);
+    } else {
+      navigate("/"); 
+    }
+  };
+
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      {gameMode && (
+      
         <div className={styles["game-options-menu"]}>
           <button
             className={styles["reset-board-button"]}
-            onClick={() => setGameState && setGameState("unloaded")}
+            onClick={() => handleReturnButton()}
           >
             Return
           </button>
-          <button className={styles["reset-board-button"]} onClick={saveGame}>
-            Save Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={loadGame}>
-            Load Game
-          </button>
-          <button className={styles["reset-board-button"]} onClick={resetBoard}>
-            Reset Board
-          </button>
+          {gameMode && (
+            <div>
+              <button className={styles["reset-board-button"]} onClick={saveGame}>
+                Save Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={loadGame}>
+                Load Game
+              </button>
+              <button className={styles["reset-board-button"]} onClick={resetBoard}>
+                Reset Board
+              </button>
+            </div>
+          )}
         </div>
-      )}
 
       <div>
         {isGameComplete && (
