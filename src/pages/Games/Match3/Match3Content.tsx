@@ -551,7 +551,7 @@ const Match3Content = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
+
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
         body: JSON.stringify({
@@ -595,7 +595,7 @@ const Match3Content = ({
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
+
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
