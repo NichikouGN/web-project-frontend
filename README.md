@@ -36,6 +36,10 @@ npm run dev
 ```
 
 # Version
+## v1.0.0 (2026-01-21)
+
+- Final release
+  
 ## v0.8.4 (2026-01-21)
 - Fixed stale state with fetchWithAuth
 - Fixed avatar incorrectly display in message and ranking page
@@ -112,13 +116,13 @@ npm run dev
 - Added statistics for the admin panel
 - Added user management for admin panel
 - Added game management for admin panel
--
+
 
 ## v0.4.0 (2025-12-27)
 
 - Added add friend functionality
 - Some more api route for achievements on the profile page.
--
+
 
 ## v0.3.0 (2025-12-27)
 
