@@ -1,12 +1,14 @@
 import { FaUser, FaUserEdit } from "react-icons/fa";
 import { useUserStore } from "../../stores/userStore";
 import styles from "./Profile.module.css";
+import searchStyles from "../SearchResult/SearchResult.module.css";
 import { handleUIDShare } from "../../utils/Profile";
-import { IoCopySharp } from "react-icons/io5";
-import { useCallback, useEffect, useState } from "react";
+import { IoCopySharp, IoPersonRemoveSharp } from "react-icons/io5";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { MdLogout } from "react-icons/md";
+import { fetchWithAuth } from "../../api/fetchWithAuth";
 
 interface RankingDataType {
   userId: string;
@@ -22,6 +24,13 @@ interface AchievementsType {
   iconUrl: string;
   description: string;
   dateAchieved: string;
+}
+
+interface FriendsType {
+  userId: string;
+  fullName: string;
+  username: string;
+  avatarUrl: string;
 }
 
 type RankingGameType = "snake" | "caro-5" | "caro-4" | "tic-tac-toe" | "memory-match" | "match-3";
@@ -49,6 +58,10 @@ const ProfileContent = () => {
   const [hasMoreAchievements, setHasMoreAchievements] = useState<boolean>(false);
   const [achievementsData, setAchievementsData] = useState<AchievementsType[]>([]);
 
+  const [friendsPage, setFriendsPage] = useState<number>(1);
+  const [hasMoreFriends, setHasMoreFriends] = useState<boolean>(false);
+  const [friendsData, setFriendsData] = useState<FriendsType[]>([]);
+
   const [rankingFilter, setRankingFilter] = useState<RankingFilterType>("only-me");
   const [rankingGame, setRankingGame] = useState<RankingGameType>("snake");
   const [rankingData, setRankingData] = useState<RankingDataType[]>([]);
@@ -56,6 +69,54 @@ const ProfileContent = () => {
     score: number;
     rank: number;
   } | null>(null);
+
+  const fetchFriendsData = useCallback(
+    async (page: number) => {
+      try {
+        const res = await fetchWithAuth(
+          `${import.meta.env.VITE_API_URL}/api/users/${
+            userInformation.userId
+          }/friendships?page=${page}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch friends data");
+        }
+        const data = await res.json();
+        console.log("Fetched friends data:", data);
+        setHasMoreFriends(data.hasMore);
+        setFriendsData((prev) => (friendsPage === 1 ? data.data : [...prev, ...data.data]));
+      } catch (error) {
+        console.error("Error fetching friends data:", error);
+      }
+    },
+    [userInformation.userId, friendsPage],
+  );
+
+  const handleRemoveFriend = async (friendUserId: string) => {
+    try {
+      const res = await fetchWithAuth(
+        `${import.meta.env.VITE_API_URL}/api/users/${friendUserId}/remove-friend`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error("Failed to remove friend");
+      }
+      setFriendsData((prev) => prev.filter((friend) => friend.userId !== friendUserId));
+    } catch (error) {
+      console.error("Error removing friend:", error);
+    }
+  };
 
   const fetchAchievementsData = useCallback(
     async (page: number) => {
@@ -118,6 +179,7 @@ const ProfileContent = () => {
   );
 
   useEffect(() => {
+    fetchFriendsData(1);
     fetchRankingData("only-me", "snake");
     fetchAchievementsData(1);
   }, []);
@@ -167,6 +229,61 @@ const ProfileContent = () => {
         </section>
 
         <section className={styles["user-info-section"]}>
+          <div className={styles["achievements"]}>
+            <h2>Friends</h2>
+
+            {friendsData.length === 0 ? (
+              <p>No friends yet.</p>
+            ) : (
+              <div className={styles["achievements-grid"]}>
+                {friendsData.map(({ userId, fullName, username, avatarUrl }) => (
+                  <Fragment key={userId}>
+                    <div
+                      className={`${searchStyles["card-item"]}`}
+                      onClick={() => {
+                        navigate(`/user/${userId}`);
+                      }}
+                    >
+                      {avatarUrl ? (
+                        <img className={searchStyles["card-author-avatar"]} src={avatarUrl} />
+                      ) : (
+                        <FaUser className={searchStyles["card-author-icon"]} />
+                      )}
+
+                      <div className={searchStyles["user-info"]}>
+                        <h2 className={searchStyles["display-name"]}>{fullName}</h2>
+                        <h3 className={searchStyles["username"]}>@{username}</h3>
+                      </div>
+                      <div style={{ flex: 1 }} />
+                      <button
+                        className={styles["remove-friend-btn"]}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFriend(userId);
+                        }}
+                      >
+                        <IoPersonRemoveSharp />
+                      </button>
+                    </div>
+                  </Fragment>
+                ))}
+              </div>
+            )}
+
+            {hasMoreFriends && (
+              <button
+                className={styles["achievement-load-more"]}
+                onClick={() => {
+                  const nextPage = friendsPage + 1;
+                  setFriendsPage(nextPage);
+                  fetchFriendsData(nextPage);
+                }}
+              >
+                Load More
+              </button>
+            )}
+          </div>
+
           <div className={styles["achievements"]}>
             <h2>Achievements</h2>
 

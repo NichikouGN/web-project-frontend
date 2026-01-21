@@ -129,7 +129,7 @@ const SearchResult = () => {
 
         <div className={styles["search-results-container"]}>
           {searchUserResults && searchUserResults.length > 0
-            ? searchUserResults.map(({ userId, fullName, username, avatarUrl, bio }, index) => (
+            ? searchUserResults.map(({ userId, fullName, username, avatarUrl }, index) => (
                 <Fragment key={userId}>
                   <button
                     className={`${styles["card-item"]}`}

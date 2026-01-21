@@ -515,3 +515,15 @@
 .current-user {
   background: rgba(var(--theme-success-bg-rgb), 0.25);
 }
+
+.remove-friend-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--theme-text-error);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
