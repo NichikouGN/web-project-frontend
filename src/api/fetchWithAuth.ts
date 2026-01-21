@@ -16,6 +16,7 @@ export const fetchWithAuth = async (
     headers: {
       ...(fetchOptions.headers || {}),
       authorization: `Bearer ${accessToken}`,
+      "x-api-key": import.meta.env.VITE_API_KEY,
     },
   });
 

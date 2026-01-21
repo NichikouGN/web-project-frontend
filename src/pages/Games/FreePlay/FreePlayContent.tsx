@@ -55,6 +55,7 @@ const FreePlayContent = ({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken || ""}`,
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
         body: JSON.stringify({
           game_id: "7",
@@ -88,6 +89,7 @@ const FreePlayContent = ({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken || ""}`,
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
 

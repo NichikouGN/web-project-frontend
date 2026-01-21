@@ -36,6 +36,7 @@ export const uploadProfileChanges = async (profileData: {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "ngrok-skip-browser-warning": "true",
+      "x-api-key": import.meta.env.VITE_API_KEY,
     },
     method: "POST",
     body: formData,

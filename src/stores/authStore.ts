@@ -70,6 +70,7 @@ export const useAuthStore = create<authStoreType>()(
               headers: {
                 authorization: `Bearer ${accessToken}`,
                 "ngrok-skip-browser-warning": "true",
+                "x-api-key": import.meta.env.VITE_API_KEY,
               },
             },
           );
@@ -103,6 +104,7 @@ export const useAuthStore = create<authStoreType>()(
                 "Content-Type": "application/json",
                 authorization: `Bearer ${refreshToken}`,
                 "ngrok-skip-browser-warning": "true",
+                "x-api-key": import.meta.env.VITE_API_KEY,
               },
             },
           );
@@ -135,7 +137,7 @@ export const useAuthStore = create<authStoreType>()(
             headers: {
               "Content-Type": "application/json",
               "ngrok-skip-browser-warning": "true",
-              // "x-api-key": import.meta.env.VITE_API_KEY,
+              "x-api-key": import.meta.env.VITE_API_KEY,
             },
             body: JSON.stringify({ email: email, password: password }),
           });
@@ -151,6 +153,7 @@ export const useAuthStore = create<authStoreType>()(
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${data.accessToken}`,
+              "x-api-key": import.meta.env.VITE_API_KEY,
             },
           }).catch((error) => {
             console.error("Failed to increment login count:", error);
@@ -174,6 +177,7 @@ export const useAuthStore = create<authStoreType>()(
             headers: {
               "Content-Type": "application/json",
               "ngrok-skip-browser-warning": "true",
+              "x-api-key": import.meta.env.VITE_API_KEY,
             },
             body: JSON.stringify({ email: email, password: password }),
           });
@@ -200,6 +204,7 @@ export const useAuthStore = create<authStoreType>()(
             headers: {
               "Content-Type": "application/json",
               "ngrok-skip-browser-warning": "true",
+              "x-api-key": import.meta.env.VITE_API_KEY,
             },
             body: JSON.stringify({
               email: email,

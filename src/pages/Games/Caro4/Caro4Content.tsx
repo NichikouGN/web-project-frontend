@@ -68,6 +68,7 @@ const Caro4Content = ({
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken || ""}`,
+            "x-api-key": import.meta.env.VITE_API_KEY,
           },
         }).catch((error) => {
           console.error("Failed to increment match count:", error);
@@ -229,6 +230,7 @@ const Caro4Content = ({
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken || ""}`,
+                "x-api-key": import.meta.env.VITE_API_KEY,
               },
             }).catch((error) => {
               console.error("Failed to increment win count:", error);
@@ -364,6 +366,7 @@ const Caro4Content = ({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken || ""}`,
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
         body: JSON.stringify({
           game_id: "2",
@@ -395,6 +398,7 @@ const Caro4Content = ({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken || ""}`,
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
 

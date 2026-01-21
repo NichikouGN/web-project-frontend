@@ -32,6 +32,7 @@ const SearchResult = () => {
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
+            "x-api-key": import.meta.env.VITE_API_KEY,
           },
         },
       );
