@@ -34,6 +34,7 @@ const MessageWindow = ({
 }: MessageWindowProps) => {
   const navigate = useNavigate();
   const [inputMessage, setInputMessage] = useState<string>("");
+  const [messagePageNumber, setMessagePageNumber] = useState<number>(1);
   const scrollRef = useRef<HTMLLIElement | null>(null);
   const [chatMeta, setChatMeta] = useState<{
     username: string;
@@ -81,6 +82,20 @@ const MessageWindow = ({
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatContent, conversationId]);
+
+  // Calculate pagination for messages
+  const MESSAGES_PER_PAGE = 10;
+  const paginatedMessages = chatContent.slice(
+    (messagePageNumber - 1) * MESSAGES_PER_PAGE,
+    messagePageNumber * MESSAGES_PER_PAGE,
+  );
+  const totalMessagePages = Math.ceil(chatContent.length / MESSAGES_PER_PAGE);
+
+  const handleMessagePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalMessagePages) {
+      setMessagePageNumber(newPage);
+    }
+  };
 
   const handleInputMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputMessage(e.target.value);
@@ -161,8 +176,8 @@ const MessageWindow = ({
             <h2>{chatMeta.username}</h2>
           </div>
           <ul className={styles["message-content-list"]}>
-            {chatContent.map((chat, index) => {
-              const prevChat = chatContent[index - 1];
+            {paginatedMessages.map((chat, index) => {
+              const prevChat = paginatedMessages[index - 1];
               const isNewGroup = !prevChat || prevChat.role !== chat.role;
 
               return (
@@ -201,6 +216,27 @@ const MessageWindow = ({
             })}
             <li ref={scrollRef} />
           </ul>
+          {chatContent.length > 0 && (
+            <div className={styles["message-pagination"]}>
+              <button
+                className={styles["pagination-button"]}
+                onClick={() => handleMessagePageChange(messagePageNumber - 1)}
+                disabled={messagePageNumber === 1}
+              >
+                Previous
+              </button>
+              <span className={styles["pagination-info"]}>
+                Page {messagePageNumber} of {totalMessagePages}
+              </span>
+              <button
+                className={styles["pagination-button"]}
+                onClick={() => handleMessagePageChange(messagePageNumber + 1)}
+                disabled={messagePageNumber === totalMessagePages}
+              >
+                Next
+              </button>
+            </div>
+          )}
           <form className={styles["message-form-section"]} onSubmit={handleMessageSend}>
             <input
               type="text"

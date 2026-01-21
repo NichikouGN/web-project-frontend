@@ -388,3 +388,42 @@
   text-align: center;
   margin-top: 2rem;
 }
+.message-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--theme-body-primary-bg);
+  border-top: 1px solid var(--theme-border-color);
+}
+
+.pagination-button {
+  padding: 0.5rem 1rem;
+  background: var(--theme-body-secondary-bg);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-color);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: var(--theme-primary);
+  color: white;
+  border-color: var(--theme-primary);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--theme-body-secondary-bg);
+}
+
+.pagination-info {
+  color: var(--theme-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
