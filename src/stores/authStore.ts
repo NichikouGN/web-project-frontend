@@ -135,6 +135,7 @@ export const useAuthStore = create<authStoreType>()(
             headers: {
               "Content-Type": "application/json",
               "ngrok-skip-browser-warning": "true",
+              // "x-api-key": import.meta.env.VITE_API_KEY,
             },
             body: JSON.stringify({ email: email, password: password }),
           });
