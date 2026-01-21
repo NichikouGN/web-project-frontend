@@ -84,12 +84,14 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
         }
         const data = await res.json();
         setHasMoreAchievements(data.hasMore);
-        setAchievementsData((prev) => [...prev, ...data.achievements]);
+        setAchievementsData((prev) =>
+          achievementPage === 1 ? data.achievements : [...prev, ...data.achievements],
+        );
       } catch (error) {
         console.error("Error fetching achievements data:", error);
       }
     },
-    [userInformation.userId],
+    [userInformation.userId, achievementPage],
   );
 
   const fetchRankingData = useCallback(
@@ -133,7 +135,6 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -162,7 +163,6 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${accessToken}`,
             },
           },
         );
@@ -190,7 +190,6 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             userId: currentUser.userId,
@@ -276,7 +275,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                       <h3>{achievement.title}</h3>
                       <p>{achievement.description}</p>
                       <span className={styles["achievement-date"]}>
-                        Achieved on: {achievement.dateAchieved}
+                        Achieved on: {new Date(achievement.dateAchieved).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -340,7 +339,7 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                         <tr
                           key={entry.userId}
                           className={`${styles["ranking-row"]} ${
-                            userRankings?.score === entry.score ? styles["current-user"] : ""
+                            userInformation.userId === entry.userId ? styles["current-user"] : ""
                           }`}
                         >
                           <td>{entry.rank}</td>
@@ -348,11 +347,15 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                             className={styles["ranking-username-cell"]}
                             onClick={() => navigate(`/user/${entry.userId}`)}
                           >
-                            <img
-                              src={entry.avatarUrl}
-                              alt={entry.username}
-                              className={styles["ranking-avatar"]}
-                            />
+                            {entry.avatarUrl ? (
+                              <img
+                                src={entry.avatarUrl}
+                                alt={entry.username}
+                                className={styles["ranking-avatar"]}
+                              />
+                            ) : (
+                              <FaUser className={styles["ranking-avatar-icon"]} />
+                            )}
                             {entry.username}
                           </td>
                           <td>{entry.fullName}</td>
@@ -365,15 +368,19 @@ const UserContent = ({ userInformation }: { userInformation: userInformation }) 
                       </tr>
 
                       {userRankings &&
-                        !rankingData.some((entry) => entry.score === userRankings.score) && (
+                        !rankingData.some((entry) => entry.userId === userInformation.userId) && (
                           <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
                             <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
                             <td className={styles["ranking-username-cell"]}>
-                              <img
-                                src={userInformation.avatarUrl}
-                                alt={userInformation.username}
-                                className={styles["ranking-avatar"]}
-                              />
+                              {userInformation.avatarUrl ? (
+                                <img
+                                  src={userInformation.avatarUrl}
+                                  alt={userInformation.username}
+                                  className={styles["ranking-avatar"]}
+                                />
+                              ) : (
+                                <FaUser className={styles["ranking-avatar-icon"]} />
+                              )}
                               {userInformation.username}
                             </td>
                             <td>{userInformation.fullName}</td>

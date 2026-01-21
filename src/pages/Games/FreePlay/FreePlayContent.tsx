@@ -5,6 +5,7 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -51,11 +52,10 @@ const FreePlayContent = ({
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "7",
@@ -84,11 +84,10 @@ const FreePlayContent = ({
 
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=7`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=7`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -124,22 +123,19 @@ const FreePlayContent = ({
   );
 
   useEffect(() => {
-      const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          navigate("/");
-        }
-      };
-      window.addEventListener("keydown", handleKeyPress);
-      return () => window.removeEventListener("keydown", handleKeyPress);
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        navigate("/");
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [navigate]);
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
       <div className={styles["game-options-menu"]}>
-        <button
-          className={styles["reset-board-button"]}
-          onClick={() => navigate("/")}
-        >
+        <button className={styles["reset-board-button"]} onClick={() => navigate("/")}>
           Return
         </button>
         <button className={styles["reset-board-button"]} onClick={saveGame}>

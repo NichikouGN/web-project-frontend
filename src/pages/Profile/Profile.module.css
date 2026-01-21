@@ -497,6 +497,21 @@
   object-fit: cover;
 }
 
+.ranking-avatar-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+
+  border-radius: 50%;
+
+  font-size: 1.5rem;
+  color: var(--theme-body-bg);
+  background: var(--theme-text-secondary);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .current-user {
   background: rgba(var(--theme-success-bg-rgb), 0.25);
 }

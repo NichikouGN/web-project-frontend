@@ -20,7 +20,6 @@ export const fetchUsersForManagement = async (
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -46,7 +45,6 @@ export const fetchUsersFromSearch = async (searchInput: string, accessToken: str
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -69,7 +67,6 @@ export const activateUserAccount = async (userId: string, accessToken: string) =
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ userId }),
       },
@@ -92,7 +89,6 @@ export const deactivateUserAccount = async (userId: string, accessToken: string)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ userId }),
       },

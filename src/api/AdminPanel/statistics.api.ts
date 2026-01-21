@@ -1,9 +1,16 @@
 import { formatConsoleError } from "../../consoleError";
+import { fetchWithAuth } from "../fetchWithAuth";
 
 export const fetch24HourPlayers = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-players`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour players: ${response.statusText}`);
@@ -17,8 +24,14 @@ export const fetch24HourPlayers = async () => {
 
 export const fetch24HourGamesPlayed = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-games`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour games: ${response.statusText}`);
@@ -32,8 +45,14 @@ export const fetch24HourGamesPlayed = async () => {
 
 export const fetch24HourServerLoad = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-server-load`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching 24-hour server load: ${response.statusText}`);
@@ -47,8 +66,14 @@ export const fetch24HourServerLoad = async () => {
 
 export const fetchMonthlyGameTypePercentage = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/monthly-game-type-percentage`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching game type percentage: ${response.statusText}`);
@@ -62,8 +87,14 @@ export const fetchMonthlyGameTypePercentage = async () => {
 
 export const fetchYearlyPlayers = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/yearly-players`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching yearly players: ${response.statusText}`);

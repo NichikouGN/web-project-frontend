@@ -20,7 +20,7 @@ const FriendRequest = () => {
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
   const [addFriendNotifications, setAddFriendNotifications] = useState<AddFriendNotificationType[]>(
-    []
+    [],
   );
 
   useEffect(() => {
@@ -30,7 +30,6 @@ const FriendRequest = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${useAuthStore.getState().accessToken}`,
           },
         });
 
@@ -58,9 +57,8 @@ const FriendRequest = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${useAuthStore.getState().accessToken}`,
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -69,7 +67,7 @@ const FriendRequest = () => {
       }
 
       setAddFriendNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.requestUserId !== requestUserId)
+        prevNotifications.filter((notification) => notification.requestUserId !== requestUserId),
       );
     } catch (error) {
       Toast({ type: "error", title: "Error", message: "Failed to deny friend request" });
@@ -84,9 +82,8 @@ const FriendRequest = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${useAuthStore.getState().accessToken}`,
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -94,7 +91,7 @@ const FriendRequest = () => {
         return;
       }
       setAddFriendNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.requestUserId !== requestUserId)
+        prevNotifications.filter((notification) => notification.requestUserId !== requestUserId),
       );
     } catch (error) {
       Toast({ type: "error", title: "Error", message: "Failed to accept friend request" });

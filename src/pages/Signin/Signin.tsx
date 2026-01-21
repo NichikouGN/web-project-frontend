@@ -18,6 +18,7 @@ const Signin = () => {
   //Hooks
   const signIn = useAuthStore((state) => state.signIn);
   const signInState = useAuthStore((state) => state.signInState);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const [showPassword, setShowPassword] = useState(false);
 

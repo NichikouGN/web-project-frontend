@@ -76,12 +76,14 @@ const ProfileContent = () => {
         }
         const data = await res.json();
         setHasMoreAchievements(data.hasMore);
-        setAchievementsData((prev) => [...prev, ...data.achievements]);
+        setAchievementsData((prev) =>
+          achievementPage === 1 ? data.achievements : [...prev, ...data.achievements],
+        );
       } catch (error) {
         console.error("Error fetching achievements data:", error);
       }
     },
-    [userInformation.userId],
+    [userInformation.userId, achievementPage],
   );
 
   const fetchRankingData = useCallback(
@@ -183,7 +185,7 @@ const ProfileContent = () => {
                       <h3>{achievement.title}</h3>
                       <p>{achievement.description}</p>
                       <span className={styles["achievement-date"]}>
-                        Achieved on: {achievement.dateAchieved}
+                        Achieved on: {new Date(achievement.dateAchieved).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -263,7 +265,7 @@ const ProfileContent = () => {
                         <tr
                           key={entry.userId}
                           className={`${styles["ranking-row"]} ${
-                            userRankings?.score === entry.score ? styles["current-user"] : ""
+                            entry.userId === userInformation.userId ? styles["current-user"] : ""
                           }`}
                         >
                           <td>{entry.rank}</td>
@@ -271,11 +273,15 @@ const ProfileContent = () => {
                             className={styles["ranking-username-cell"]}
                             onClick={() => navigate(`/user/${entry.userId}`)}
                           >
-                            <img
-                              src={entry.avatarUrl}
-                              alt={entry.username}
-                              className={styles["ranking-avatar"]}
-                            />
+                            {entry.avatarUrl ? (
+                              <img
+                                src={entry.avatarUrl}
+                                alt={entry.username}
+                                className={styles["ranking-avatar"]}
+                              />
+                            ) : (
+                              <FaUser className={styles["ranking-avatar-icon"]} />
+                            )}
                             {entry.username}
                           </td>
                           <td>{entry.fullName}</td>
@@ -287,15 +293,19 @@ const ProfileContent = () => {
                       </tr>
 
                       {userRankings &&
-                        !rankingData.some((entry) => entry.score === userRankings.score) && (
+                        !rankingData.some((entry) => entry.userId === userInformation.userId) && (
                           <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
                             <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
                             <td className={styles["ranking-username-cell"]}>
-                              <img
-                                src={userInformation.avatarUrl}
-                                alt={userInformation.username}
-                                className={styles["ranking-avatar"]}
-                              />
+                              {userInformation.avatarUrl ? (
+                                <img
+                                  src={userInformation.avatarUrl}
+                                  alt={userInformation.username}
+                                  className={styles["ranking-avatar"]}
+                                />
+                              ) : (
+                                <FaUser className={styles["ranking-avatar-icon"]} />
+                              )}
                               {userInformation.username}
                             </td>
                             <td>{userInformation.fullName}</td>

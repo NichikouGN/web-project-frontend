@@ -10,7 +10,6 @@ export const fetchAvailableGames = async (accessToken: string) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -34,7 +33,6 @@ export const activateGameMode = async (accessToken: string, gameId: number) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -55,7 +53,6 @@ export const deactivateGameMode = async (accessToken: string, gameId: number) =>
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
@@ -81,7 +78,6 @@ export const updateBoardSize = async (
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ board_width: width, board_height: height }),
       },
@@ -103,7 +99,6 @@ export const updateTimer = async (accessToken: string, gameId: number, timer: nu
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ timer }),
       },

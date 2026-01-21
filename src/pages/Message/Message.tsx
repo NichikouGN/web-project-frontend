@@ -39,7 +39,6 @@ const Message = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${accessToken}`,
             },
           },
         );
@@ -91,7 +90,6 @@ const Message = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${accessToken}`,
           },
         },
       );

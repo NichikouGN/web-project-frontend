@@ -1,10 +1,11 @@
-import { useCallback, useState, useEffect, use } from "react";
+import { useCallback, useState, useEffect, use, useRef } from "react";
 import styles from "../0-css/games.module.css";
 import { Toast } from "../../../stores/toastStore";
 import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface Caro5ContentProps {
   gameBoard: string[][];
@@ -45,8 +46,8 @@ const Caro5Content = ({
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
   const [playTime, setPlayTime] = useState(0);
-  const [resPosted, setResPosted] = useState(false);
-
+  // const [resPosted, setResPosted] = useState(false);
+  const resPosted = useRef(false);
 
   const modes = [
     { id: "goFirst", label: "Go First (X)", description: "You play first" },
@@ -143,11 +144,23 @@ const Caro5Content = ({
 
   // Post game result khi game kết thúc (trừ PvP mode)
   useEffect(() => {
-    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0 || resPosted) return;
+    if (!isGameOver || gameMode === "pvp" || !gameMode || playTime === 0 || resPosted.current)
+      return;
 
     const postResult = async () => {
       try {
         await postGameResult(1, score, playTime, accessToken);
+
+        // Gọi API increment match count
+        fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -160,7 +173,7 @@ const Caro5Content = ({
     };
 
     postResult();
-    setResPosted(true);
+    resPosted.current = true;
   }, [isGameOver, gameMode, score, playTime, accessToken, resPosted]);
 
   const handleReturnButton = () => {
@@ -168,7 +181,7 @@ const Caro5Content = ({
       setGameState && setGameState("unloaded");
       setGameMode(null);
     } else {
-      navigate("/"); 
+      navigate("/");
     }
   };
 
@@ -186,7 +199,7 @@ const Caro5Content = ({
     } else {
       setUserSymbol("X");
     }
-  };    
+  };
 
   // Handle keyboard input cho mode selector
   useEffect(() => {
@@ -243,6 +256,16 @@ const Caro5Content = ({
           // Cập nhật điểm scoring
           if (gameWinner === userSymbol && gameMode !== "pvp") {
             setScore((prev) => prev + 1000);
+
+            // Gọi API increment win count
+            fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-win`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }).catch((error) => {
+              console.error("Failed to increment win count:", error);
+            });
           }
 
           Toast({
@@ -364,17 +387,16 @@ const Caro5Content = ({
     setCurrentPlayer("X");
     setIsGameOver(false);
     setWinner(null);
-    setResPosted(false);
+    resPosted.current = false;
     Toast({ type: "info", message: "Board reset!" });
   }, [gameBoardSize]);
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "1",
@@ -401,11 +423,10 @@ const Caro5Content = ({
   // Hàm tải game từ localStorage
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=1`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=1`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -498,32 +519,28 @@ const Caro5Content = ({
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      
-        <div className={styles["game-options-menu"]}>
-          <button
-            className={styles["reset-board-button"]}
-            onClick={() => handleReturnButton()}
-          >
-            Return
-          </button>
-          {gameMode ? (
-            <div>
-              <button className={styles["reset-board-button"]} onClick={saveGame}>
-                Save Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={loadGame}>
-                Load Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                Reset Board
-              </button>
-            </div>
-          ) : (
-            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
-              Start Game
+      <div className={styles["game-options-menu"]}>
+        <button className={styles["reset-board-button"]} onClick={() => handleReturnButton()}>
+          Return
+        </button>
+        {gameMode ? (
+          <div>
+            <button className={styles["reset-board-button"]} onClick={saveGame}>
+              Save Game
             </button>
-          )}
-        </div>
+            <button className={styles["reset-board-button"]} onClick={loadGame}>
+              Load Game
+            </button>
+            <button className={styles["reset-board-button"]} onClick={resetBoard}>
+              Reset Board
+            </button>
+          </div>
+        ) : (
+          <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+            Start Game
+          </button>
+        )}
+      </div>
 
       {/* Hiển thị trạng thái game */}
       <div

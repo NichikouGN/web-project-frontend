@@ -1,5 +1,6 @@
 import { Toast } from "../stores/toastStore";
 import { useAuthStore } from "../stores/authStore";
+import { fetchWithAuth } from "./fetchWithAuth";
 
 /**
  * Upload profile changes to the backend
@@ -32,9 +33,8 @@ export const uploadProfileChanges = async (profileData: {
     formData.append("avatar", profileData.avatarFile);
   }
 
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/profile/edit`, {
+  const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/profile/edit`, {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
       "ngrok-skip-browser-warning": "true",
     },
     method: "POST",

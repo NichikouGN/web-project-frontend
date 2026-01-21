@@ -5,6 +5,7 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface TicTacToeContentProps {
   gameBoard: string[][];
@@ -125,6 +126,17 @@ const TicTacToeContent = ({
     const postResult = async () => {
       try {
         await postGameResult(3, score, playTime, accessToken);
+
+        // Gọi API increment match count
+        fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -164,6 +176,16 @@ const TicTacToeContent = ({
               scoreGain = 120;
             }
             setScore((prev) => prev + scoreGain);
+
+            // Gọi API increment win count
+            fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-win`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }).catch((error) => {
+              console.error("Failed to increment win count:", error);
+            });
           }
 
           if (gameMode === "pvp") {
@@ -203,26 +225,26 @@ const TicTacToeContent = ({
       setGameState && setGameState("unloaded");
       setGameMode(null);
     } else {
-      navigate("/"); 
+      navigate("/");
     }
   };
 
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
-        setGameMode(selectedMode);
+    setGameMode(selectedMode);
 
-        // Khởi tạo lần chơi đầu tiên
-        // Luôn bắt đầu với X, nhưng track user symbol
-        setCurrentPlayer("X");
+    // Khởi tạo lần chơi đầu tiên
+    // Luôn bắt đầu với X, nhưng track user symbol
+    setCurrentPlayer("X");
 
-        if (selectedMode === "goFirst") {
-          setUserSymbol("X"); // User chơi X
-        } else if (selectedMode === "goSecond") {
-          setUserSymbol("O"); // User chơi O, nhưng Computer (X) đi trước
-        } else {
-          setUserSymbol("X"); // Player 1 chơi X
-        }
-    };
+    if (selectedMode === "goFirst") {
+      setUserSymbol("X"); // User chơi X
+    } else if (selectedMode === "goSecond") {
+      setUserSymbol("O"); // User chơi O, nhưng Computer (X) đi trước
+    } else {
+      setUserSymbol("X"); // Player 1 chơi X
+    }
+  };
   // Handle keyboard input cho mode selector
   useEffect(() => {
     if (gameMode) return; // Chỉ handle khi chưa chọn mode
@@ -356,11 +378,10 @@ const TicTacToeContent = ({
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "3",
@@ -398,11 +419,10 @@ const TicTacToeContent = ({
   // Hàm tải game từ API
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=3`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=3`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -509,32 +529,28 @@ const TicTacToeContent = ({
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      
-        <div className={styles["game-options-menu"]}>
-          <button
-            className={styles["reset-board-button"]}
-            onClick={() => handleReturnButton()}
-          >
-            Return
-          </button>
-          {gameMode ? (
-            <div>
-              <button className={styles["reset-board-button"]} onClick={saveGame}>
-                Save Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={loadGame}>
-                Load Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                Reset Board
-              </button>
-            </div>
-          ) : (
-            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
-              Start Game
+      <div className={styles["game-options-menu"]}>
+        <button className={styles["reset-board-button"]} onClick={() => handleReturnButton()}>
+          Return
+        </button>
+        {gameMode ? (
+          <div>
+            <button className={styles["reset-board-button"]} onClick={saveGame}>
+              Save Game
             </button>
-          )}
-        </div>
+            <button className={styles["reset-board-button"]} onClick={loadGame}>
+              Load Game
+            </button>
+            <button className={styles["reset-board-button"]} onClick={resetBoard}>
+              Reset Board
+            </button>
+          </div>
+        ) : (
+          <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+            Start Game
+          </button>
+        )}
+      </div>
 
       <GameZone
         gameBoard={gameMode ? gameBoard : modesBoard[selectedModeIndex]}

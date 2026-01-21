@@ -5,6 +5,7 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface Caro4ContentProps {
   gameBoard: string[][];
@@ -62,6 +63,17 @@ const Caro4Content = ({
     const postResult = async () => {
       try {
         await postGameResult(2, score, playTime, accessToken);
+
+        // Gọi API increment match count
+        fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -166,24 +178,24 @@ const Caro4Content = ({
       setGameState && setGameState("unloaded");
       setGameMode(null);
     } else {
-      navigate("/"); 
+      navigate("/");
     }
   };
 
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
-      setGameMode(selectedMode);
+    setGameMode(selectedMode);
 
-      // Khởi tạo lần chơi đầu tiên
-      setCurrentPlayer("X");
+    // Khởi tạo lần chơi đầu tiên
+    setCurrentPlayer("X");
 
-      if (selectedMode === "goFirst") {
-        setUserSymbol("X");
-      } else if (selectedMode === "goSecond") {
-        setUserSymbol("O");
-      } else {
-        setUserSymbol("X");
-      }
+    if (selectedMode === "goFirst") {
+      setUserSymbol("X");
+    } else if (selectedMode === "goSecond") {
+      setUserSymbol("O");
+    } else {
+      setUserSymbol("X");
+    }
   };
 
   // Handle keyboard input cho mode selector
@@ -241,6 +253,16 @@ const Caro4Content = ({
           // Cập nhật điểm scoring
           if (gameWinner === userSymbol && gameMode !== "pvp") {
             setScore((prev) => prev + 1000);
+
+            // Gọi API increment win count
+            fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-win`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }).catch((error) => {
+              console.error("Failed to increment win count:", error);
+            });
           }
 
           Toast({
@@ -368,11 +390,10 @@ const Caro4Content = ({
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "2",
@@ -399,11 +420,10 @@ const Caro4Content = ({
   // Hàm tải game từ localStorage
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=2`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=2`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -496,32 +516,28 @@ const Caro4Content = ({
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      
-        <div className={styles["game-options-menu"]}>
-          <button
-            className={styles["reset-board-button"]}
-            onClick={() => handleReturnButton()}
-          >
-            Return
-          </button>
-          {gameMode ? (
-            <div>
-              <button className={styles["reset-board-button"]} onClick={saveGame}>
-                Save Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={loadGame}>
-                Load Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                Reset Board
-              </button>
-            </div>
-          ) : (
-            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
-              Start Game
+      <div className={styles["game-options-menu"]}>
+        <button className={styles["reset-board-button"]} onClick={() => handleReturnButton()}>
+          Return
+        </button>
+        {gameMode ? (
+          <div>
+            <button className={styles["reset-board-button"]} onClick={saveGame}>
+              Save Game
             </button>
-          )}
-        </div>
+            <button className={styles["reset-board-button"]} onClick={loadGame}>
+              Load Game
+            </button>
+            <button className={styles["reset-board-button"]} onClick={resetBoard}>
+              Reset Board
+            </button>
+          </div>
+        ) : (
+          <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+            Start Game
+          </button>
+        )}
+      </div>
 
       {/* Hiển thị trạng thái game */}
       <div

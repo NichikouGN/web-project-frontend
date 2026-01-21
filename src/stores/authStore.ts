@@ -91,7 +91,6 @@ export const useAuthStore = create<authStoreType>()(
 
       requestNewAccessToken: async () => {
         const refreshToken = get().refreshToken;
-        console.log("Requesting new access token using refresh token:", refreshToken);
         try {
           if (!refreshToken) throw new Error("No refresh token found");
 
@@ -142,6 +141,18 @@ export const useAuthStore = create<authStoreType>()(
           if (!res.ok) throw get().throwAuthError(res.status);
 
           const data = await res.json();
+
+          // Gọi API increment login count
+          // Gabage code but it works bro :))
+          fetch(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.accessToken}`,
+            },
+          }).catch((error) => {
+            console.error("Failed to increment login count:", error);
+          });
 
           get().setUpToken(data.accessToken, data.refreshToken);
           get().setSignInState("authorized");

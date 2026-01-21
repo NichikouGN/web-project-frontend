@@ -49,12 +49,11 @@ export const postGameResult = async (
       play_time: play_time,
     };
     const res = await fetchWithAuth(
-      `${import.meta.env.VITE_API_BASE_URL}/api/games/${gameId}/play-record`,
+      `${import.meta.env.VITE_API_URL}/api/games/${gameId}/play-record`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(record),
       },

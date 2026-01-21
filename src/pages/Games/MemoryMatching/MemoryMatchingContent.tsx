@@ -5,6 +5,7 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -120,15 +121,15 @@ const MemoryMatchingContent = ({
       setGameState && setGameState("unloaded");
       setGameMode(null);
     } else {
-      navigate("/"); 
+      navigate("/");
     }
   };
 
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
-        setGameMode(selectedMode);
-        setTimeLeft(timeLimit);
-        setIsGameOver(false);
+    setGameMode(selectedMode);
+    setTimeLeft(timeLimit);
+    setIsGameOver(false);
   };
 
   // Mode selector keyboard handler
@@ -184,6 +185,17 @@ const MemoryMatchingContent = ({
     const postResult = async () => {
       try {
         await postGameResult(6, score, playTime, accessToken);
+
+        // Gọi API increment match count
+        fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/user-stats/increment-match`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).catch((error) => {
+          console.error("Failed to increment match count:", error);
+        });
+
         Toast({
           type: "success",
           title: "Game Recorded",
@@ -419,11 +431,10 @@ const MemoryMatchingContent = ({
 
   const saveGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/save`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify({
           game_id: "6",
@@ -474,11 +485,10 @@ const MemoryMatchingContent = ({
 
   const loadGame = useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=6`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/games/load?game_id=6`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ""}`,
         },
       });
 
@@ -518,32 +528,28 @@ const MemoryMatchingContent = ({
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
-      
-        <div className={styles["game-options-menu"]}>
-          <button
-            className={styles["reset-board-button"]}
-            onClick={() => handleReturnButton()}
-          >
-            Return
-          </button>
-          {gameMode ? (
-            <div>
-              <button className={styles["reset-board-button"]} onClick={saveGame}>
-                Save Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={loadGame}>
-                Load Game
-              </button>
-              <button className={styles["reset-board-button"]} onClick={resetBoard}>
-                Reset Board
-              </button>
-            </div>
-          ) : (
-            <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
-              Start Game
+      <div className={styles["game-options-menu"]}>
+        <button className={styles["reset-board-button"]} onClick={() => handleReturnButton()}>
+          Return
+        </button>
+        {gameMode ? (
+          <div>
+            <button className={styles["reset-board-button"]} onClick={saveGame}>
+              Save Game
             </button>
-          )}
-        </div>
+            <button className={styles["reset-board-button"]} onClick={loadGame}>
+              Load Game
+            </button>
+            <button className={styles["reset-board-button"]} onClick={resetBoard}>
+              Reset Board
+            </button>
+          </div>
+        ) : (
+          <button className={styles["game-play-prompt"]} onClick={() => handleEnter()}>
+            Start Game
+          </button>
+        )}
+      </div>
 
       <div>
         {isGameComplete && (
