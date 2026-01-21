@@ -5,6 +5,8 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import caro4Help from "../../../assets/caro4-dark.png";
 
 interface Caro4ContentProps {
   gameBoard: string[][];
@@ -45,6 +47,8 @@ const Caro4Content = ({
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [helpImageUrl, setHelpImageUrl] = useState<string>("");
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -165,9 +169,15 @@ const Caro4Content = ({
     if (gameMode) {
       setGameState && setGameState("unloaded");
       setGameMode(null);
+    } else if (isHelpOpen) {
+      setIsHelpOpen(false);
     } else {
       navigate("/"); 
     }
+  };
+
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
   };
 
   const handleEnter = () => {
@@ -203,12 +213,15 @@ const Caro4Content = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key === "H" || e.key === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton, handleHelpButton, handleEnter]);
 
   useEffect(() => {
     if (!gameMode) return;
@@ -521,6 +534,12 @@ const Caro4Content = ({
               Start Game
             </button>
           )}
+          <button
+            className={styles["reset-board-button"]}
+            onClick={() => handleHelpButton()}
+          >
+            Help
+          </button>
         </div>
 
       {/* Hiển thị trạng thái game */}
@@ -538,6 +557,12 @@ const Caro4Content = ({
         handleCellClick={handleCellClick}
         leftPanelContent={leftPanelContent}
         rightPanelContent={rightPanelContent}
+      />
+
+      <HelpPopup
+        isOpen={isHelpOpen}
+        imageUrl={caro4Help}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );

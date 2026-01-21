@@ -5,6 +5,9 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import freePlayHelp from "../../../assets/sketch-dark.png";
+
 
 interface FreePlayContentProps {
   gameBoard: string[][];
@@ -23,6 +26,7 @@ const FreePlayContent = ({
 }: FreePlayContentProps) => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const [selectedColor, setSelectedColor] = useState<string>("#000000");
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +43,10 @@ const FreePlayContent = ({
 
   const handleCellClick = (row: number, col: number) => {
     updateCellColor(row, col, selectedColor);
+  };
+
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
   };
 
   const resetBoard = useCallback(() => {
@@ -128,10 +136,13 @@ const FreePlayContent = ({
         if (e.key === "Escape") {
           navigate("/");
         }
+        if (e.key.toLowerCase() === "h") {
+          handleHelpButton();
+        }
       };
       window.addEventListener("keydown", handleKeyPress);
       return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [navigate]);
+  }, [navigate, handleHelpButton]);
 
   return (
     <div className={styles["game-page"]} style={{ flexDirection: "column" }}>
@@ -157,12 +168,23 @@ const FreePlayContent = ({
           onChange={handleColorChange}
           className={styles["color-picker"]}
         />
+        <button
+          className={styles["reset-board-button"]}
+          onClick={handleHelpButton}
+        >
+          Help
+        </button>
       </div>
       <GameZone
         gameBoard={gameBoard}
         handleCellClick={handleCellClick}
         leftPanelContent={leftPanelContent}
         rightPanelContent={rightPanelContent}
+      />
+      <HelpPopup
+        isOpen={isHelpOpen}
+        imageUrl={freePlayHelp}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );

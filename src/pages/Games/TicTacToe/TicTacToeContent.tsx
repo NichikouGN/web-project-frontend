@@ -5,6 +5,8 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import ticTacToeHelp from "../../../assets/tictactoe-dark.png";
 
 interface TicTacToeContentProps {
   gameBoard: string[][];
@@ -46,6 +48,7 @@ const TicTacToeContent = ({
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X"); // Track user's symbol
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const modes = [
     { id: "goFirst", label: "Go First (X)", description: "You play first" },
@@ -207,6 +210,10 @@ const TicTacToeContent = ({
     }
   };
 
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
+  };
+
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
         setGameMode(selectedMode);
@@ -240,6 +247,9 @@ const TicTacToeContent = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
@@ -253,12 +263,15 @@ const TicTacToeContent = ({
       if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleReturnButton]);
+  }, [handleReturnButton, handleHelpButton]);
 
   const handleCellClick = (row: number, col: number) => {
     // Không cho chơi nếu game đã kết thúc
@@ -534,6 +547,12 @@ const TicTacToeContent = ({
               Start Game
             </button>
           )}
+          <button
+            className={styles["reset-board-button"]}
+            onClick={() => handleHelpButton()}
+          >
+            Help
+          </button>
         </div>
 
       <GameZone
@@ -541,6 +560,12 @@ const TicTacToeContent = ({
         handleCellClick={handleCellClick}
         leftPanelContent={leftPanelContent}
         rightPanelContent={rightPanelContent}
+      />
+
+      <HelpPopup
+        isOpen={isHelpOpen}
+        imageUrl={ticTacToeHelp}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );

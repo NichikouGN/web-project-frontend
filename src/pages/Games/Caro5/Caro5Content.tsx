@@ -5,6 +5,9 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import caro5Help from "../../../assets/caro5-dark.png";
+
 
 interface Caro5ContentProps {
   gameBoard: string[][];
@@ -46,6 +49,8 @@ const Caro5Content = ({
   const [userSymbol, setUserSymbol] = useState<"X" | "O">("X");
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [helpImageUrl, setHelpImageUrl] = useState<string>("");
 
 
   const modes = [
@@ -172,6 +177,10 @@ const Caro5Content = ({
     }
   };
 
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
+  };
+
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "goFirst" | "goSecond" | "pvp";
     setGameMode(selectedMode);
@@ -205,6 +214,9 @@ const Caro5Content = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key === "H" || e.key === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
@@ -523,6 +535,12 @@ const Caro5Content = ({
               Start Game
             </button>
           )}
+          <button
+            className={styles["reset-board-button"]}
+            onClick={() => handleHelpButton()}
+          >
+            Help
+          </button>
         </div>
 
       {/* Hiển thị trạng thái game */}
@@ -540,6 +558,12 @@ const Caro5Content = ({
         handleCellClick={handleCellClick}
         leftPanelContent={leftPanelContent}
         rightPanelContent={rightPanelContent}
+      />
+
+      <HelpPopup
+        isOpen={isHelpOpen}
+        imageUrl={caro5Help}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );

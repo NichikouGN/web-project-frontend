@@ -6,6 +6,8 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import snakeHelp from "../../../assets/snake-dark.png";
 
 interface SnakeContentProps {
   gameBoard: string[][];
@@ -47,6 +49,7 @@ const SnakeContent = ({
   const [timeLeft, setTimeLeft] = useState(timer); // 60 giây cho time attack
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const modes = [
     { id: "classic", label: "Classic", description: "Classic mode" },
@@ -74,9 +77,14 @@ const SnakeContent = ({
     if (gameMode) {
       setGameState && setGameState("unloaded");
       setGameMode(null);
+      setResPosted(false);
     } else {
       navigate("/"); 
     }
+  };
+
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
   };
 
   const handleEnter = () => {
@@ -109,6 +117,9 @@ const SnakeContent = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
@@ -122,12 +133,15 @@ const SnakeContent = ({
       if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleReturnButton]);
+  }, [handleReturnButton, handleHelpButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -569,6 +583,12 @@ const SnakeContent = ({
               Start Game
             </button>
           )}
+          <button
+            className={styles["reset-board-button"]}
+            onClick={handleHelpButton}
+          >
+            Help
+          </button>
         </div>
 
       <GameZone
@@ -630,6 +650,12 @@ const SnakeContent = ({
             </div>
           )
         }
+      />
+
+      <HelpPopup
+        isOpen={isHelpOpen}
+        imageUrl={snakeHelp}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );
