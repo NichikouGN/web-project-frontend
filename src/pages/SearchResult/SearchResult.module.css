@@ -177,6 +177,10 @@
   z-index: 1;
 }
 
+.card-item.friend {
+  width: 33%;  
+}
+
 @keyframes card-intro {
   0% {
     opacity: 0;
