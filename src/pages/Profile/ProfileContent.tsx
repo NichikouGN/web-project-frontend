@@ -59,6 +59,7 @@ const ProfileContent = () => {
   const [achievementsData, setAchievementsData] = useState<AchievementsType[]>([]);
 
   const [friendsPage, setFriendsPage] = useState<number>(1);
+  const [friendsDisplayPage, setFriendsDisplayPage] = useState<number>(1);
   const [hasMoreFriends, setHasMoreFriends] = useState<boolean>(false);
   const [friendsData, setFriendsData] = useState<FriendsType[]>([]);
 
@@ -203,6 +204,20 @@ const ProfileContent = () => {
     }
   };
 
+  // Calculate pagination for friends list
+  const FRIENDS_PER_PAGE = 2;
+  const paginatedFriendsData = friendsData.slice(
+    (friendsDisplayPage - 1) * FRIENDS_PER_PAGE,
+    friendsDisplayPage * FRIENDS_PER_PAGE,
+  );
+  const totalFriendsPages = Math.ceil(friendsData.length / FRIENDS_PER_PAGE);
+
+  const handleFriendsPageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalFriendsPages) {
+      setFriendsDisplayPage(newPage);
+    }
+  };
+
   return (
     <>
       <header className={styles["header"]}></header>
@@ -254,8 +269,8 @@ const ProfileContent = () => {
             {friendsData.length === 0 ? (
               <p>No friends yet.</p>
             ) : (
-              <div className={styles["achievements-grid"]}>
-                {friendsData.map(({ userId, fullName, username, avatarUrl }) => (
+              <div className={`${styles["achievements-grid"]} ${styles["friend"]}`}>
+                {paginatedFriendsData.map(({ userId, fullName, username, avatarUrl }) => (
                   <Fragment key={userId}>
                     <div
                       className={`${searchStyles["card-item"]}`}
@@ -289,17 +304,26 @@ const ProfileContent = () => {
               </div>
             )}
 
-            {hasMoreFriends && (
-              <button
-                className={styles["achievement-load-more"]}
-                onClick={() => {
-                  const nextPage = friendsPage + 1;
-                  setFriendsPage(nextPage);
-                  fetchFriendsData(nextPage);
-                }}
-              >
-                Load More
-              </button>
+            {friendsData.length > 0 && (
+              <div className={styles["friendship-pagination"]}>
+                <button
+                  className={styles["pagination-button"]}
+                  onClick={() => handleFriendsPageChange(friendsDisplayPage - 1)}
+                  disabled={friendsDisplayPage === 1}
+                >
+                  Previous
+                </button>
+                <span className={styles["pagination-info"]}>
+                  Page {friendsDisplayPage} of {totalFriendsPages}
+                </span>
+                <button
+                  className={styles["pagination-button"]}
+                  onClick={() => handleFriendsPageChange(friendsDisplayPage + 1)}
+                  disabled={friendsDisplayPage === totalFriendsPages}
+                >
+                  Next
+                </button>
+              </div>
             )}
           </div>
 

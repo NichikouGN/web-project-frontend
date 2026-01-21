@@ -350,6 +350,10 @@
   width: 100%;
 }
 
+.achievements-grid.friend {
+    grid-template-columns: 50% 50%;
+}
+
 .achievement-item {
   display: flex;
   align-items: center;
@@ -564,4 +568,13 @@
   color: var(--theme-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.friendship-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
 }
