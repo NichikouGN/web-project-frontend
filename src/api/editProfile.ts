@@ -36,6 +36,7 @@ export const uploadProfileChanges = async (profileData: {
   const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/api/profile/edit`, {
     headers: {
       "ngrok-skip-browser-warning": "true",
+      "x-api-key": import.meta.env.VITE_API_KEY,
     },
     method: "POST",
     body: formData,

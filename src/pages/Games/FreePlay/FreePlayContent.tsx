@@ -95,6 +95,8 @@ const FreePlayContent = ({
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken || ""}`,
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
 

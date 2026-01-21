@@ -5,6 +5,9 @@ export const getGames = async () => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games`, {
       method: "GET",
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      }
     });
     if (!res.ok) {
       throw new Error("Failed to fetch game data");
@@ -23,6 +26,9 @@ export const getGameBoardSize = async (gameId: number) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/${gameId}/board-size`, {
       method: "GET",
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      },
     });
     if (!res.ok) {
       throw new Error("Failed to fetch game board size");
@@ -41,6 +47,9 @@ export const getTimer = async (gameId: number) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/${gameId}/timer`, {
       method: "GET",
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      },
     });
     if (!res.ok) {
       throw new Error("Failed to fetch game timer");
@@ -72,6 +81,7 @@ export const postGameResult = async (
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
         body: JSON.stringify(record),
       },

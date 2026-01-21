@@ -6,9 +6,8 @@ export const fetch24HourPlayers = async () => {
     const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-players`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       },
     );
@@ -27,9 +26,8 @@ export const fetch24HourGamesPlayed = async () => {
     const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-games`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       },
     );
@@ -48,9 +46,8 @@ export const fetch24HourServerLoad = async () => {
     const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/24hour-server-load`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       },
     );
@@ -69,9 +66,8 @@ export const fetchMonthlyGameTypePercentage = async () => {
     const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/monthly-game-type-percentage`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       },
     );
@@ -90,9 +86,8 @@ export const fetchYearlyPlayers = async () => {
     const response = await fetchWithAuth(
       `${import.meta.env.VITE_API_URL}/api/admin/statistics/yearly-players`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       },
     );

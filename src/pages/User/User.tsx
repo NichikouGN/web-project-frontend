@@ -27,6 +27,7 @@ const User = () => {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, {
           headers: {
             "ngrok-skip-browser-warning": "true",
+            "x-api-key": import.meta.env.VITE_API_KEY,
           },
         });
         if (!res.ok) {

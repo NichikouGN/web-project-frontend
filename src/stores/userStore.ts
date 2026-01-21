@@ -47,6 +47,7 @@ export const useUserStore = create<UserContextType>()(
               authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
               "ngrok-skip-browser-warning": "true",
+              "x-api-key": import.meta.env.VITE_API_KEY,
             },
           });
 
