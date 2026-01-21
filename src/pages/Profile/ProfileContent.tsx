@@ -65,6 +65,7 @@ const ProfileContent = () => {
   const [rankingFilter, setRankingFilter] = useState<RankingFilterType>("only-me");
   const [rankingGame, setRankingGame] = useState<RankingGameType>("snake");
   const [rankingData, setRankingData] = useState<RankingDataType[]>([]);
+  const [rankingPage, setRankingPage] = useState<number>(1);
   const [userRankings, setUserRankings] = useState<{
     score: number;
     rank: number;
@@ -183,6 +184,24 @@ const ProfileContent = () => {
     fetchRankingData("only-me", "snake");
     fetchAchievementsData(1);
   }, []);
+
+  // Calculate pagination for ranking
+  const ENTRIES_PER_PAGE = 3;
+  const paginatedRankingData = rankingData.slice(
+    (rankingPage - 1) * ENTRIES_PER_PAGE,
+    rankingPage * ENTRIES_PER_PAGE,
+  );
+  const totalPages = Math.ceil(rankingData.length / ENTRIES_PER_PAGE);
+  const shouldShowUserRanking =
+    userRankings &&
+    !rankingData.some((entry) => entry.userId === userInformation.userId) &&
+    rankingPage === totalPages;
+
+  const handleRankingPageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setRankingPage(newPage);
+    }
+  };
 
   return (
     <>
@@ -334,6 +353,7 @@ const ProfileContent = () => {
                   }`}
                   onClick={() => {
                     setRankingGame(game.pathName as RankingGameType);
+                    setRankingPage(1);
                     fetchRankingData(rankingFilter, game.pathName as RankingGameType);
                   }}
                 >
@@ -350,6 +370,7 @@ const ProfileContent = () => {
                   }`}
                   onClick={() => {
                     setRankingFilter(filter.filter as RankingFilterType);
+                    setRankingPage(1);
                     fetchRankingData(filter.filter as RankingFilterType, rankingGame);
                   }}
                 >
@@ -378,7 +399,7 @@ const ProfileContent = () => {
                     </tr>
                   ) : (
                     <>
-                      {rankingData.map((entry) => (
+                      {paginatedRankingData.map((entry) => (
                         <tr
                           key={entry.userId}
                           className={`${styles["ranking-row"]} ${
@@ -409,31 +430,52 @@ const ProfileContent = () => {
                         <td colSpan={4}></td>
                       </tr>
 
-                      {userRankings &&
-                        !rankingData.some((entry) => entry.userId === userInformation.userId) && (
-                          <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
-                            <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
-                            <td className={styles["ranking-username-cell"]}>
-                              {userInformation.avatarUrl ? (
-                                <img
-                                  src={userInformation.avatarUrl}
-                                  alt={userInformation.username}
-                                  className={styles["ranking-avatar"]}
-                                />
-                              ) : (
-                                <FaUser className={styles["ranking-avatar-icon"]} />
-                              )}
-                              {userInformation.username}
-                            </td>
-                            <td>{userInformation.fullName}</td>
-                            <td>{userRankings.score}</td>
-                          </tr>
-                        )}
+                      {shouldShowUserRanking && (
+                        <tr className={`${styles["ranking-row"]} ${styles["current-user"]}`}>
+                          <td>{userRankings.rank === null ? "N/A" : userRankings.rank}</td>
+                          <td className={styles["ranking-username-cell"]}>
+                            {userInformation.avatarUrl ? (
+                              <img
+                                src={userInformation.avatarUrl}
+                                alt={userInformation.username}
+                                className={styles["ranking-avatar"]}
+                              />
+                            ) : (
+                              <FaUser className={styles["ranking-avatar-icon"]} />
+                            )}
+                            {userInformation.username}
+                          </td>
+                          <td>{userInformation.fullName}</td>
+                          <td>{userRankings.score}</td>
+                        </tr>
+                      )}
                     </>
                   )}
                 </tbody>
               </table>
             </div>
+
+            {rankingData.length > 0 && (
+              <div className={styles["ranking-pagination"]}>
+                <button
+                  className={styles["pagination-button"]}
+                  onClick={() => handleRankingPageChange(rankingPage - 1)}
+                  disabled={rankingPage === 1}
+                >
+                  Previous
+                </button>
+                <span className={styles["pagination-info"]}>
+                  Page {rankingPage} of {totalPages}
+                </span>
+                <button
+                  className={styles["pagination-button"]}
+                  onClick={() => handleRankingPageChange(rankingPage + 1)}
+                  disabled={rankingPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </main>
