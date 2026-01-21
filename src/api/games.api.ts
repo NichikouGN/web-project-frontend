@@ -1,6 +1,24 @@
 import { Toast } from "../stores/toastStore";
 import { fetchWithAuth } from "./fetchWithAuth";
 
+export const getGames = async () => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games`, {
+      method: "GET",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch game data");
+    }
+    const str = await res.json();
+    const data = str.data;
+    return data;
+  }
+  catch (error) {
+    Toast({ type: "error", title: "Error", message: "Failed to fetch game data" });
+    throw error;
+  }
+};
+
 export const getGameBoardSize = async (gameId: number) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/games/${gameId}/board-size`, {
