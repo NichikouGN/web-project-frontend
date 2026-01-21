@@ -5,6 +5,8 @@ import GameZone from "../GameZone/GameZone";
 import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import memoryHelp from "../../../assets/memory-dark.png";
 import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface FreePlayContentProps {
@@ -80,6 +82,7 @@ const MemoryMatchingContent = ({
   const [isGameOver, setIsGameOver] = useState(false);
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const modes = [
     { id: "classic", label: "Classic", description: "Scoring when match, penalty when fail" },
@@ -125,6 +128,10 @@ const MemoryMatchingContent = ({
     }
   };
 
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
+  };
+
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack";
     setGameMode(selectedMode);
@@ -149,12 +156,15 @@ const MemoryMatchingContent = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModeIndex, gameMode, modes, handleReturnButton]);
+  }, [selectedModeIndex, gameMode, modes, handleReturnButton, handleHelpButton]);
 
   useEffect(() => {
     if (!gameMode) return;
@@ -162,12 +172,15 @@ const MemoryMatchingContent = ({
       if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleReturnButton]);
+  }, [handleReturnButton, handleHelpButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -222,7 +235,7 @@ const MemoryMatchingContent = ({
           // Tính penalty cho số cặp chưa match
           const totalPairs = gameBoardSize ? (gameBoardSize.rows * gameBoardSize.cols) / 2 : 0;
           const unmatchedPairs = totalPairs - matchedCount;
-          const finalPenalty = unmatchedPairs * 10;
+          const finalPenalty = unmatchedPairs * 50;
           setScore((prev) => Math.max(0, prev - finalPenalty));
           Toast({
             type: "error",
@@ -532,6 +545,7 @@ const MemoryMatchingContent = ({
         <button className={styles["reset-board-button"]} onClick={() => handleReturnButton()}>
           Return
         </button>
+
         {gameMode ? (
           <div>
             <button className={styles["reset-board-button"]} onClick={saveGame}>
@@ -549,6 +563,13 @@ const MemoryMatchingContent = ({
             Start Game
           </button>
         )}
+        <button
+          className={styles["reset-board-button"]}
+          onClick={handleHelpButton}
+          title="Press H for help"
+        >
+          Help
+        </button>
       </div>
 
       <div>
@@ -631,6 +652,7 @@ const MemoryMatchingContent = ({
           )
         }
       />
+      <HelpPopup isOpen={isHelpOpen} imageUrl={memoryHelp} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 };

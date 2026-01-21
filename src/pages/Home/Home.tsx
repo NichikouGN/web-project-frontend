@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { useAuthStore } from "../../stores/authStore";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
+import { getGames } from "../../api/games.api.ts";
 
 interface Review {
   id: number;
@@ -28,6 +29,16 @@ interface gameMenuType extends Omit<GameInfo, "isActive" | "boardWidth" | "board
   art: string;
 }
 
+interface fetchedGameDataType {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  board_width: number;
+  board_height: number;
+  timer: number;
+}
+
 const colorMap: { [key: string]: string } = {
   R: "red",
   G: "green",
@@ -40,7 +51,9 @@ const colorMap: { [key: string]: string } = {
   I: "pink",
 };
 
-const gameMenu: gameMenuType[] = [
+const gameData = await getGames();
+
+const gameList: gameMenuType[] = [
   {
     gameId: 1,
     title: "Caro 5",
@@ -157,6 +170,8 @@ const gameMenu: gameMenuType[] = [
     art: `..........\n..........\n..........\n..RO..BB..\n.R..OP..G.\n.R..PO..G.\n..II..YY..\n..........\n..........\n..........`,
   },
 ];
+
+const gameMenu: gameMenuType[] = gameList.filter((game) => gameData.some((data: fetchedGameDataType) => data.id === game.gameId));
 
 const createArtBoard = (gameArt: string) => {
   let art = gameArt.trim().replace(/ /g, "").split("\n");

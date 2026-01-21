@@ -6,6 +6,8 @@ import { useAuthStore } from "../../../stores/authStore";
 import { postGameResult } from "../../../api/games.api";
 import { useNavigate } from "react-router-dom";
 import { number, set } from "zod";
+import HelpPopup from "../../../components/HelpPopup/HelpPopup";
+import match3Help from "../../../assets/match3-dark.png";
 import { fetchWithAuth } from "../../../api/fetchWithAuth";
 
 interface Match3ContentProps {
@@ -40,6 +42,7 @@ const Match3Content = ({
   const [isGameOver, setIsGameOver] = useState(propsIsGameOver);
   const [playTime, setPlayTime] = useState(0);
   const [resPosted, setResPosted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
   const modes = [
@@ -178,15 +181,20 @@ const Match3Content = ({
     if (gameMode) {
       setGameState && setGameState("unloaded");
       setGameMode(null);
+      setResPosted(false);
     } else {
       navigate("/");
     }
   };
 
+  const handleHelpButton = () => {
+    setIsHelpOpen(true);
+  };
+
   const handleEnter = () => {
     const selectedMode = modes[selectedModeIndex].id as "classic" | "timeAttack" | "endless";
     setGameMode(selectedMode);
-    setTurnsLeft(15);
+    setTurnsLeft(30);
     setTimeLeft(timer);
     setIsGameOver(false);
   };
@@ -208,6 +216,9 @@ const Match3Content = ({
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
@@ -221,12 +232,15 @@ const Match3Content = ({
       if (e.key === "Escape") {
         e.preventDefault();
         handleReturnButton();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        handleHelpButton();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleReturnButton]);
+  }, [handleReturnButton, handleHelpButton]);
 
   // Đếm thời gian chơi
   useEffect(() => {
@@ -696,6 +710,13 @@ const Match3Content = ({
             Start Game
           </button>
         )}
+        <button
+          className={styles["reset-board-button"]}
+          onClick={handleHelpButton}
+          title="Press H for help"
+        >
+          Help
+        </button>
       </div>
 
       <GameZone
@@ -705,8 +726,9 @@ const Match3Content = ({
         leftPanelContent={leftPanelContent}
         rightPanelContent={rightPanelContent}
       />
+
+      <HelpPopup isOpen={isHelpOpen} imageUrl={match3Help} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 };
-
 export default Match3Content;

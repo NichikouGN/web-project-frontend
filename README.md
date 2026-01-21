@@ -39,6 +39,7 @@ npm run dev
 ## v0.8.4 (2026-01-21)
 - Fixed stale state with fetchWithAuth
 - Fixed avatar incorrectly display in message and ranking page
+- Added help section for games
 
 ## v0.8.3 (2026-01-20)
 - Fixed incorrect theme on the review panel.
